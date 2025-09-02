@@ -6,10 +6,10 @@ export interface ApiResponse<T> {
   success: boolean
 }
 
-// Get auth token from localStorage
+// Get auth token from sessionStorage
 const getAuthToken = (): string | null => {
   if (typeof window !== "undefined") {
-    return SessionStorage.getItem("authToken")
+    return sessionStorage.getItem("authToken")
   }
   return null
 }
@@ -50,8 +50,8 @@ export async function apiCall<T>(
       if (response.status === 401) {
         // Clear auth data on unauthorized
         if (typeof window !== "undefined") {
-          SessionStorage.removeItem("authToken")
-          SessionStorage.removeItem("currentUser")
+          sessionStorage.removeItem("authToken")
+          sessionStorage.removeItem("currentUser")
           window.location.href = "/login"
         }
         throw new Error("Unauthorized")
@@ -71,7 +71,7 @@ export async function apiCall<T>(
 
 export async function loginUser(email: string, password: string, twoFaToken?: string) {
   const response = await apiCall<{ access_token: string; token_type: string; user: any }>(
-    "/login",
+    "/api/login",
     "POST",
     {
       email,
@@ -83,8 +83,8 @@ export async function loginUser(email: string, password: string, twoFaToken?: st
 
   // Store auth token
   if (typeof window !== "undefined") {
-    localStorage.setItem("authToken", response.access_token)
-    localStorage.setItem("currentUser", JSON.stringify(response.user))
+    sessionStorage.setItem("authToken", response.access_token)
+    sessionStorage.setItem("currentUser", JSON.stringify(response.user))
   }
 
   return response
@@ -97,13 +97,13 @@ export async function registerUser(userData: {
   pin: string
   referral_code?: string
 }) {
-  return await apiCall<{ user: any; access_token: string }>("/register", "POST", userData, false)
+  return await apiCall<{ user: any; access_token: string }>("/api/register", "POST", userData, false)
 }
 
 export async function logoutUser() {
   if (typeof window !== "undefined") {
-    localStorage.removeItem("authToken")
-    localStorage.removeItem("currentUser")
+    sessionStorage.removeItem("authToken")
+    sessionStorage.removeItem("currentUser")
   }
 }
 
