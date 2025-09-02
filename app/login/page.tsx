@@ -27,33 +27,27 @@ export default function LoginPage() {
     setIsLoading(true)
 
     try {
-      // Ensure fingerprint and IP are retrieved before sending request
-      const deviceFingerprint = await getDeviceFingerprint().catch(() => "")
-      const ipAddress = await getIpAddress().catch(() => "")
+      const deviceFingerprint = await getDeviceFingerprint()
+      const ipAddress = await getIpAddress()
 
-      const payload = {
+      const response = await apiCall("/auth/login", "POST", {
         email,
         password,
         device_fingerprint: deviceFingerprint,
         ip_address: ipAddress,
         user_agent: navigator.userAgent,
-      }
+      })
 
-      const response = await apiCall("/auth/login", "POST", payload)
-
-      // Save auth data
       saveAuthData(response.access_token, response.user)
-
       toast({
         title: "Login Successful",
         description: "Redirecting to PIN verification...",
       })
-
       router.push("/pin-verify-login")
     } catch (error: any) {
       toast({
         title: "Login Failed",
-        description: error?.response?.data?.message || error.message || "Please check your credentials.",
+        description: error.message || "Please check your credentials.",
         variant: "destructive",
       })
     } finally {
@@ -125,20 +119,20 @@ export default function LoginPage() {
                 disabled={isLoading}
               >
                 {isLoading ? (
-                  <>
-                    <div className="w-5 h-5 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin mr-2 inline-block"></div>
+                  <div className="flex items-center justify-center">
+                    <div className="w-5 h-5 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin mr-2"></div>
                     Logging in...
-                  </>
+                  </div>
                 ) : (
-                  <>
+                  <div className="flex items-center justify-center">
                     Login
-                    <ArrowRight className="ml-2 w-5 h-5 inline-block" />
-                  </>
+                    <ArrowRight className="ml-2 w-5 h-5" />
+                  </div>
                 )}
               </Button>
             </form>
 
-            <div className="text-center mt-4">
+            <div className="text-center">
               <Link
                 href="/forgot-password"
                 className="text-sm text-primary hover:text-primary/80 font-medium transition-colors duration-200"
