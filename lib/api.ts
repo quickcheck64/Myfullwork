@@ -1,4 +1,4 @@
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "https://chainminer.onrender.com"
 
 export interface ApiResponse<T> {
   data?: T
@@ -9,7 +9,7 @@ export interface ApiResponse<T> {
 // Get auth token from localStorage
 const getAuthToken = (): string | null => {
   if (typeof window !== "undefined") {
-    return localStorage.getItem("authToken")
+    return SessionStorage.getItem("authToken")
   }
   return null
 }
@@ -50,8 +50,8 @@ export async function apiCall<T>(
       if (response.status === 401) {
         // Clear auth data on unauthorized
         if (typeof window !== "undefined") {
-          localStorage.removeItem("authToken")
-          localStorage.removeItem("currentUser")
+          SessionStorage.removeItem("authToken")
+          SessionStorage.removeItem("currentUser")
           window.location.href = "/login"
         }
         throw new Error("Unauthorized")
