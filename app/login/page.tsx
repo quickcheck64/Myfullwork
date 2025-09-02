@@ -30,7 +30,7 @@ export default function LoginPage() {
       const deviceFingerprint = await getDeviceFingerprint()
       const ipAddress = await getIpAddress()
 
-      const response = await apiCall("/auth/login", "POST", {
+      const response = await apiCall("/api/login", "POST", {
         email,
         password,
         device_fingerprint: deviceFingerprint,
