@@ -68,7 +68,7 @@ export default function NewPasswordPage() {
     }
 
     try {
-      await apiCall("/auth/reset-password", "POST", {
+      await apiCall("/api/reset-password", "POST", {
         email,
         otp_code: otpCode,
         new_password: newPassword,
