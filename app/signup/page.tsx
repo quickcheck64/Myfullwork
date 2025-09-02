@@ -45,7 +45,7 @@ export default function SignupPage() {
 
       sessionStorage.setItem("tempSignupData", JSON.stringify(tempSignupData))
 
-      await apiCall("/auth/request-otp", "POST", { email, purpose: "signup" })
+      await apiCall("/api/request-otp", "POST", { email, purpose: "signup" })
       toast({
         title: "OTP Sent",
         description: "An OTP has been sent to your email. Redirecting to verification...",
