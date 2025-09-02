@@ -30,7 +30,7 @@ export default function LoginPage() {
       const deviceFingerprint = await getDeviceFingerprint()
       const ipAddress = await getIpAddress()
 
-      const response = await apiCall("/api/login", "POST", {
+      const response = await apiCall("/auth/login", "POST", {
         email,
         password,
         device_fingerprint: deviceFingerprint,
@@ -38,18 +38,11 @@ export default function LoginPage() {
         user_agent: navigator.userAgent,
       })
 
-      // Save token and user info
       saveAuthData(response.access_token, response.user)
-
-      // **Set redirect path for PIN verification page**
-      sessionStorage.setItem("prePinVerifyPath", "/dashboard")
-
       toast({
         title: "Login Successful",
         description: "Redirecting to PIN verification...",
       })
-
-      // Redirect to PIN verification page
       router.push("/pin-verify-login")
     } catch (error: any) {
       toast({
