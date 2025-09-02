@@ -74,7 +74,7 @@ export default function SetNewPinPage() {
     }
 
     try {
-      await apiCall("/auth/reset-pin", "POST", {
+      await apiCall("/api/reset-pin", "POST", {
         email,
         otp_code: otpCode,
         new_pin: newPin,
