@@ -51,7 +51,7 @@ export default function ForgotPasswordOtpPage() {
     }
 
     try {
-      await apiCall("/auth/verify-otp", "POST", { email, otp_code: otpCode, purpose: "password_reset" })
+      await apiCall("/api/verify-otp", "POST", { email, otp_code: otpCode, purpose: "password_reset" })
       sessionStorage.setItem("forgotPasswordOtp", otpCode)
       toast({
         title: "OTP Verified",
@@ -84,7 +84,7 @@ export default function ForgotPasswordOtpPage() {
     }
 
     try {
-      await apiCall("/auth/request-otp", "POST", { email, purpose: "password_reset" })
+      await apiCall("/api/request-otp", "POST", { email, purpose: "password_reset" })
       toast({
         title: "OTP Resent",
         description: "A new OTP has been sent to your email.",
