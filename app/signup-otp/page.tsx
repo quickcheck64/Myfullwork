@@ -62,7 +62,7 @@ export default function SignupOtpPage() {
     }
 
     try {
-      await apiCall("/auth/verify-otp", "POST", { email, otp_code: otpCode, purpose: "signup" })
+      await apiCall("/api/verify-otp", "POST", { email, otp_code: otpCode, purpose: "signup" })
       toast({
         title: "OTP Verified",
         description: "Redirecting to create your PIN...",
