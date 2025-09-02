@@ -45,7 +45,7 @@ export default function SignupPage() {
 
       sessionStorage.setItem("tempSignupData", JSON.stringify(tempSignupData))
 
-      await apiCall("/api/request-otp", "POST", { email, purpose: "signup" })
+      await apiCall("/auth/request-otp", "POST", { email, purpose: "signup" })
       toast({
         title: "OTP Sent",
         description: "An OTP has been sent to your email. Redirecting to verification...",
@@ -77,7 +77,6 @@ export default function SignupPage() {
 
         <CardContent className="p-6">
           <form onSubmit={handleSubmit} className="space-y-5">
-            {/* Full Name */}
             <div>
               <Label htmlFor="name" className="text-card-foreground font-medium">
                 Full Name
@@ -98,7 +97,6 @@ export default function SignupPage() {
               </div>
             </div>
 
-            {/* Email */}
             <div>
               <Label htmlFor="email" className="text-card-foreground font-medium">
                 Email Address
@@ -119,7 +117,6 @@ export default function SignupPage() {
               </div>
             </div>
 
-            {/* Password */}
             <div>
               <Label htmlFor="password" className="text-card-foreground font-medium">
                 Password
@@ -146,7 +143,6 @@ export default function SignupPage() {
               )}
             </div>
 
-            {/* Referral Code */}
             <div>
               <Label htmlFor="referralCode" className="text-card-foreground font-medium">
                 Referral Code (Optional)
@@ -166,7 +162,6 @@ export default function SignupPage() {
               </div>
             </div>
 
-            {/* Submit Button */}
             <Button
               type="submit"
               className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold py-3 rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl"
@@ -174,16 +169,15 @@ export default function SignupPage() {
             >
               {isLoading ? (
                 <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin inline-block" />
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                   Creating Account...
                 </>
               ) : (
-                <>Create Mining Account</>
+                "Create Mining Account"
               )}
             </Button>
           </form>
 
-          {/* Login Link */}
           <div className="mt-6 text-center">
             <p className="text-sm text-muted-foreground">
               Already have an account?{" "}
