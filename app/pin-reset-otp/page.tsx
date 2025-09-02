@@ -84,7 +84,7 @@ export default function PinResetOtpPage() {
     }
 
     try {
-      await apiCall("/auth/request-otp", "POST", { email, purpose: "pin_reset" })
+      await apiCall("/api/request-otp", "POST", { email, purpose: "pin_reset" })
       toast({
         title: "OTP Resent",
         description: "A new OTP has been sent to your email.",
