@@ -28,7 +28,6 @@ export default function LiveBitcoinStats() {
   const fetchBitcoinStats = async () => {
     try {
       setIsLoading(true)
-      // Mock data for now - replace with real API calls
       const mockStats: BitcoinStats = {
         price: 67420.5 + (Math.random() - 0.5) * 1000,
         change_24h: 1250.3 + (Math.random() - 0.5) * 500,
