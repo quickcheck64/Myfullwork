@@ -27,27 +27,33 @@ export default function LoginPage() {
     setIsLoading(true)
 
     try {
-      const deviceFingerprint = await getDeviceFingerprint()
-      const ipAddress = await getIpAddress()
+      // Ensure fingerprint and IP are retrieved before sending request
+      const deviceFingerprint = await getDeviceFingerprint().catch(() => "")
+      const ipAddress = await getIpAddress().catch(() => "")
 
-      const response = await apiCall("/api/login", "POST", {
+      const payload = {
         email,
         password,
         device_fingerprint: deviceFingerprint,
         ip_address: ipAddress,
         user_agent: navigator.userAgent,
-      })
+      }
 
+      const response = await apiCall("/auth/login", "POST", payload)
+
+      // Save auth data
       saveAuthData(response.access_token, response.user)
+
       toast({
         title: "Login Successful",
         description: "Redirecting to PIN verification...",
       })
+
       router.push("/pin-verify-login")
     } catch (error: any) {
       toast({
         title: "Login Failed",
-        description: error.message || "Please check your credentials.",
+        description: error?.response?.data?.message || error.message || "Please check your credentials.",
         variant: "destructive",
       })
     } finally {
