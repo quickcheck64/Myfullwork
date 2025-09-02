@@ -1,3 +1,6 @@
+import { toast } from "@/hooks/use-toast"
+import FingerprintJS from "@fingerprintjs/fingerprintjs"
+
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "https://chainminer.onrender.com"
 
 export interface ApiResponse<T> {
@@ -63,22 +66,74 @@ export async function apiCall<T>(
 
     const data = await response.json()
     return data as T
-  } catch (error) {
+  } catch (error: any) {
     console.error(`API call failed for ${endpoint}:`, error)
+    toast({
+      title: "Network Error",
+      description: error.message || "Could not connect to the server.",
+      variant: "destructive",
+    })
     throw error
   }
 }
 
-export async function loginUser(email: string, password: string, twoFaToken?: string) {
-  const response = await apiCall<{ access_token: string; token_type: string; user: any }>(
+// -------------------------
+// Device Fingerprint & IP
+// -------------------------
+
+export async function getIpAddress(): Promise<string> {
+  try {
+    const response = await fetch("https://api.ipify.org?format=json")
+    if (!response.ok) {
+      console.warn("Failed to fetch IP address from ipify.org, status:", response.status)
+      return "unknown"
+    }
+    const data = await response.json()
+    return data.ip || "unknown"
+  } catch (error) {
+    console.error("Error fetching IP address:", error)
+    return "unknown"
+  }
+}
+
+export async function getDeviceFingerprint(): Promise<string> {
+  try {
+    const fp = await FingerprintJS.load()
+    const result = await fp.get()
+    return result.visitorId
+  } catch (error) {
+    console.error("Error generating device fingerprint:", error)
+    return "unknown_fingerprint"
+  }
+}
+
+// -------------------------
+// Auth functions
+// -------------------------
+
+export async function loginUser(
+  email: string,
+  password: string,
+  twoFaToken?: string,
+  deviceFingerprint?: string,
+  ipAddress?: string
+) {
+  const response = await apiCall<{
+    access_token: string
+    token_type: string
+    user: any
+  }>(
     "/api/login",
     "POST",
     {
       email,
       password,
       two_fa_token: twoFaToken,
+      device_fingerprint: deviceFingerprint,
+      ip_address: ipAddress,
+      user_agent: typeof navigator !== "undefined" ? navigator.userAgent : "unknown",
     },
-    false,
+    false
   )
 
   // Store auth token
@@ -97,7 +152,12 @@ export async function registerUser(userData: {
   pin: string
   referral_code?: string
 }) {
-  return await apiCall<{ user: any; access_token: string }>("/api/register", "POST", userData, false)
+  return await apiCall<{ user: any; access_token: string }>(
+    "/api/register",
+    "POST",
+    userData,
+    false
+  )
 }
 
 export async function logoutUser() {
@@ -106,6 +166,10 @@ export async function logoutUser() {
     sessionStorage.removeItem("currentUser")
   }
 }
+
+// -------------------------
+// Format helpers
+// -------------------------
 
 export const formatCurrency = (amount: number): string => {
   return new Intl.NumberFormat("en-US", {
@@ -120,4 +184,4 @@ export const formatCrypto = (amount: number, decimals = 6): string => {
 
 export const formatPercentage = (value: number): string => {
   return `${value >= 0 ? "+" : ""}${value.toFixed(2)}%`
-                           }
+}
