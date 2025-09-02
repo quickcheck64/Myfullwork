@@ -89,7 +89,7 @@ export default function CreatePinPage() {
     }
 
     try {
-      await apiCall("/auth/signup", "POST", fullSignupData)
+      await apiCall("/api/register", "POST", fullSignupData)
       toast({
         title: "Account Created",
         description: "Account created and PIN set successfully! Redirecting to login...",
