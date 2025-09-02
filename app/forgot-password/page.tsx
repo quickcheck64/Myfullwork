@@ -25,7 +25,7 @@ export default function ForgotPasswordPage() {
     sessionStorage.setItem("forgotPasswordEmail", email)
 
     try {
-      await apiCall("/auth/request-otp", "POST", { email, purpose: "password_reset" })
+      await apiCall("/api/request-otp", "POST", { email, purpose: "password_reset" })
       toast({
         title: "OTP Sent",
         description: "Password reset OTP sent. Redirecting to verification...",
