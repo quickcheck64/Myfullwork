@@ -119,20 +119,20 @@ export default function LoginPage() {
                 disabled={isLoading}
               >
                 {isLoading ? (
-                  <div className="flex items-center justify-center">
-                    <div className="w-5 h-5 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin mr-2"></div>
+                  <>
+                    <div className="w-5 h-5 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin mr-2 inline-block"></div>
                     Logging in...
-                  </div>
+                  </>
                 ) : (
-                  <div className="flex items-center justify-center">
+                  <>
                     Login
-                    <ArrowRight className="ml-2 w-5 h-5" />
-                  </div>
+                    <ArrowRight className="ml-2 w-5 h-5 inline-block" />
+                  </>
                 )}
               </Button>
             </form>
 
-            <div className="text-center">
+            <div className="text-center mt-4">
               <Link
                 href="/forgot-password"
                 className="text-sm text-primary hover:text-primary/80 font-medium transition-colors duration-200"
