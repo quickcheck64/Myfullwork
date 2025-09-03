@@ -27,8 +27,10 @@ export default function LoginPage() {
     setIsLoading(true)
 
     try {
+      console.log("[v0] Starting login process")
       const deviceFingerprint = await getDeviceFingerprint()
       const ipAddress = await getIpAddress()
+      console.log("[v0] Device fingerprint and IP obtained")
 
       const response = await apiCall("/api/login", "POST", {
         email,
@@ -38,13 +40,23 @@ export default function LoginPage() {
         user_agent: navigator.userAgent,
       })
 
+      console.log("[v0] API response received:", response)
+      console.log("[v0] Response has access_token:", !!response.access_token)
+      console.log("[v0] Response has user:", !!response.user)
+
       saveAuthData(response.access_token, response.user)
+      console.log("[v0] Auth data saved successfully")
+
       toast({
         title: "Login Successful",
         description: "Redirecting to PIN verification...",
       })
+      console.log("[v0] Toast shown, attempting redirect")
+
       router.push("/pin-verify-login")
+      console.log("[v0] Router.push called")
     } catch (error: any) {
+      console.log("[v0] Login error:", error)
       toast({
         title: "Login Failed",
         description: error.message || "Please check your credentials.",
