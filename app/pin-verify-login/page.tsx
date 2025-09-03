@@ -1,9 +1,8 @@
 "use client"
 
-import type React from "react"
-import { useState } from "react"
-import Link from "next/link"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
+import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent } from "@/components/ui/card"
@@ -16,21 +15,41 @@ import { Shield, Lock, LogOut, Pickaxe } from "lucide-react"
 export default function PinVerifyLoginPage() {
   const [pin, setPin] = useState("")
   const [isLoading, setIsLoading] = useState(false)
-  const { clearAuthData } = useAuth()
+  const { authData, clearAuthData } = useAuth()
   const router = useRouter()
   const { toast } = useToast()
+
+  // Redirect to login if no temp login data exists
+  useEffect(() => {
+    const tempLoginData = sessionStorage.getItem("tempLoginData")
+    if (!tempLoginData && !authData?.accessToken) {
+      router.push("/login")
+    }
+  }, [authData, router])
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault()
     setIsLoading(true)
 
     try {
-      await apiCall("/api/verify-pin", "POST", { pin }, true)
+      // Retrieve temp login data
+      const tempLoginData = JSON.parse(sessionStorage.getItem("tempLoginData") || "{}")
+
+      // Include PIN in payload
+      const payload = { ...tempLoginData, pin }
+
+      // Call verify-pin API (authenticated)
+      await apiCall("/api/verify-pin", "POST", payload, true)
+
       toast({
         title: "PIN Verified",
         description: "Accessing mining dashboard...",
       })
 
+      // Clear temporary login data
+      sessionStorage.removeItem("tempLoginData")
+
+      // Redirect to stored path or dashboard
       const redirectToPath = sessionStorage.getItem("prePinVerifyPath") || "/dashboard"
       sessionStorage.removeItem("prePinVerifyPath")
       router.push(redirectToPath)
@@ -47,6 +66,7 @@ export default function PinVerifyLoginPage() {
 
   const handleLogout = () => {
     clearAuthData()
+    sessionStorage.removeItem("tempLoginData")
     toast({
       title: "Logged Out",
       description: "You have been successfully logged out.",
@@ -81,7 +101,15 @@ export default function PinVerifyLoginPage() {
                 Enter PIN
               </Label>
               <div className="flex justify-center">
-                <PinInput id="pin" name="pin" length={4} required value={pin} onChange={setPin} disabled={isLoading} />
+                <PinInput
+                  id="pin"
+                  name="pin"
+                  length={4}
+                  required
+                  value={pin}
+                  onChange={setPin}
+                  disabled={isLoading}
+                />
               </div>
             </div>
 
