@@ -3,6 +3,7 @@ import type { Metadata } from "next"
 import { GeistSans } from "geist/font/sans"
 import { GeistMono } from "geist/font/mono"
 import { Providers } from "@/components/providers"
+import { AuthProvider } from "@/hooks/use-auth"
 import "./globals.css"
 import { Suspense } from "react"
 
@@ -21,7 +22,11 @@ export default function RootLayout({
     <html lang="en" className={`${GeistSans.variable} ${GeistMono.variable} antialiased`}>
       <body>
         <Suspense fallback={null}>
-          <Providers>{children}</Providers>
+          <Providers>
+            <AuthProvider>
+              {children}
+            </AuthProvider>
+          </Providers>
         </Suspense>
       </body>
     </html>
