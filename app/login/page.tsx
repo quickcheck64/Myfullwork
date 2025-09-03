@@ -2,7 +2,6 @@
 
 import type React from "react"
 import { useState } from "react"
-import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { Mail, Lock, ArrowRight, Pickaxe } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -38,11 +37,17 @@ export default function LoginPage() {
         user_agent: navigator.userAgent,
       })
 
+      // Save access token + user info in sessionStorage
       saveAuthData(response.access_token, response.user)
+
+      // Set path for PIN verification redirect
+      sessionStorage.setItem("prePinVerifyPath", "/dashboard")
+
       toast({
         title: "Login Successful",
         description: "Redirecting to PIN verification...",
       })
+
       router.push("/pin-verify-login")
     } catch (error: any) {
       toast({
@@ -131,33 +136,8 @@ export default function LoginPage() {
                 )}
               </Button>
             </form>
-
-            <div className="text-center">
-              <Link
-                href="/forgot-password"
-                className="text-sm text-primary hover:text-primary/80 font-medium transition-colors duration-200"
-              >
-                Forgot Password?
-              </Link>
-            </div>
-
-            <div className="text-center pt-4 border-t border-border">
-              <p className="text-sm text-muted-foreground">
-                Don&apos;t have an account?{" "}
-                <Link
-                  href="/signup"
-                  className="text-primary hover:text-primary/80 font-semibold transition-colors duration-200"
-                >
-                  Create Account
-                </Link>
-              </p>
-            </div>
           </CardContent>
         </Card>
-
-        <div className="text-center mt-8">
-          <p className="text-muted-foreground text-sm">Secure crypto mining platform</p>
-        </div>
       </div>
     </div>
   )
