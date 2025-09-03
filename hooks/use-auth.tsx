@@ -2,14 +2,12 @@
 
 import { createContext, useContext, useState, useEffect, type ReactNode } from "react"
 
+// Minimal user interface
 interface User {
   id: string
   email: string
   name?: string
   status: string
-  points_balance: number
-  bitcoin_balance: number
-  ethereum_balance: number
   referral_code?: string
   email_verified: boolean
   is_admin: boolean
@@ -30,7 +28,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [currentUser, setCurrentUser] = useState<User | null>(null)
 
   useEffect(() => {
-    // Check for stored auth data on mount
     const storedUser = sessionStorage.getItem("currentUser")
     const token = sessionStorage.getItem("authToken")
 
@@ -50,7 +47,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setCurrentUser(null)
   }
 
-  const value = {
+  const value: AuthContextType = {
     currentUser,
     setCurrentUser: (user: User | null) => {
       setCurrentUser(user)
@@ -67,7 +64,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
 export function useAuth() {
   const context = useContext(AuthContext)
-  if (context === undefined) {
+  if (!context) {
     throw new Error("useAuth must be used within an AuthProvider")
   }
   return context
