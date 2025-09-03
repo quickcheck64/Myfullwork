@@ -1,9 +1,8 @@
 "use client"
 
-import type React from "react"
 import { useState } from "react"
-import Link from "next/link"
 import { useRouter } from "next/navigation"
+import Link from "next/link"
 import { Mail, Lock, ArrowRight, Pickaxe } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -30,20 +29,32 @@ export default function LoginPage() {
       const deviceFingerprint = await getDeviceFingerprint()
       const ipAddress = await getIpAddress()
 
-      const response = await apiCall("/api/login", "POST", {
+      // Prepare temporary login data for sessionStorage
+      const tempLoginData = {
         email,
         password,
         device_fingerprint: deviceFingerprint,
         ip_address: ipAddress,
         user_agent: navigator.userAgent,
-      })
+      }
 
+      sessionStorage.setItem("tempLoginData", JSON.stringify(tempLoginData))
+
+      // Call login API
+      const response = await apiCall("/api/login", "POST", tempLoginData)
+
+      // Save token & user info for authentication
       saveAuthData(response.access_token, response.user)
+
       toast({
         title: "Login Successful",
         description: "Redirecting to PIN verification...",
       })
-      router.push("/pin-verify-login")
+
+      // Short delay for user to see toast
+      setTimeout(() => {
+        router.push("/pin-verify-login")
+      }, 1500)
     } catch (error: any) {
       toast({
         title: "Login Failed",
@@ -72,6 +83,7 @@ export default function LoginPage() {
               Access Your Mining Account
             </CardTitle>
           </CardHeader>
+
           <CardContent className="space-y-6">
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="space-y-2">
@@ -82,7 +94,6 @@ export default function LoginPage() {
                   <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-5 h-5" />
                   <Input
                     id="email"
-                    name="email"
                     type="email"
                     required
                     value={email}
@@ -102,7 +113,6 @@ export default function LoginPage() {
                   <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-5 h-5" />
                   <PasswordInput
                     id="password"
-                    name="password"
                     required
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
@@ -132,7 +142,7 @@ export default function LoginPage() {
               </Button>
             </form>
 
-            <div className="text-center">
+            <div className="text-center mt-4">
               <Link
                 href="/forgot-password"
                 className="text-sm text-primary hover:text-primary/80 font-medium transition-colors duration-200"
