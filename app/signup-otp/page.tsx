@@ -94,7 +94,7 @@ export default function SignupOtpPage() {
     }
 
     try {
-      await apiCall("/auth/request-otp", "POST", { email, purpose: "signup" })
+      await apiCall("/api/request-otp", "POST", { email, purpose: "signup" })
       toast({
         title: "OTP Resent",
         description: "A new OTP has been sent to your email.",
