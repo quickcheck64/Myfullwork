@@ -1,6 +1,5 @@
 "use client"
 
-import type React from "react"
 import { useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
@@ -27,10 +26,8 @@ export default function LoginPage() {
     setIsLoading(true)
 
     try {
-      console.log("[v0] Starting login process")
       const deviceFingerprint = await getDeviceFingerprint()
       const ipAddress = await getIpAddress()
-      console.log("[v0] Device fingerprint and IP obtained")
 
       const response = await apiCall("/api/login", "POST", {
         email,
@@ -40,23 +37,19 @@ export default function LoginPage() {
         user_agent: navigator.userAgent,
       })
 
-      console.log("[v0] API response received:", response)
-      console.log("[v0] Response has access_token:", !!response.access_token)
-      console.log("[v0] Response has user:", !!response.user)
+      if (!response.access_token || !response.user) {
+        throw new Error("Invalid login response from server")
+      }
 
       saveAuthData(response.access_token, response.user)
-      console.log("[v0] Auth data saved successfully")
 
       toast({
         title: "Login Successful",
         description: "Redirecting to PIN verification...",
       })
-      console.log("[v0] Toast shown, attempting redirect")
 
       router.push("/pin-verify-login")
-      console.log("[v0] Router.push called")
     } catch (error: any) {
-      console.log("[v0] Login error:", error)
       toast({
         title: "Login Failed",
         description: error.message || "Please check your credentials.",
@@ -94,7 +87,6 @@ export default function LoginPage() {
                   <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-5 h-5" />
                   <Input
                     id="email"
-                    name="email"
                     type="email"
                     required
                     value={email}
@@ -114,7 +106,6 @@ export default function LoginPage() {
                   <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-5 h-5" />
                   <PasswordInput
                     id="password"
-                    name="password"
                     required
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
@@ -144,7 +135,7 @@ export default function LoginPage() {
               </Button>
             </form>
 
-            <div className="text-center">
+            <div className="text-center mt-4">
               <Link
                 href="/forgot-password"
                 className="text-sm text-primary hover:text-primary/80 font-medium transition-colors duration-200"
