@@ -31,6 +31,7 @@ export default function PinVerifyLoginPage() {
         description: "Accessing mining dashboard...",
       })
 
+      // Redirect to dashboard or prePinVerifyPath
       const redirectToPath = sessionStorage.getItem("prePinVerifyPath") || "/dashboard"
       sessionStorage.removeItem("prePinVerifyPath")
       router.push(redirectToPath)
@@ -57,6 +58,7 @@ export default function PinVerifyLoginPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-green-100 flex items-center justify-center p-4">
       <Card className="w-full max-w-md bg-card shadow-2xl border-0 rounded-2xl overflow-hidden">
+        {/* Header */}
         <div className="bg-primary p-6 text-center">
           <div className="w-16 h-16 bg-primary-foreground/20 rounded-full flex items-center justify-center mx-auto mb-4">
             <Pickaxe className="w-8 h-8 text-primary-foreground" />
@@ -65,6 +67,7 @@ export default function PinVerifyLoginPage() {
           <p className="text-primary-foreground/80 text-sm">Enter your PIN to access mining dashboard</p>
         </div>
 
+        {/* Content */}
         <CardContent className="p-8">
           <div className="text-center mb-8">
             <div className="w-12 h-12 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
@@ -75,13 +78,22 @@ export default function PinVerifyLoginPage() {
             </p>
           </div>
 
+          {/* PIN Form */}
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="text-center">
               <Label htmlFor="pin" className="text-sm font-medium text-card-foreground mb-3 block">
                 Enter PIN
               </Label>
               <div className="flex justify-center">
-                <PinInput id="pin" name="pin" length={4} required value={pin} onChange={setPin} disabled={isLoading} />
+                <PinInput
+                  id="pin"
+                  name="pin"
+                  length={4}
+                  required
+                  value={pin}
+                  onChange={setPin}
+                  disabled={isLoading}
+                />
               </div>
             </div>
 
@@ -104,6 +116,7 @@ export default function PinVerifyLoginPage() {
             </Button>
           </form>
 
+          {/* Logout & Reset PIN */}
           <div className="mt-8 flex flex-col sm:flex-row justify-between items-center space-y-4 sm:space-y-0 pt-6 border-t border-border">
             <Button
               type="button"
@@ -123,6 +136,7 @@ export default function PinVerifyLoginPage() {
             </Link>
           </div>
 
+          {/* Note */}
           <div className="mt-6 p-4 bg-muted rounded-lg border border-border">
             <p className="text-xs text-muted-foreground text-center">
               Your PIN helps keep your mining account secure. Never share it with anyone.
