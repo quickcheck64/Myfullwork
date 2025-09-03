@@ -51,7 +51,7 @@ export default function PinResetOtpPage() {
     }
 
     try {
-      await apiCall("/auth/verify-otp", "POST", { email, otp_code: otpCode, purpose: "pin_reset" })
+      await apiCall("/api/verify-otp", "POST", { email, otp_code: otpCode, purpose: "pin_reset" })
       sessionStorage.setItem("pinResetOtp", otpCode)
       toast({
         title: "OTP Verified",
