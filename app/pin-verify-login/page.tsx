@@ -1,5 +1,6 @@
 "use client"
 
+import type React from "react"
 import { useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
@@ -24,14 +25,12 @@ export default function PinVerifyLoginPage() {
     setIsLoading(true)
 
     try {
-      await apiCall("/api/verify-pin", "POST", { pin }, true)
-
+      await apiCall("/auth/verify-pin", "POST", { pin }, true)
       toast({
         title: "PIN Verified",
         description: "Accessing mining dashboard...",
       })
 
-      // Redirect to saved path or dashboard
       const redirectToPath = sessionStorage.getItem("prePinVerifyPath") || "/dashboard"
       sessionStorage.removeItem("prePinVerifyPath")
       router.push(redirectToPath)
@@ -82,15 +81,7 @@ export default function PinVerifyLoginPage() {
                 Enter PIN
               </Label>
               <div className="flex justify-center">
-                <PinInput
-                  id="pin"
-                  name="pin"
-                  length={4}
-                  required
-                  value={pin}
-                  onChange={setPin}
-                  disabled={isLoading}
-                />
+                <PinInput id="pin" name="pin" length={4} required value={pin} onChange={setPin} disabled={isLoading} />
               </div>
             </div>
 
