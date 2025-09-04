@@ -1,7 +1,7 @@
 "use client"
 
 import type React from "react"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
@@ -16,9 +16,16 @@ import { Shield, Lock, LogOut, Pickaxe } from "lucide-react"
 export default function PinVerifyLoginPage() {
   const [pin, setPin] = useState("")
   const [isLoading, setIsLoading] = useState(false)
-  const { clearAuthData } = useAuth()
+  const { accessToken, clearAuthData } = useAuth()
   const router = useRouter()
   const { toast } = useToast()
+
+  // Redirect if no saved auth
+  useEffect(() => {
+    if (!accessToken) {
+      router.push("/login")
+    }
+  }, [accessToken, router])
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault()
@@ -26,6 +33,7 @@ export default function PinVerifyLoginPage() {
 
     try {
       await apiCall("/auth/verify-pin", "POST", { pin }, true)
+
       toast({
         title: "PIN Verified",
         description: "Accessing mining dashboard...",
@@ -81,7 +89,15 @@ export default function PinVerifyLoginPage() {
                 Enter PIN
               </Label>
               <div className="flex justify-center">
-                <PinInput id="pin" name="pin" length={4} required value={pin} onChange={setPin} disabled={isLoading} />
+                <PinInput
+                  id="pin"
+                  name="pin"
+                  length={4}
+                  required
+                  value={pin}
+                  onChange={setPin}
+                  disabled={isLoading}
+                />
               </div>
             </div>
 
