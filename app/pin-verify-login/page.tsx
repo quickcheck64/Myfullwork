@@ -32,7 +32,7 @@ export default function PinVerifyLoginPage() {
     setIsLoading(true)
 
     try {
-      await apiCall("/auth/verify-pin", "POST", { pin }, true)
+      await apiCall("/api/verify-pin", "POST", { pin }, true)
 
       toast({
         title: "PIN Verified",
