@@ -30,7 +30,7 @@ export default function LoginPage() {
       const ipAddress = await getIpAddress()
 
       // Login API call (same as Code 1 logic)
-      const response = await apiCall("/auth/login", "POST", {
+      const response = await apiCall("/api/login", "POST", {
         email,
         password,
         device_fingerprint: deviceFingerprint,
