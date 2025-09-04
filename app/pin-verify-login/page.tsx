@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
@@ -15,23 +15,29 @@ import { Shield, Lock, LogOut, Pickaxe } from "lucide-react"
 export default function PinVerifyLoginPage() {
   const [pin, setPin] = useState("")
   const [isLoading, setIsLoading] = useState(false)
-  const { clearAuthData } = useAuth()
+  const { currentUser, clearAuthData } = useAuth()
   const router = useRouter()
   const { toast } = useToast()
+
+  // Redirect if no saved auth
+  useEffect(() => {
+    if (!currentUser) {
+      router.push("/login")
+    }
+  }, [currentUser, router])
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault()
     setIsLoading(true)
 
     try {
-      await apiCall("/api/verify-pin", "POST", { pin }, true)
+      await apiCall("/auth/verify-pin", "POST", { pin }, true)
 
       toast({
         title: "PIN Verified",
         description: "Accessing mining dashboard...",
       })
 
-      // Redirect to saved path or dashboard
       const redirectToPath = sessionStorage.getItem("prePinVerifyPath") || "/dashboard"
       sessionStorage.removeItem("prePinVerifyPath")
       router.push(redirectToPath)
@@ -59,7 +65,7 @@ export default function PinVerifyLoginPage() {
     <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-green-100 flex items-center justify-center p-4">
       <Card className="w-full max-w-md bg-card shadow-2xl border-0 rounded-2xl overflow-hidden">
         <div className="bg-primary p-6 text-center">
-          <div className="w-16 h-16 bg-primary-foreground/20 rounded-full flex items-center justify-center mx-auto mb-4">
+          <div className="w-16 h-16 bg-primary/20 rounded-full flex items-center justify-center mx-auto mb-4">
             <Pickaxe className="w-8 h-8 text-primary-foreground" />
           </div>
           <h1 className="text-2xl font-bold text-primary-foreground mb-2">Security Verification</h1>
