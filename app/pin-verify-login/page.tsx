@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent } from "@/components/ui/card"
 import { PinInput } from "@/components/ui/pin-input"
-import { apiCall } from "@/lib/api"
+import { apiCall, getDeviceFingerprint, getIpAddress } from "@/lib/api"
 import { useAuth } from "@/hooks/use-auth"
 import { useToast } from "@/hooks/use-toast"
 import { Shield, Lock, LogOut, Pickaxe } from "lucide-react"
@@ -31,7 +31,19 @@ export default function PinVerifyLoginPage() {
     setIsLoading(true)
 
     try {
-      await apiCall("/api/verify-pin", "POST", { pin }, true)
+      const deviceFingerprint = await getDeviceFingerprint()
+      const ipAddress = await getIpAddress()
+
+      await apiCall(
+        "/auth/verify-pin",
+        "POST",
+        {
+          pin,
+          device_fingerprint: deviceFingerprint,
+          ip_address: ipAddress,
+        },
+        true
+      )
 
       toast({
         title: "PIN Verified",
