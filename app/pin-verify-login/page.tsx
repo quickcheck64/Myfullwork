@@ -35,7 +35,7 @@ export default function PinVerifyLoginPage() {
       const ipAddress = await getIpAddress()
 
       await apiCall(
-        "/auth/verify-pin",
+        "/api/verify-pin",
         "POST",
         {
           pin,
