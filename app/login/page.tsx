@@ -41,15 +41,15 @@ export default function LoginPage() {
         throw new Error("Invalid login response from server")
       }
 
-      // ✅ Save token + user
-      saveAuthData(
-        response.access_token,
-        response.user,
-        false, // PIN is always handled by frontend
-        response.requires_2fa ?? false
-      )
+      // ✅ Save token + user (no PIN, no redirect flags from backend)
+      saveAuthData(response.access_token, response.user)
 
-      toast({ title: "Login Successful", description: "Redirecting to PIN verification..." })
+      // ✅ Frontend decides the next step (PIN verify first)
+      toast({
+        title: "Login Successful",
+        description: "Redirecting to PIN verification...",
+      })
+
       router.push("/pin-verify-login")
     } catch (error: any) {
       toast({
@@ -65,6 +65,7 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-green-100 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
+        {/* Logo / Heading */}
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-16 h-16 bg-primary/10 backdrop-blur-sm rounded-2xl mb-4">
             <Pickaxe className="w-8 h-8 text-primary" />
@@ -73,6 +74,7 @@ export default function LoginPage() {
           <p className="text-muted-foreground">Sign in to your mining dashboard</p>
         </div>
 
+        {/* Login Card */}
         <Card className="bg-card/95 backdrop-blur-sm border-0 shadow-2xl">
           <CardHeader className="pb-4">
             <CardTitle className="text-2xl font-bold text-center text-card-foreground">
@@ -81,6 +83,7 @@ export default function LoginPage() {
           </CardHeader>
           <CardContent className="space-y-6">
             <form onSubmit={handleSubmit} className="space-y-6">
+              {/* Email */}
               <div className="space-y-2">
                 <Label htmlFor="email" className="text-sm font-medium text-card-foreground">
                   Email Address
@@ -100,6 +103,7 @@ export default function LoginPage() {
                 </div>
               </div>
 
+              {/* Password */}
               <div className="space-y-2">
                 <Label htmlFor="password" className="text-sm font-medium text-card-foreground">
                   Password
@@ -118,6 +122,7 @@ export default function LoginPage() {
                 </div>
               </div>
 
+              {/* Submit */}
               <Button
                 type="submit"
                 className="w-full h-12 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold rounded-lg shadow-lg transition-all duration-200 transform hover:scale-[1.02]"
@@ -137,6 +142,7 @@ export default function LoginPage() {
               </Button>
             </form>
 
+            {/* Links */}
             <div className="text-center mt-4">
               <Link
                 href="/forgot-password"
@@ -160,6 +166,7 @@ export default function LoginPage() {
           </CardContent>
         </Card>
 
+        {/* Footer */}
         <div className="text-center mt-8">
           <p className="text-muted-foreground text-sm">Secure crypto mining platform</p>
         </div>
