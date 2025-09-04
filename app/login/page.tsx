@@ -41,14 +41,25 @@ export default function LoginPage() {
         throw new Error("Invalid login response from server")
       }
 
-      saveAuthData(response.access_token, response.user)
+      // ✅ Save token + user + flags
+      saveAuthData(
+        response.access_token,
+        response.user,
+        response.requires_pin_verify ?? false,
+        response.requires_2fa ?? false
+      )
 
-      toast({
-        title: "Login Successful",
-        description: "Redirecting to PIN verification...",
-      })
-
-      router.push("/pin-verify-login")
+      // ✅ Route dynamically
+      if (response.requires_pin_verify) {
+        toast({ title: "Login Successful", description: "Redirecting to PIN verification..." })
+        router.push("/pin-verify-login")
+      } else if (response.requires_2fa) {
+        toast({ title: "Login Successful", description: "Redirecting to 2FA verification..." })
+        router.push("/verify-otp")
+      } else {
+        toast({ title: "Login Successful", description: "Redirecting to dashboard..." })
+        router.push("/dashboard")
+      }
     } catch (error: any) {
       toast({
         title: "Login Failed",
