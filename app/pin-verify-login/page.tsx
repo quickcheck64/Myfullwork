@@ -1,7 +1,6 @@
 "use client"
 
-import type React from "react"
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
@@ -16,16 +15,9 @@ import { Shield, Lock, LogOut, Pickaxe } from "lucide-react"
 export default function PinVerifyLoginPage() {
   const [pin, setPin] = useState("")
   const [isLoading, setIsLoading] = useState(false)
-  const { accessToken, clearAuthData } = useAuth()
+  const { clearAuthData } = useAuth()
   const router = useRouter()
   const { toast } = useToast()
-
-  // Redirect if no saved auth
-  useEffect(() => {
-    if (!accessToken) {
-      router.push("/login")
-    }
-  }, [accessToken, router])
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault()
@@ -39,6 +31,7 @@ export default function PinVerifyLoginPage() {
         description: "Accessing mining dashboard...",
       })
 
+      // Redirect to saved path or dashboard
       const redirectToPath = sessionStorage.getItem("prePinVerifyPath") || "/dashboard"
       sessionStorage.removeItem("prePinVerifyPath")
       router.push(redirectToPath)
