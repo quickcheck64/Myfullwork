@@ -2,7 +2,6 @@
 
 import { createContext, useContext, useState, useEffect, type ReactNode } from "react"
 
-// Minimal user interface
 interface User {
   id: string
   email: string
@@ -18,24 +17,32 @@ interface User {
 interface AuthContextType {
   currentUser: User | null
   setCurrentUser: (user: User | null) => void
-  saveAuthData: (token: string, user: User) => void
+  saveAuthData: (token: string, user: User, requiresPin: boolean, requires2FA: boolean) => void
   clearAuthData: () => void
   isAuthenticated: boolean
+  requiresPinVerify: boolean
+  requires2FA: boolean
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [currentUser, setCurrentUser] = useState<User | null>(null)
+  const [requiresPinVerify, setRequiresPinVerify] = useState(false)
+  const [requires2FA, setRequires2FA] = useState(false)
 
-  // Load stored user + token on mount
+  // Load stored auth data on mount
   useEffect(() => {
     const storedUser = sessionStorage.getItem("currentUser")
     const token = sessionStorage.getItem("authToken")
+    const pinRequired = sessionStorage.getItem("requiresPinVerify") === "true"
+    const faRequired = sessionStorage.getItem("requires2FA") === "true"
 
     if (storedUser && token) {
       try {
         setCurrentUser(JSON.parse(storedUser))
+        setRequiresPinVerify(pinRequired)
+        setRequires2FA(faRequired)
       } catch (error) {
         console.error("Failed to parse stored user data:", error)
         clearAuthData()
@@ -43,17 +50,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, [])
 
-  // Save both token and user
-  const saveAuthData = (token: string, user: User) => {
+  const saveAuthData = (token: string, user: User, requiresPin: boolean, requires2FA: boolean) => {
     sessionStorage.setItem("authToken", token)
     sessionStorage.setItem("currentUser", JSON.stringify(user))
+    sessionStorage.setItem("requiresPinVerify", String(requiresPin))
+    sessionStorage.setItem("requires2FA", String(requires2FA))
     setCurrentUser(user)
+    setRequiresPinVerify(requiresPin)
+    setRequires2FA(requires2FA)
   }
 
   const clearAuthData = () => {
-    sessionStorage.removeItem("authToken")
-    sessionStorage.removeItem("currentUser")
+    sessionStorage.clear()
     setCurrentUser(null)
+    setRequiresPinVerify(false)
+    setRequires2FA(false)
   }
 
   const value: AuthContextType = {
@@ -65,6 +76,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     saveAuthData,
     clearAuthData,
     isAuthenticated: !!currentUser,
+    requiresPinVerify,
+    requires2FA,
   }
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
