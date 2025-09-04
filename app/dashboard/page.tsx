@@ -155,7 +155,7 @@ export default function CryptoMiningDashboard() {
   } = useQuery<DashboardStats>({
     queryKey: ["/api/user/profile"],
     queryFn: async () => {
-      return await apiCall<DashboardStats>("/user/profile", "GET", null, true)
+      return await apiCall<DashboardStats>("/api/analytics/dashboard", "GET", null, true)
     },
   })
 
