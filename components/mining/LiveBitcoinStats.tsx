@@ -4,48 +4,46 @@ import { useState, useEffect } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Bitcoin, TrendingUp, TrendingDown, RefreshCw, Activity, Zap } from "lucide-react"
+import { Bitcoin, RefreshCw } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 
-interface BitcoinStats {
-  price: number
-  change_24h: number
-  change_percentage_24h: number
-  market_cap: number
-  volume_24h: number
-  hash_rate: string
-  difficulty: string
-  block_height: number
-  mempool_size: number
+interface MiningSession {
+  session_id: number
+  crypto_type: "BTC" | "ETH"
+  deposited_amount: number
+  mining_rate: number
+  current_mined: number
+  mining_per_second: number
+  progress_percentage: number
+  elapsed_hours: number
 }
 
-export default function LiveBitcoinStats() {
-  const [stats, setStats] = useState<BitcoinStats | null>(null)
+export default function LiveMiningStats() {
+  const [sessions, setSessions] = useState<MiningSession[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [lastUpdate, setLastUpdate] = useState<Date>(new Date())
   const { toast } = useToast()
 
-  const fetchBitcoinStats = async () => {
+  // ✅ Fetch BTC + ETH sessions from backend
+  const fetchMiningStats = async () => {
     try {
       setIsLoading(true)
-      const mockStats: BitcoinStats = {
-        price: 67420.5 + (Math.random() - 0.5) * 1000,
-        change_24h: 1250.3 + (Math.random() - 0.5) * 500,
-        change_percentage_24h: 1.89 + (Math.random() - 0.5) * 2,
-        market_cap: 1330000000000,
-        volume_24h: 28500000000,
-        hash_rate: "450.2 EH/s",
-        difficulty: "72.7T",
-        block_height: 825847 + Math.floor(Math.random() * 10),
-        mempool_size: 15420 + Math.floor(Math.random() * 1000),
-      }
-
-      setStats(mockStats)
+      const token = sessionStorage.getItem("accessToken")
+      const res = await fetch("https://dansog-backend.onrender.com/api/mining/live-progress", {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      if (!res.ok) throw new Error("Failed to fetch mining progress")
+      const data = await res.json()
+      // filter only BTC and ETH sessions
+      const active = (data.active_sessions || []).filter(
+        (s: MiningSession) => s.crypto_type === "BTC" || s.crypto_type === "ETH"
+      )
+      setSessions(active)
       setLastUpdate(new Date())
     } catch (error) {
       toast({
         title: "Error",
-        description: "Failed to fetch Bitcoin stats",
+        description: "Failed to fetch mining progress",
         variant: "destructive",
       })
     } finally {
@@ -53,34 +51,43 @@ export default function LiveBitcoinStats() {
     }
   }
 
+  // Auto refresh every 30s
   useEffect(() => {
-    fetchBitcoinStats()
-    const interval = setInterval(fetchBitcoinStats, 30000) // Update every 30 seconds
+    fetchMiningStats()
+    const interval = setInterval(fetchMiningStats, 30000)
     return () => clearInterval(interval)
   }, [])
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "USD",
-    }).format(amount)
-  }
+  // ⏱️ Live ticking
+  useEffect(() => {
+    if (!sessions.length) return
+    const tick = setInterval(() => {
+      setSessions((prev) =>
+        prev.map((s) => {
+          const newMined = s.current_mined + s.mining_per_second
+          const target = s.deposited_amount * (s.mining_rate / 100)
+          return {
+            ...s,
+            current_mined: newMined,
+            progress_percentage: Math.min((newMined / target) * 100, 100),
+          }
+        })
+      )
+    }, 1000)
+    return () => clearInterval(tick)
+  }, [sessions])
 
-  const formatLargeNumber = (num: number) => {
-    if (num >= 1e12) return `$${(num / 1e12).toFixed(2)}T`
-    if (num >= 1e9) return `$${(num / 1e9).toFixed(2)}B`
-    if (num >= 1e6) return `$${(num / 1e6).toFixed(2)}M`
-    return formatCurrency(num)
-  }
+  const formatAmount = (amount: number, type: "BTC" | "ETH") =>
+    `${amount.toFixed(8)} ${type}`
 
-  if (isLoading && !stats) {
+  if (isLoading && sessions.length === 0) {
     return (
-      <Card className="bg-gradient-to-r from-[var(--color-crypto-bitcoin)] to-orange-500 text-white">
+      <Card className="bg-gradient-to-r from-indigo-500 to-purple-600 text-white">
         <CardHeader>
           <div className="flex items-center justify-between">
             <CardTitle className="flex items-center space-x-2">
               <Bitcoin className="h-6 w-6" />
-              <span>Live Bitcoin Stats</span>
+              <span>Live Mining Progress</span>
             </CardTitle>
             <div className="animate-spin">
               <RefreshCw className="h-4 w-4" />
@@ -88,25 +95,29 @@ export default function LiveBitcoinStats() {
           </div>
         </CardHeader>
         <CardContent>
-          <div className="text-center py-4">
-            <p className="text-white/80">Loading Bitcoin data...</p>
-          </div>
+          <p className="text-center py-4 text-white/80">Loading mining data...</p>
         </CardContent>
       </Card>
     )
   }
 
-  if (!stats) return null
-
-  const isPositive = stats.change_percentage_24h >= 0
+  if (!sessions.length) {
+    return (
+      <Card className="bg-gradient-to-r from-indigo-500 to-purple-600 text-white">
+        <CardHeader>
+          <CardTitle>No Active BTC/ETH Mining</CardTitle>
+        </CardHeader>
+      </Card>
+    )
+  }
 
   return (
-    <Card className="bg-gradient-to-r from-[var(--color-crypto-bitcoin)] to-orange-500 text-white">
+    <Card className="bg-gradient-to-r from-indigo-500 to-purple-600 text-white">
       <CardHeader>
         <div className="flex items-center justify-between">
           <CardTitle className="flex items-center space-x-2">
             <Bitcoin className="h-6 w-6" />
-            <span>Live Bitcoin Stats</span>
+            <span>BTC & ETH Mining Progress</span>
           </CardTitle>
           <div className="flex items-center space-x-2">
             <Badge variant="secondary" className="bg-white/20 text-white border-white/30">
@@ -115,7 +126,7 @@ export default function LiveBitcoinStats() {
             <Button
               variant="ghost"
               size="sm"
-              onClick={fetchBitcoinStats}
+              onClick={fetchMiningStats}
               className="text-white hover:bg-white/20 p-1"
               disabled={isLoading}
             >
@@ -124,72 +135,38 @@ export default function LiveBitcoinStats() {
           </div>
         </div>
       </CardHeader>
+
       <CardContent className="space-y-4">
-        {/* Price Section */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <p className="text-white/80 text-sm mb-1">Bitcoin Price</p>
-            <div className="flex items-center space-x-2">
-              <span className="text-2xl font-bold">{formatCurrency(stats.price)}</span>
-              <div className={`flex items-center space-x-1 ${isPositive ? "text-green-300" : "text-red-300"}`}>
-                {isPositive ? <TrendingUp className="h-4 w-4" /> : <TrendingDown className="h-4 w-4" />}
-                <span className="text-sm font-medium">
-                  {isPositive ? "+" : ""}
-                  {stats.change_percentage_24h.toFixed(2)}%
-                </span>
-              </div>
-            </div>
-            <p className="text-white/60 text-xs">
-              {isPositive ? "+" : ""}
-              {formatCurrency(stats.change_24h)} (24h)
+        {sessions.map((s) => (
+          <div key={s.session_id} className="bg-white/10 rounded-lg p-4">
+            <p className="text-sm text-white/80 mb-1">
+              {s.crypto_type} — {s.mining_rate}% daily rate
             </p>
-          </div>
 
-          <div>
-            <p className="text-white/80 text-sm mb-1">Market Cap</p>
-            <div className="text-xl font-bold">{formatLargeNumber(stats.market_cap)}</div>
-            <p className="text-white/60 text-xs">24h Volume: {formatLargeNumber(stats.volume_24h)}</p>
-          </div>
-        </div>
-
-        {/* Network Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          <div className="bg-white/10 rounded-lg p-3">
-            <div className="flex items-center space-x-2 mb-1">
-              <Zap className="h-4 w-4 text-yellow-300" />
-              <span className="text-white/80 text-xs">Hash Rate</span>
+            {/* Mined so far */}
+            <div className="flex items-center justify-between">
+              <span className="text-xl font-bold">{formatAmount(s.current_mined, s.crypto_type)}</span>
+              <span className="text-xs text-white/60">{s.progress_percentage.toFixed(2)}% complete</span>
             </div>
-            <p className="font-bold text-sm">{stats.hash_rate}</p>
-          </div>
 
-          <div className="bg-white/10 rounded-lg p-3">
-            <div className="flex items-center space-x-2 mb-1">
-              <Activity className="h-4 w-4 text-blue-300" />
-              <span className="text-white/80 text-xs">Difficulty</span>
+            {/* Progress bar */}
+            <div className="w-full bg-white/20 h-2 rounded mt-2">
+              <div
+                className="h-2 bg-green-400 rounded"
+                style={{ width: `${s.progress_percentage}%` }}
+              />
             </div>
-            <p className="font-bold text-sm">{stats.difficulty}</p>
-          </div>
 
-          <div className="bg-white/10 rounded-lg p-3">
-            <div className="flex items-center space-x-2 mb-1">
-              <span className="w-4 h-4 bg-white/30 rounded text-xs flex items-center justify-center">#</span>
-              <span className="text-white/80 text-xs">Block Height</span>
+            {/* Extra info */}
+            <div className="flex justify-between text-xs text-white/60 mt-2">
+              <span>Deposited: {formatAmount(s.deposited_amount, s.crypto_type)}</span>
+              <span>Per Sec: {s.mining_per_second.toFixed(8)} {s.crypto_type}</span>
             </div>
-            <p className="font-bold text-sm">{stats.block_height.toLocaleString()}</p>
           </div>
+        ))}
 
-          <div className="bg-white/10 rounded-lg p-3">
-            <div className="flex items-center space-x-2 mb-1">
-              <span className="w-4 h-4 bg-white/30 rounded text-xs flex items-center justify-center">M</span>
-              <span className="text-white/80 text-xs">Mempool</span>
-            </div>
-            <p className="font-bold text-sm">{stats.mempool_size.toLocaleString()}</p>
-          </div>
-        </div>
-
-        {/* Last Update */}
-        <div className="text-center">
-          <p className="text-white/60 text-xs">Last updated: {lastUpdate.toLocaleTimeString()}</p>
+        <div className="text-center text-white/60 text-xs">
+          Last updated: {lastUpdate.toLocaleTimeString()}
         </div>
       </CardContent>
     </Card>
