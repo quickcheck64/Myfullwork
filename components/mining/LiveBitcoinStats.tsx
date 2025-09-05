@@ -26,8 +26,6 @@ export default function LiveMiningStats() {
 
   const connectWebSocket = () => {
     const token = sessionStorage.getItem("authToken")
-    console.log("Attempting WebSocket connection, token:", token ? "found" : "not found")
-
     if (!token) {
       console.warn("No auth token found, retrying in 1s...")
       reconnectTimeoutRef.current = setTimeout(connectWebSocket, 1000)
@@ -35,7 +33,6 @@ export default function LiveMiningStats() {
     }
 
     try {
-      // Method 1: Try query parameter authentication first
       const wsUrl = `wss://chainminer.onrender.com/ws/mining/live-progress?token=${encodeURIComponent(token)}`
       const ws = new WebSocket(wsUrl)
       wsRef.current = ws
@@ -58,28 +55,11 @@ export default function LiveMiningStats() {
 
       ws.onerror = (err) => {
         console.error("WebSocket error:", err)
-        console.log("Trying alternative WebSocket authentication...")
-
-        // Method 2: Try with Authorization header via subprotocol
-        const wsAlt = new WebSocket("wss://chainminer.onrender.com/ws/mining/live-progress", [`Bearer.${token}`])
-        wsRef.current = wsAlt
-
-        wsAlt.onopen = () => {
-          console.log("WebSocket connected with alternative method")
-          setIsConnected(true)
-        }
-
-        wsAlt.onmessage = ws.onmessage
-        wsAlt.onerror = (altErr) => {
-          console.error("Alternative WebSocket method also failed:", altErr)
-          toast({
-            title: "WebSocket Connection Failed",
-            description: "Unable to connect to live mining updates. Check your connection.",
-            variant: "destructive",
-          })
-        }
-
-        wsAlt.onclose = ws.onclose
+        toast({
+          title: "WebSocket Connection Failed",
+          description: "Unable to connect to live mining updates. Check your connection.",
+          variant: "destructive",
+        })
       }
 
       ws.onclose = () => {
@@ -103,7 +83,7 @@ export default function LiveMiningStats() {
       wsRef.current?.close()
       if (reconnectTimeoutRef.current) clearTimeout(reconnectTimeoutRef.current)
     }
-  }, []) // Remove accessToken dependency since we're using sessionStorage
+  }, [])
 
   const formatAmount = (amount: number, type: "BTC" | "ETH") => `${amount.toFixed(8)} ${type}`
 
