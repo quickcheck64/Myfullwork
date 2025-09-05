@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Bitcoin } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
+import { useAuth } from "@/hooks/use-auth"
 
 interface MiningSession {
   session_id: number
@@ -23,15 +24,15 @@ export default function LiveMiningStats() {
   const wsRef = useRef<WebSocket | null>(null)
   const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null)
   const { toast } = useToast()
+  const { accessToken } = useAuth() // get token from useAuth if available
 
   const connectWebSocket = () => {
-    const token = sessionStorage.getItem("accessToken")
+    const token = accessToken || sessionStorage.getItem("accessToken")
     if (!token) {
-      console.error("No access token found for WebSocket connection")
+      console.warn("Waiting for access token to connect WebSocket")
       return
     }
 
-    // Direct backend URL
     const wsUrl = `wss://chainminer.onrender.com/ws/mining/live-progress?token=${token}`
     console.log("Connecting to WebSocket:", wsUrl)
 
@@ -46,7 +47,6 @@ export default function LiveMiningStats() {
     ws.onmessage = (event) => {
       try {
         const data = JSON.parse(event.data)
-        console.log("WebSocket message received:", data)
         if (!data.active_sessions) return
         setSessions(data.active_sessions)
         setLastUpdate(new Date())
@@ -71,16 +71,18 @@ export default function LiveMiningStats() {
     }
   }
 
+  // Connect when accessToken is available
   useEffect(() => {
-    connectWebSocket()
+    if (accessToken) connectWebSocket()
     return () => {
       wsRef.current?.close()
       if (reconnectTimeoutRef.current) clearTimeout(reconnectTimeoutRef.current)
     }
-  }, [])
+  }, [accessToken])
 
   const formatAmount = (amount: number, type: "BTC" | "ETH") => `${amount.toFixed(8)} ${type}`
 
+  // Loading state
   if (!isConnected && sessions.length === 0) {
     return (
       <Card className="bg-gradient-to-r from-indigo-500 to-purple-600 text-white">
@@ -97,6 +99,7 @@ export default function LiveMiningStats() {
     )
   }
 
+  // Empty state
   if (!sessions.length) {
     return (
       <Card className="bg-gradient-to-r from-indigo-500 to-purple-600 text-white">
@@ -107,6 +110,7 @@ export default function LiveMiningStats() {
     )
   }
 
+  // Live sessions state
   return (
     <Card className="bg-gradient-to-r from-indigo-500 to-purple-600 text-white">
       <CardHeader>
