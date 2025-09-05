@@ -25,7 +25,7 @@ export default function LiveMiningStats() {
   const { toast } = useToast()
 
   const connectWebSocket = () => {
-    const token = sessionStorage.getItem("auth_token")
+    const token = sessionStorage.getItem("authToken")
     console.log("Attempting WebSocket connection, token:", token ? "found" : "not found")
 
     if (!token) {
