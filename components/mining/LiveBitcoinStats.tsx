@@ -26,7 +26,7 @@ export default function LiveMiningStats() {
   const fetchMiningProgress = async () => {
     try {
       setIsLoading(true)
-      const data = await apiCall("/mining/live-progress", "GET")
+      const data = await apiCall("/api/mining/live-progress", "GET")
       setSessions(data.active_sessions || [])
       setLastUpdate(new Date())
     } catch (error: any) {
