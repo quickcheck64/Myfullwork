@@ -189,17 +189,7 @@ export default function CryptoMiningDashboard() {
     },
   })
 
-  const {
-    data: miningProgress,
-    isLoading: isMiningLoading,
-    refetch: refetchMining,
-  } = useQuery<MiningProgress>({
-    queryKey: ["/api/mining/live-progress"],
-    queryFn: async () => {
-      return await apiCall<MiningProgress>("/api/mining/live-progress", "GET", null, true)
-    },
-    refetchInterval: 5000, // Update every 5 seconds
-  })
+  
 
   const {
     data: activityData,
