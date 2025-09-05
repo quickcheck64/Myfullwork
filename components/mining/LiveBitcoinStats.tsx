@@ -3,8 +3,7 @@
 import { useState, useEffect, useRef } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { Bitcoin, RefreshCw } from "lucide-react"
+import { Bitcoin } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 
 interface MiningSession {
@@ -15,42 +14,40 @@ interface MiningSession {
   current_mined: number
   progress_percentage: number
   elapsed_hours: number
-  mining_per_second: number
 }
+
+// Use your global API URL
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL
 
 export default function LiveMiningStats() {
   const [sessions, setSessions] = useState<MiningSession[]>([])
   const [isConnected, setIsConnected] = useState(false)
   const [lastUpdate, setLastUpdate] = useState<Date>(new Date())
   const wsRef = useRef<WebSocket | null>(null)
+  const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null)
   const { toast } = useToast()
 
-  useEffect(() => {
+  const connectWebSocket = () => {
     const token = sessionStorage.getItem("accessToken")
-    if (!token) return
+    if (!token || !API_BASE_URL) return
 
-    const ws = new WebSocket(`wss://dansog-backend.onrender.com/ws/mining/live-progress?token=${token}`)
+    const wsProtocol = API_BASE_URL.startsWith("https") ? "wss" : "ws"
+    const wsUrl = `${wsProtocol}://${new URL(API_BASE_URL).host}/ws/mining/live-progress?token=${token}`
+
+    const ws = new WebSocket(wsUrl)
     wsRef.current = ws
 
-    ws.onopen = () => {
-      setIsConnected(true)
-    }
+    ws.onopen = () => setIsConnected(true)
 
     ws.onmessage = (event) => {
-      const data = JSON.parse(event.data)
-      if (!data.active_sessions) return
-
-      // Map sessions and calculate mining_per_second for smooth ticking
-      const updatedSessions: MiningSession[] = data.active_sessions.map((s: any) => {
-        const miningPerSecond = (s.deposited_amount * (s.mining_rate / 100)) / (24 * 3600)
-        return {
-          ...s,
-          mining_per_second: miningPerSecond,
-        }
-      })
-
-      setSessions(updatedSessions)
-      setLastUpdate(new Date())
+      try {
+        const data = JSON.parse(event.data)
+        if (!data.active_sessions) return
+        setSessions(data.active_sessions)
+        setLastUpdate(new Date())
+      } catch (err) {
+        console.error("Failed to parse WebSocket message:", err)
+      }
     }
 
     ws.onerror = (err) => {
@@ -64,52 +61,32 @@ export default function LiveMiningStats() {
 
     ws.onclose = () => {
       setIsConnected(false)
-      console.log("WebSocket disconnected")
+      console.log("WebSocket disconnected, reconnecting in 5s...")
+      reconnectTimeoutRef.current = setTimeout(connectWebSocket, 5000)
     }
+  }
 
+  useEffect(() => {
+    connectWebSocket()
     return () => {
-      ws.close()
+      wsRef.current?.close()
+      if (reconnectTimeoutRef.current) clearTimeout(reconnectTimeoutRef.current)
     }
   }, [])
 
-  // ⏱️ Live ticking every second
-  useEffect(() => {
-    if (!sessions.length) return
-    const tick = setInterval(() => {
-      setSessions((prev) =>
-        prev.map((s) => {
-          const newMined = s.current_mined + s.mining_per_second
-          const target = s.deposited_amount * (s.mining_rate / 100)
-          return {
-            ...s,
-            current_mined: newMined,
-            progress_percentage: Math.min((newMined / target) * 100, 100),
-          }
-        })
-      )
-    }, 1000)
-    return () => clearInterval(tick)
-  }, [sessions])
-
-  const formatAmount = (amount: number, type: "BTC" | "ETH") =>
-    `${amount.toFixed(8)} ${type}`
+  const formatAmount = (amount: number, type: "BTC" | "ETH") => `${amount.toFixed(8)} ${type}`
 
   if (!isConnected && sessions.length === 0) {
     return (
       <Card className="bg-gradient-to-r from-indigo-500 to-purple-600 text-white">
         <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle className="flex items-center space-x-2">
-              <Bitcoin className="h-6 w-6" />
-              <span>Live Mining Progress</span>
-            </CardTitle>
-            <div className="animate-spin">
-              <RefreshCw className="h-4 w-4" />
-            </div>
-          </div>
+          <CardTitle className="flex items-center space-x-2">
+            <Bitcoin className="h-6 w-6" />
+            <span>Connecting to live mining...</span>
+          </CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-center py-4 text-white/80">Connecting to live updates...</p>
+          <p className="text-center py-4 text-white/80">Please wait while connecting...</p>
         </CardContent>
       </Card>
     )
@@ -145,30 +122,23 @@ export default function LiveMiningStats() {
             <p className="text-sm text-white/80 mb-1">
               {s.crypto_type} — {s.mining_rate}% daily rate
             </p>
-
             <div className="flex items-center justify-between">
               <span className="text-xl font-bold">{formatAmount(s.current_mined, s.crypto_type)}</span>
               <span className="text-xs text-white/60">{s.progress_percentage.toFixed(2)}% complete</span>
             </div>
-
             <div className="w-full bg-white/20 h-2 rounded mt-2">
-              <div
-                className="h-2 bg-green-400 rounded"
-                style={{ width: `${s.progress_percentage}%` }}
-              />
+              <div className="h-2 bg-green-400 rounded" style={{ width: `${s.progress_percentage}%` }} />
             </div>
-
             <div className="flex justify-between text-xs text-white/60 mt-2">
               <span>Deposited: {formatAmount(s.deposited_amount, s.crypto_type)}</span>
-              <span>Per Sec: {s.mining_per_second.toFixed(8)} {s.crypto_type}</span>
+              <span>Elapsed: {s.elapsed_hours.toFixed(2)} hrs</span>
             </div>
           </div>
         ))}
-
         <div className="text-center text-white/60 text-xs">
           Last updated: {lastUpdate.toLocaleTimeString()}
         </div>
       </CardContent>
     </Card>
   )
-}
+      }
