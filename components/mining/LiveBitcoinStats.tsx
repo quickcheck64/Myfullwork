@@ -24,19 +24,20 @@ export default function LiveMiningStats() {
   const wsRef = useRef<WebSocket | null>(null)
   const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null)
   const { toast } = useToast()
-  const { accessToken } = useAuth() // get token from useAuth if available
+  const { accessToken } = useAuth()
 
   const connectWebSocket = () => {
     const token = accessToken || sessionStorage.getItem("accessToken")
+    console.log("Attempting WebSocket connection, token:", token)
+
     if (!token) {
-      console.warn("Waiting for access token to connect WebSocket")
+      console.warn("No token yet, retrying in 1s...")
+      reconnectTimeoutRef.current = setTimeout(connectWebSocket, 1000)
       return
     }
 
-    const wsUrl = `wss://chainminer.onrender.com/ws/mining/live-progress?token=${token}`
-    console.log("Connecting to WebSocket:", wsUrl)
-
-    const ws = new WebSocket(wsUrl)
+    // Using Sec-WebSocket-Protocol to pass token
+    const ws = new WebSocket("wss://chainminer.onrender.com/ws/mining/live-progress", [`Bearer ${token}`])
     wsRef.current = ws
 
     ws.onopen = () => {
@@ -71,9 +72,8 @@ export default function LiveMiningStats() {
     }
   }
 
-  // Connect when accessToken is available
   useEffect(() => {
-    if (accessToken) connectWebSocket()
+    connectWebSocket()
     return () => {
       wsRef.current?.close()
       if (reconnectTimeoutRef.current) clearTimeout(reconnectTimeoutRef.current)
@@ -82,7 +82,6 @@ export default function LiveMiningStats() {
 
   const formatAmount = (amount: number, type: "BTC" | "ETH") => `${amount.toFixed(8)} ${type}`
 
-  // Loading state
   if (!isConnected && sessions.length === 0) {
     return (
       <Card className="bg-gradient-to-r from-indigo-500 to-purple-600 text-white">
@@ -99,7 +98,6 @@ export default function LiveMiningStats() {
     )
   }
 
-  // Empty state
   if (!sessions.length) {
     return (
       <Card className="bg-gradient-to-r from-indigo-500 to-purple-600 text-white">
@@ -110,7 +108,6 @@ export default function LiveMiningStats() {
     )
   }
 
-  // Live sessions state
   return (
     <Card className="bg-gradient-to-r from-indigo-500 to-purple-600 text-white">
       <CardHeader>
