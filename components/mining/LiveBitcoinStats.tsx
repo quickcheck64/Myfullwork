@@ -16,9 +16,6 @@ interface MiningSession {
   elapsed_hours: number
 }
 
-// Use your global API URL
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL
-
 export default function LiveMiningStats() {
   const [sessions, setSessions] = useState<MiningSession[]>([])
   const [isConnected, setIsConnected] = useState(false)
@@ -29,19 +26,27 @@ export default function LiveMiningStats() {
 
   const connectWebSocket = () => {
     const token = sessionStorage.getItem("accessToken")
-    if (!token || !API_BASE_URL) return
+    if (!token) {
+      console.error("No access token found for WebSocket connection")
+      return
+    }
 
-    const wsProtocol = API_BASE_URL.startsWith("https") ? "wss" : "ws"
-    const wsUrl = `${wsProtocol}://${new URL(API_BASE_URL).host}/ws/mining/live-progress?token=${token}`
+    // Direct backend URL
+    const wsUrl = `wss://chainminer.onrender.com/ws/mining/live-progress?token=${token}`
+    console.log("Connecting to WebSocket:", wsUrl)
 
     const ws = new WebSocket(wsUrl)
     wsRef.current = ws
 
-    ws.onopen = () => setIsConnected(true)
+    ws.onopen = () => {
+      console.log("WebSocket connected")
+      setIsConnected(true)
+    }
 
     ws.onmessage = (event) => {
       try {
         const data = JSON.parse(event.data)
+        console.log("WebSocket message received:", data)
         if (!data.active_sessions) return
         setSessions(data.active_sessions)
         setLastUpdate(new Date())
@@ -141,4 +146,4 @@ export default function LiveMiningStats() {
       </CardContent>
     </Card>
   )
-      }
+}
