@@ -5,7 +5,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Bitcoin } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
-import { useAuth } from "@/hooks/use-auth"
 
 interface MiningSession {
   session_id: number
@@ -24,51 +23,77 @@ export default function LiveMiningStats() {
   const wsRef = useRef<WebSocket | null>(null)
   const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null)
   const { toast } = useToast()
-  const { accessToken } = useAuth()
 
   const connectWebSocket = () => {
-    const token = accessToken || sessionStorage.getItem("accessToken")
-    console.log("Attempting WebSocket connection, token:", token)
+    const token = sessionStorage.getItem("auth_token")
+    console.log("Attempting WebSocket connection, token:", token ? "found" : "not found")
 
     if (!token) {
-      console.warn("No token yet, retrying in 1s...")
+      console.warn("No auth token found, retrying in 1s...")
       reconnectTimeoutRef.current = setTimeout(connectWebSocket, 1000)
       return
     }
 
-    // Using Sec-WebSocket-Protocol to pass token
-    const ws = new WebSocket("wss://chainminer.onrender.com/ws/mining/live-progress", [`Bearer ${token}`])
-    wsRef.current = ws
+    try {
+      // Method 1: Try query parameter authentication first
+      const wsUrl = `wss://chainminer.onrender.com/ws/mining/live-progress?token=${encodeURIComponent(token)}`
+      const ws = new WebSocket(wsUrl)
+      wsRef.current = ws
 
-    ws.onopen = () => {
-      console.log("WebSocket connected")
-      setIsConnected(true)
-    }
-
-    ws.onmessage = (event) => {
-      try {
-        const data = JSON.parse(event.data)
-        if (!data.active_sessions) return
-        setSessions(data.active_sessions)
-        setLastUpdate(new Date())
-      } catch (err) {
-        console.error("Failed to parse WebSocket message:", err)
+      ws.onopen = () => {
+        console.log("WebSocket connected successfully")
+        setIsConnected(true)
       }
-    }
 
-    ws.onerror = (err) => {
-      console.error("WebSocket error:", err)
+      ws.onmessage = (event) => {
+        try {
+          const data = JSON.parse(event.data)
+          if (!data.active_sessions) return
+          setSessions(data.active_sessions)
+          setLastUpdate(new Date())
+        } catch (err) {
+          console.error("Failed to parse WebSocket message:", err)
+        }
+      }
+
+      ws.onerror = (err) => {
+        console.error("WebSocket error:", err)
+        console.log("Trying alternative WebSocket authentication...")
+
+        // Method 2: Try with Authorization header via subprotocol
+        const wsAlt = new WebSocket("wss://chainminer.onrender.com/ws/mining/live-progress", [`Bearer.${token}`])
+        wsRef.current = wsAlt
+
+        wsAlt.onopen = () => {
+          console.log("WebSocket connected with alternative method")
+          setIsConnected(true)
+        }
+
+        wsAlt.onmessage = ws.onmessage
+        wsAlt.onerror = (altErr) => {
+          console.error("Alternative WebSocket method also failed:", altErr)
+          toast({
+            title: "WebSocket Connection Failed",
+            description: "Unable to connect to live mining updates. Check your connection.",
+            variant: "destructive",
+          })
+        }
+
+        wsAlt.onclose = ws.onclose
+      }
+
+      ws.onclose = () => {
+        setIsConnected(false)
+        console.log("WebSocket disconnected, reconnecting in 5s...")
+        reconnectTimeoutRef.current = setTimeout(connectWebSocket, 5000)
+      }
+    } catch (error) {
+      console.error("Failed to create WebSocket connection:", error)
       toast({
-        title: "WebSocket Error",
-        description: "Failed to connect to live mining updates",
+        title: "Connection Error",
+        description: "Failed to establish WebSocket connection",
         variant: "destructive",
       })
-    }
-
-    ws.onclose = () => {
-      setIsConnected(false)
-      console.log("WebSocket disconnected, reconnecting in 5s...")
-      reconnectTimeoutRef.current = setTimeout(connectWebSocket, 5000)
     }
   }
 
@@ -78,7 +103,7 @@ export default function LiveMiningStats() {
       wsRef.current?.close()
       if (reconnectTimeoutRef.current) clearTimeout(reconnectTimeoutRef.current)
     }
-  }, [accessToken])
+  }, []) // Remove accessToken dependency since we're using sessionStorage
 
   const formatAmount = (amount: number, type: "BTC" | "ETH") => `${amount.toFixed(8)} ${type}`
 
@@ -141,9 +166,7 @@ export default function LiveMiningStats() {
             </div>
           </div>
         ))}
-        <div className="text-center text-white/60 text-xs">
-          Last updated: {lastUpdate.toLocaleTimeString()}
-        </div>
+        <div className="text-center text-white/60 text-xs">Last updated: {lastUpdate.toLocaleTimeString()}</div>
       </CardContent>
     </Card>
   )
