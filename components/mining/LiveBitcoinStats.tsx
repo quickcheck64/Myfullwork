@@ -22,7 +22,7 @@ export default function LiveMiningStats() {
   const [isLoading, setIsLoading] = useState(true)
   const [lastUpdate, setLastUpdate] = useState<Date>(new Date())
   const { toast } = useToast()
-  const sessionRefs = useRef<Record<number, { startTime: number; baseMined: number }>>({})
+  const sessionRefs = useRef<Record<number, { startTime: number; baseMined: number; baseBalance: number }>>({})
 
   const fetchMiningProgress = async () => {
     try {
@@ -31,10 +31,14 @@ export default function LiveMiningStats() {
       setSessions(data.sessions || [])
       setLastUpdate(new Date())
 
-      // Store base mined amounts and timestamp for per-second increment
-      const refs: Record<number, { startTime: number; baseMined: number }> = {}
+      // Store base mined + balance per session for per-second increment
+      const refs: Record<number, { startTime: number; baseMined: number; baseBalance: number }> = {}
       data.sessions?.forEach((s: MiningSessionProgress) => {
-        refs[s.session_id] = { startTime: Date.now(), baseMined: s.current_mined }
+        refs[s.session_id] = {
+          startTime: Date.now(),
+          baseMined: s.current_mined,
+          baseBalance: s.balance,
+        }
       })
       sessionRefs.current = refs
     } catch (error: any) {
@@ -58,7 +62,13 @@ export default function LiveMiningStats() {
 
           const secondsElapsed = (Date.now() - ref.startTime) / 1000
           const increment = (s.deposited_amount * (s.mining_rate_percent / 100)) / 86400 * secondsElapsed
-          return { ...s, current_mined: ref.baseMined + increment, balance: s.balance + increment }
+
+          return {
+            ...s,
+            current_mined: ref.baseMined + increment,
+            // ✅ only update this session's crypto balance
+            balance: ref.baseBalance + increment,
+          }
         })
       )
     }, 1000)
