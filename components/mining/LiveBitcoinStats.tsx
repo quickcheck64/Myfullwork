@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -22,13 +22,21 @@ export default function LiveMiningStats() {
   const [isLoading, setIsLoading] = useState(true)
   const [lastUpdate, setLastUpdate] = useState<Date>(new Date())
   const { toast } = useToast()
+  const sessionRefs = useRef<Record<number, { startTime: number; baseMined: number }>>({})
 
   const fetchMiningProgress = async () => {
     try {
       setIsLoading(true)
-      const data = await apiCall("/api/mining/live-progress", "GET")
-      setSessions(data.active_sessions || [])
+      const data = await apiCall("/api/mining/live-progress", "POST")
+      setSessions(data.sessions || [])
       setLastUpdate(new Date())
+
+      // Store base mined amounts and timestamp for per-second increment
+      const refs: Record<number, { startTime: number; baseMined: number }> = {}
+      data.sessions?.forEach((s: MiningSessionProgress) => {
+        refs[s.session_id] = { startTime: Date.now(), baseMined: s.current_mined }
+      })
+      sessionRefs.current = refs
     } catch (error: any) {
       toast({
         title: "Error",
@@ -40,9 +48,26 @@ export default function LiveMiningStats() {
     }
   }
 
+  // Per-second increment animation
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setSessions((prev) =>
+        prev.map((s) => {
+          const ref = sessionRefs.current[s.session_id]
+          if (!ref) return s
+
+          const secondsElapsed = (Date.now() - ref.startTime) / 1000
+          const increment = (s.deposited_amount * (s.mining_rate_percent / 100)) / 86400 * secondsElapsed
+          return { ...s, current_mined: ref.baseMined + increment, balance: s.balance + increment }
+        })
+      )
+    }, 1000)
+    return () => clearInterval(interval)
+  }, [])
+
   useEffect(() => {
     fetchMiningProgress()
-    const interval = setInterval(fetchMiningProgress, 3000) // Update every 3 seconds
+    const interval = setInterval(fetchMiningProgress, 30000) // sync with backend every 30s
     return () => clearInterval(interval)
   }, [])
 
