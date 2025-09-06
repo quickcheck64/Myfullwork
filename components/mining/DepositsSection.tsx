@@ -80,14 +80,14 @@ export default function DepositsSection({ onReturnToDashboard }: DepositsProps) 
 
     const payload =
       type === "crypto"
-        ? { crypto_type: selectedCrypto, amount: parseFloat(value) }
-        : { crypto_type: selectedCrypto, usd_amount: parseFloat(value) }
+        ? { crypto_type: selectedCrypto, amount: Number.parseFloat(value) }
+        : { crypto_type: selectedCrypto, usd_amount: Number.parseFloat(value) }
 
     const response = await apiCall<{ crypto_amount: number; usd_amount: number }>(
       "/api/deposits/convert",
       "POST",
       payload,
-      true
+      true,
     )
 
     return {
@@ -109,7 +109,7 @@ export default function DepositsSection({ onReturnToDashboard }: DepositsProps) 
           title: "Conversion Error",
           description: "Failed to convert amount",
           variant: "destructive",
-        })
+        }),
       )
   }
 
@@ -126,7 +126,7 @@ export default function DepositsSection({ onReturnToDashboard }: DepositsProps) 
           title: "Conversion Error",
           description: "Failed to convert amount",
           variant: "destructive",
-        })
+        }),
       )
   }
 
@@ -157,8 +157,7 @@ export default function DepositsSection({ onReturnToDashboard }: DepositsProps) 
 
   /** Route 6: Upload proof */
   const uploadProofMutation = useMutation({
-    mutationFn: (data: { deposit_id: number; file: File }) =>
-      apiCall("/api/deposits/upload-proof", "POST", data, true),
+    mutationFn: (data: { deposit_id: number; file: File }) => apiCall("/api/deposits/upload-proof", "POST", data, true),
     onSuccess: () => {
       toast({ title: "Proof Uploaded" })
       setProofFile(null)
@@ -380,8 +379,8 @@ export default function DepositsSection({ onReturnToDashboard }: DepositsProps) 
                           deposit.status === "confirmed"
                             ? "default"
                             : deposit.status === "pending"
-                            ? "secondary"
-                            : "destructive"
+                              ? "secondary"
+                              : "destructive"
                         }
                       >
                         {deposit.status}
@@ -429,4 +428,5 @@ export default function DepositsSection({ onReturnToDashboard }: DepositsProps) 
       </div>
     </div>
   )
-                  }
+                    }
+            
