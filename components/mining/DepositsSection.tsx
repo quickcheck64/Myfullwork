@@ -172,10 +172,14 @@ export default function DepositsSection({ onReturnToDashboard }: DepositsProps) 
   })
 
   const handleCreateDeposit = () => {
-    const amount = Number.parseFloat(cryptoAmount)
-    const usd = Number.parseFloat(usdAmount)
+    console.log("[v0] Create deposit clicked", { cryptoAmount, usdAmount, cryptoInput, usdInput })
 
-    if (!amount && !usd) {
+    const amount = Number.parseFloat(cryptoAmount || cryptoInput)
+    const usd = Number.parseFloat(usdAmount || usdInput)
+
+    console.log("[v0] Parsed amounts", { amount, usd })
+
+    if ((!amount || isNaN(amount)) && (!usd || isNaN(usd))) {
       toast({
         title: "Invalid Amount",
         description: "Please enter a valid amount",
@@ -183,6 +187,13 @@ export default function DepositsSection({ onReturnToDashboard }: DepositsProps) 
       })
       return
     }
+
+    console.log("[v0] Creating deposit with", {
+      crypto_type: selectedCrypto,
+      amount: amount || undefined,
+      usd_amount: usd || undefined,
+      transaction_hash: transactionHash || undefined,
+    })
 
     createDepositMutation.mutate({
       crypto_type: selectedCrypto,
@@ -279,7 +290,7 @@ export default function DepositsSection({ onReturnToDashboard }: DepositsProps) 
                   {depositInfo.qr_code_url && (
                     <div className="flex justify-center">
                       <div className="bg-white p-4 rounded-lg">
-                        <img src={depositInfo.qr_code_url} alt="QR Code" className="w-48 h-48" />
+                        <img src={depositInfo.qr_code_url || "/placeholder.svg"} alt="QR Code" className="w-48 h-48" />
                       </div>
                     </div>
                   )}
@@ -345,7 +356,9 @@ export default function DepositsSection({ onReturnToDashboard }: DepositsProps) 
 
                 <Button
                   onClick={handleCreateDeposit}
-                  disabled={createDepositMutation.isPending || (!cryptoAmount && !usdAmount)}
+                  disabled={
+                    createDepositMutation.isPending || (!cryptoAmount && !cryptoInput && !usdAmount && !usdInput)
+                  }
                   className="w-full"
                 >
                   {createDepositMutation.isPending ? "Creating..." : "Create Deposit"}
@@ -428,5 +441,4 @@ export default function DepositsSection({ onReturnToDashboard }: DepositsProps) 
       </div>
     </div>
   )
-                    }
-            
+                      }
