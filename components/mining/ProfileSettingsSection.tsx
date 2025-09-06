@@ -1,119 +1,97 @@
 "use client"
 
-import { useQuery } from "@tanstack/react-query"
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
-import { apiCall } from "@/lib/api"
-import { PieChart, Pie, Cell, Legend, Tooltip, ResponsiveContainer } from "recharts"
+import { useState, useEffect } from "react"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+import { apiCall, formatCrypto } from "@/lib/api"
+
+interface UserProfile {
+  id: number
+  user_id: string
+  name: string
+  email?: string
+  status: string
+  is_admin: boolean
+  is_agent: boolean
+  is_flagged: boolean
+  usd_balance: number
+  bitcoin_balance: number
+  ethereum_balance: number
+  bitcoin_balance_usd: number
+  ethereum_balance_usd: number
+  total_balance_usd: number
+  bitcoin_wallet?: string
+  ethereum_wallet?: string
+  personal_mining_rate?: number
+  referral_code?: string
+  email_verified: boolean
+  birthday_day?: number
+  birthday_month?: number
+  birthday_year?: number
+  gender?: string
+  user_country_code?: string
+  zip_code?: string
+  created_at: string
+  referred_users_count?: number
+}
 
 export default function ProfileSettingsSection() {
-  // Fetch user profile data
-  const { data: user, isLoading, isError } = useQuery(["userProfile"], () =>
-    apiCall("/api/user/profile", "GET", null, true)
-  )
+  const [user, setUser] = useState<UserProfile | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  const fetchProfile = async () => {
+    try {
+      setIsLoading(true)
+      const data = await apiCall("/api/user/profile", "GET", null, true)
+      setUser(data)
+    } catch (err: any) {
+      setError(err.message || "Failed to load profile")
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    fetchProfile()
+  }, [])
 
   if (isLoading) return <p>Loading profile...</p>
-  if (isError) return <p>Failed to load profile.</p>
-
-  // Prepare data for the pie chart
-  const pieData = [
-    { name: "Bitcoin", value: user?.bitcoin_balance_usd ?? 0 },
-    { name: "Ethereum", value: user?.ethereum_balance_usd ?? 0 },
-  ]
-
-  const COLORS = ["#f7931a", "#627eea"] // Bitcoin orange, Ethereum blue
+  if (error) return <p className="text-red-500">{error}</p>
+  if (!user) return <p>No profile data found</p>
 
   return (
     <div className="min-h-screen p-4 bg-background space-y-6">
-      {/* Portfolio Overview Card */}
+      {/* Portfolio Overview */}
       <Card>
         <CardHeader>
           <CardTitle>Portfolio Overview</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <p className="font-medium">
-            Total Portfolio Value: ${user?.total_balance_usd ?? 0}
-          </p>
-
-          <div className="w-full h-48">
-            <ResponsiveContainer>
-              <PieChart>
-                <Pie
-                  data={pieData}
-                  dataKey="value"
-                  nameKey="name"
-                  cx="50%"
-                  cy="50%"
-                  outerRadius={80}
-                  label={({ name, value }) => `${name}: $${value}`}
-                >
-                  {pieData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                  ))}
-                </Pie>
-                <Tooltip formatter={(value: number) => `$${value}`} />
-                <Legend verticalAlign="bottom" height={36} />
-              </PieChart>
-            </ResponsiveContainer>
-          </div>
+        <CardContent className="space-y-2">
+          <p>Total Portfolio Value: ${user.total_balance_usd ?? 0}</p>
+          <p>Bitcoin Balance: {formatCrypto(user.bitcoin_balance)} BTC (~${user.bitcoin_balance_usd})</p>
+          <p>Ethereum Balance: {formatCrypto(user.ethereum_balance)} ETH (~${user.ethereum_balance_usd})</p>
         </CardContent>
       </Card>
 
-      {/* Profile Details Card */}
+      {/* Profile Details */}
       <Card>
         <CardHeader>
           <CardTitle>Profile Details</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
-          {/* User Info */}
+        <CardContent className="space-y-2">
           <div>
-            <p className="text-muted-foreground">Name</p>
-            <p className="font-medium">{user?.name || "N/A"}</p>
+            <p>Name: {user.name}</p>
+            <p>Email: {user.email ?? "N/A"}</p>
+            <p>Birthday: {user.birthday_day && user.birthday_month ? `${user.birthday_day}/${user.birthday_month}${user.birthday_year ? `/${user.birthday_year}` : ""}` : "N/A"}</p>
           </div>
           <div>
-            <p className="text-muted-foreground">Email</p>
-            <p className="font-medium">{user?.email || "N/A"}</p>
+            <p>Referral Code: {user.referral_code ?? "N/A"}</p>
+            <p>Referred Users: {user.referred_users_count ?? 0}</p>
           </div>
           <div>
-            <p className="text-muted-foreground">Birthday</p>
-            <p className="font-medium">
-              {user?.birthday_day && user?.birthday_month
-                ? `${user.birthday_day}/${user.birthday_month}${user.birthday_year ? `/${user.birthday_year}` : ""}`
-                : "N/A"}
-            </p>
-          </div>
-
-          {/* Crypto Balances */}
-          <div>
-            <p className="text-muted-foreground">Bitcoin Balance</p>
-            <p className="font-medium">
-              {user?.bitcoin_balance ?? 0} BTC (~${user?.bitcoin_balance_usd ?? 0})
-            </p>
-          </div>
-          <div>
-            <p className="text-muted-foreground">Ethereum Balance</p>
-            <p className="font-medium">
-              {user?.ethereum_balance ?? 0} ETH (~${user?.ethereum_balance_usd ?? 0})
-            </p>
-          </div>
-
-          {/* Referral */}
-          <div>
-            <p className="text-muted-foreground">Referral Code</p>
-            <p className="font-medium">{user?.referral_code || "N/A"}</p>
-          </div>
-          <div>
-            <p className="text-muted-foreground">Referred Users</p>
-            <p className="font-medium">{user?.referred_users_count ?? 0}</p>
-          </div>
-
-          {/* Wallets */}
-          <div>
-            <p className="text-muted-foreground">Bitcoin Wallet</p>
-            <p className="font-medium">{user?.bitcoin_wallet || "N/A"}</p>
-          </div>
-          <div>
-            <p className="text-muted-foreground">Ethereum Wallet</p>
-            <p className="font-medium">{user?.ethereum_wallet || "N/A"}</p>
+            <p>Bitcoin Wallet: {user.bitcoin_wallet ?? "N/A"}</p>
+            <p>Ethereum Wallet: {user.ethereum_wallet ?? "N/A"}</p>
           </div>
         </CardContent>
       </Card>
