@@ -1,210 +1,297 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import { Button } from "@/components/ui/button"
-import { User, Globe, Calendar, Clipboard } from "lucide-react"
-import { useToast } from "@/hooks/use-toast"
+import { useEffect, useState } from "react"
 import { apiCall } from "@/lib/api"
+import { useToast } from "@/hooks/use-toast"
+import { Button } from "@/components/ui/button"
+import { User, Mail, Shield, Star, Gift, Calendar, CheckCircle, XCircle, Copy, ArrowLeft } from "lucide-react"
 
-// Formatting helpers
-const formatCrypto = (value: number | string | null | undefined, decimals = 6) => {
-  const num = Number(value) || 0
-  return num.toFixed(decimals)
-}
-const formatUSD = (value: number | string | null | undefined) => {
-  const num = Number(value) || 0
-  return num.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })
-}
-
-// User Profile Interface
 interface UserProfile {
-  id: number
-  user_id: string
-  name: string
-  email?: string
+  email: string
+  name?: string
   status: string
-  usd_balance: number | string
-  bitcoin_balance: number | string
-  ethereum_balance: number | string
-  bitcoin_balance_usd: number | string
-  ethereum_balance_usd: number | string
-  total_balance_usd: number | string
+  points_balance: number
   referral_code?: string
-  birthday_day?: number
-  birthday_month?: number
-  birthday_year?: number
-  gender?: string
-  user_country_code?: string
-  zip_code?: string
+  email_verified: boolean
+  is_admin: boolean
+  is_agent: boolean
   created_at: string
-  referred_users_count?: number
 }
 
-export default function ProfileSettingsCard() {
+export default function ProfileSection({ onReturnToDashboard }: { onReturnToDashboard: () => void }) {
   const [user, setUser] = useState<UserProfile | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const { toast } = useToast()
 
-  const fetchProfile = async () => {
-    try {
+  useEffect(() => {
+    const loadProfile = async () => {
       setIsLoading(true)
-      const data = await apiCall<UserProfile>("/api/user/profile", "GET", null, true)
-      setUser(data)
-    } catch (err: any) {
-      toast({ title: "Error", description: err.message || "Failed to load profile", variant: "destructive" })
-    } finally {
-      setIsLoading(false)
+      try {
+        const data = await apiCall<UserProfile>("/users/me", "GET", null, true)
+        setUser(data)
+      } catch (error: any) {
+        toast({
+          title: "Error",
+          description: error.message || "Failed to load profile.",
+          variant: "destructive",
+        })
+      } finally {
+        setIsLoading(false)
+      }
+    }
+    loadProfile()
+  }, [toast])
+
+  const copyReferralCode = async () => {
+    if (user?.referral_code) {
+      try {
+        await navigator.clipboard.writeText(user.referral_code)
+        toast({
+          title: "Copied!",
+          description: "Referral code copied to clipboard",
+        })
+      } catch (error) {
+        toast({
+          title: "Error",
+          description: "Failed to copy referral code",
+          variant: "destructive",
+        })
+      }
     }
   }
 
-  const copyReferralCode = () => {
-    if (!user?.referral_code) return
-    navigator.clipboard.writeText(user.referral_code)
-    toast({ title: "Copied!", description: "Referral code copied to clipboard", variant: "default" })
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 p-4">
+        <div className="max-w-4xl mx-auto">
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
+            <div className="flex items-center justify-center min-h-[300px]">
+              <div className="text-center">
+                <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center mx-auto mb-4">
+                  <User className="h-6 w-6 text-purple-600 animate-pulse" />
+                </div>
+                <p className="text-gray-500 text-lg">Loading your profile...</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
   }
 
-  useEffect(() => { fetchProfile() }, [])
-
-  if (isLoading) return (
-    <div className="min-h-screen bg-gray-50 p-4 flex items-center justify-center">
-      <div className="bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-secondary)] rounded-2xl shadow-lg p-8 flex items-center justify-center min-h-[300px]">
-        <User className="h-10 w-10 text-white animate-pulse" />
-        <span className="ml-4 text-white text-lg">Loading profile...</span>
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-gray-50 p-4">
+        <div className="max-w-4xl mx-auto">
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
+            <div className="flex items-center justify-center min-h-[300px]">
+              <div className="text-center">
+                <div className="w-12 h-12 bg-red-100 rounded-xl flex items-center justify-center mx-auto mb-4">
+                  <XCircle className="h-6 w-6 text-red-600" />
+                </div>
+                <p className="text-red-500 text-lg mb-4">Failed to load profile</p>
+                <Button onClick={onReturnToDashboard} variant="outline" className="bg-white">
+                  <ArrowLeft className="h-4 w-4 mr-2" />
+                  Return to Dashboard
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
-    </div>
-  )
-
-  if (!user) return (
-    <div className="min-h-screen bg-gray-50 p-4 flex items-center justify-center">
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 text-center">
-        <User className="h-12 w-12 text-red-600 mx-auto mb-4" />
-        <p className="text-red-500 text-lg mb-4">Failed to load profile</p>
-        <Button onClick={fetchProfile} variant="outline">Retry</Button>
-      </div>
-    </div>
-  )
+    )
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 p-4">
       <div className="max-w-4xl mx-auto space-y-6">
-
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold text-gray-900 mb-1">Profile Settings</h1>
-            <p className="text-gray-600">Manage your account and portfolio</p>
+            <p className="text-gray-600">Manage your account information and preferences</p>
           </div>
-          <Button onClick={() => window.location.href = "/dashboard"} variant="outline">Back to Dashboard</Button>
+          <Button onClick={onReturnToDashboard} variant="outline" className="bg-white">
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back to Dashboard
+          </Button>
         </div>
 
-        {/* Portfolio Card */}
-        <div className="bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-secondary)] rounded-2xl p-6 text-white shadow-lg">
-          <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-6">
-
-            {/* User Info */}
-            <div className="flex items-center space-x-4 flex-1 min-w-0">
+        {/* Profile Overview Card */}
+        <div className="bg-gradient-to-r from-purple-600 to-pink-500 rounded-2xl p-6 text-white">
+          <div className="flex items-start justify-between gap-4">
+            <div className="flex items-center space-x-4 min-w-0 flex-1">
               <div className="w-16 h-16 bg-white bg-opacity-20 rounded-2xl flex items-center justify-center flex-shrink-0">
                 <User className="h-8 w-8 text-white" />
               </div>
               <div className="min-w-0 flex-1">
-                <div className="flex items-center space-x-2">
-                  <h2 className="text-2xl font-bold truncate">{user.name}</h2>
-                  {user.status && (
-                    <span className={`inline-flex items-center px-2 py-1 text-xs font-semibold rounded-full
-                      ${user.status.toLowerCase() === "verified" ? "bg-green-600 text-white" : "bg-blue-600 text-white"}`}>
-                      {user.status}
+                <h2 className="text-2xl font-bold truncate">{user.name || "User"}</h2>
+                <p className="text-purple-100 truncate">{user.email}</p>
+                <div className="flex items-center space-x-2 mt-2 flex-wrap">
+                  <span className="bg-white bg-opacity-20 text-white text-xs px-2 py-1 rounded-full font-medium capitalize">
+                    {user.status}
+                  </span>
+                  {user.email_verified && (
+                    <span className="bg-green-500 bg-opacity-80 text-white text-xs px-2 py-1 rounded-full font-medium flex items-center space-x-1">
+                      <CheckCircle className="h-3 w-3" />
+                      <span>Verified</span>
                     </span>
                   )}
                 </div>
-                <p className="text-white/80 truncate">{user.email}</p>
               </div>
             </div>
-
-            {/* Portfolio Summary */}
-            <div className="flex-shrink-0 w-full md:w-auto max-w-full md:max-w-[220px] text-right space-y-1">
-              <p className="text-white/80 text-xs">Total Portfolio</p>
-              <p className="text-2xl font-bold whitespace-nowrap">${formatUSD(user.total_balance_usd)}</p>
-
-              <div className="mt-2 space-y-1">
-                <p className="text-white/80 text-xs truncate">
-                  BTC: {formatCrypto(user.bitcoin_balance)} (~${formatUSD(user.bitcoin_balance_usd)})
-                </p>
-                <p className="text-white/80 text-xs truncate">
-                  ETH: {formatCrypto(user.ethereum_balance)} (~${formatUSD(user.ethereum_balance_usd)})
-                </p>
-              </div>
+            <div className="text-right flex-shrink-0 min-w-0 w-auto max-w-[140px] sm:max-w-[200px]">
+              <p className="text-purple-200 text-xs sm:text-sm whitespace-nowrap">Points Balance</p>
+              <p className="text-xl sm:text-3xl font-bold break-all leading-tight overflow-hidden">
+                {user.points_balance.toLocaleString()}
+              </p>
+              <p className="text-purple-200 text-xs sm:text-sm whitespace-nowrap">points</p>
             </div>
-
           </div>
         </div>
 
-        {/* Grid: Profile Details + Referral */}
+        {/* Account Details Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-
-          {/* Profile Details */}
-          <div className="bg-white rounded-2xl p-6 border border-gray-100 space-y-2">
-            <h3 className="text-lg font-bold text-gray-900 mb-2">Profile Details</h3>
-
-            {/* User ID added */}
-            <p><span className="font-bold">User ID:</span> {user.user_id}</p>
-
-            <p><span className="font-bold">Name:</span> {user.name}</p>
-            {user.email && <p><span className="font-bold">Email:</span> {user.email}</p>}
-            {user.birthday_day && user.birthday_month && (
-              <p className="flex items-center space-x-2">
-                <Calendar className="h-4 w-4 text-gray-400" />
-                <span>{user.birthday_day}/{user.birthday_month}{user.birthday_year ? `/${user.birthday_year}` : ""}</span>
-              </p>
-            )}
-            {user.gender && <p><span className="font-bold">Gender:</span> {user.gender}</p>}
-            {user.user_country_code && (
-              <p className="flex items-center space-x-2">
-                <Globe className="h-4 w-4 text-gray-400" />
-                <span>{user.user_country_code}</span>
-              </p>
-            )}
-            {user.zip_code && <p><span className="font-bold">ZIP Code:</span> {user.zip_code}</p>}
-          </div>
-
-          {/* Referral Program */}
-          <div className="bg-white rounded-2xl p-6 border border-gray-100 space-y-4">
-            <h3 className="text-lg font-bold text-gray-900 mb-2">Referral Program</h3>
-            {user.referral_code ? (
-              <div className="flex items-center space-x-2">
-                <code className="bg-gray-100 px-2 py-1 rounded-lg font-mono text-gray-900">{user.referral_code}</code>
-                <Button size="sm" variant="outline" onClick={copyReferralCode}><Clipboard className="h-4 w-4" /></Button>
+          {/* Contact Information */}
+          <div className="bg-white rounded-2xl p-6 border border-gray-200">
+            <div className="flex items-center space-x-3 mb-4">
+              <div className="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center">
+                <Mail className="h-5 w-5 text-blue-600" />
               </div>
-            ) : <p className="text-gray-400">No referral code assigned</p>}
-            {user.referred_users_count !== undefined && <p><span className="font-bold">Referred Users:</span> {user.referred_users_count}</p>}
+              <h3 className="text-lg font-bold text-gray-900">Contact Information</h3>
+            </div>
+            <div className="space-y-4">
+              <div>
+                <p className="text-sm text-gray-500 mb-1">Email Address</p>
+                <p className="text-gray-900 font-medium">{user.email}</p>
+              </div>
+              <div>
+                <p className="text-sm text-gray-500 mb-1">Full Name</p>
+                <p className="text-gray-900 font-medium">{user.name || "Not provided"}</p>
+              </div>
+              <div className="flex items-center space-x-2">
+                <p className="text-sm text-gray-500">Email Status:</p>
+                {user.email_verified ? (
+                  <span className="flex items-center space-x-1 text-green-600 text-sm font-medium">
+                    <CheckCircle className="h-4 w-4" />
+                    <span>Verified</span>
+                  </span>
+                ) : (
+                  <span className="flex items-center space-x-1 text-orange-600 text-sm font-medium">
+                    <XCircle className="h-4 w-4" />
+                    <span>Unverified</span>
+                  </span>
+                )}
+              </div>
+            </div>
           </div>
 
+          {/* Account Status */}
+          <div className="bg-white rounded-2xl p-6 border border-gray-200">
+            <div className="flex items-center space-x-3 mb-4">
+              <div className="w-10 h-10 bg-green-100 rounded-xl flex items-center justify-center">
+                <Shield className="h-5 w-5 text-green-600" />
+              </div>
+              <h3 className="text-lg font-bold text-gray-900">Account Status</h3>
+            </div>
+            <div className="space-y-4">
+              <div>
+                <p className="text-sm text-gray-500 mb-1">Account Type</p>
+                <p className="text-gray-900 font-medium capitalize">{user.status}</p>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-gray-500">Admin Access:</span>
+                <span className={`text-sm font-medium ${user.is_admin ? "text-green-600" : "text-gray-400"}`}>
+                  {user.is_admin ? "Yes" : "No"}
+                </span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-gray-500">Agent Status:</span>
+                <span className={`text-sm font-medium ${user.is_agent ? "text-blue-600" : "text-gray-400"}`}>
+                  {user.is_agent ? "Active" : "Inactive"}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Referral Information */}
+          <div className="bg-white rounded-2xl p-6 border border-gray-200">
+            <div className="flex items-center space-x-3 mb-4">
+              <div className="w-10 h-10 bg-purple-100 rounded-xl flex items-center justify-center">
+                <Gift className="h-5 w-5 text-purple-600" />
+              </div>
+              <h3 className="text-lg font-bold text-gray-900">Referral Program</h3>
+            </div>
+            <div className="space-y-4">
+              <div>
+                <p className="text-sm text-gray-500 mb-2">Your Referral Code</p>
+                {user.referral_code ? (
+                  <div className="flex items-center space-x-2">
+                    <code className="bg-gray-100 px-3 py-2 rounded-lg text-gray-900 font-mono text-sm flex-1">
+                      {user.referral_code}
+                    </code>
+                    <Button size="sm" variant="outline" onClick={copyReferralCode} className="bg-white">
+                      <Copy className="h-4 w-4" />
+                    </Button>
+                  </div>
+                ) : (
+                  <p className="text-gray-400 text-sm">No referral code assigned</p>
+                )}
+              </div>
+              <p className="text-xs text-gray-500">
+                Share your referral code with friends to earn bonus points when they join!
+              </p>
+            </div>
+          </div>
+
+          {/* Account Timeline */}
+          <div className="bg-white rounded-2xl p-6 border border-gray-200">
+            <div className="flex items-center space-x-3 mb-4">
+              <div className="w-10 h-10 bg-orange-100 rounded-xl flex items-center justify-center">
+                <Calendar className="h-5 w-5 text-orange-600" />
+              </div>
+              <h3 className="text-lg font-bold text-gray-900">Account Timeline</h3>
+            </div>
+            <div className="space-y-4">
+              <div>
+                <p className="text-sm text-gray-500 mb-1">Member Since</p>
+                <p className="text-gray-900 font-medium">
+                  {new Date(user.created_at).toLocaleDateString("en-US", {
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric",
+                  })}
+                </p>
+              </div>
+              <div>
+                <p className="text-sm text-gray-500 mb-1">Account Age</p>
+                <p className="text-gray-900 font-medium">
+                  {Math.floor((Date.now() - new Date(user.created_at).getTime()) / (1000 * 60 * 60 * 24))} days
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
 
-        {/* Account Timeline */}
-        <div className="bg-white rounded-2xl p-6 border border-gray-100">
+        {/* Points Summary Card */}
+        <div className="bg-white rounded-2xl p-6 border border-gray-200 border-2 border-dashed border-purple-200">
           <div className="flex items-center space-x-3 mb-4">
-            <div className="w-10 h-10 bg-orange-100 rounded-xl flex items-center justify-center">
-              <Calendar className="h-5 w-5 text-orange-600" />
+            <div className="w-10 h-10 bg-pink-100 rounded-xl flex items-center justify-center">
+              <Star className="h-5 w-5 text-pink-600" />
             </div>
-            <h3 className="text-lg font-bold text-gray-900">Account Timeline</h3>
+            <h3 className="text-lg font-bold text-gray-900">Points Summary</h3>
+            <span className="bg-pink-100 text-pink-700 text-xs px-2 py-1 rounded-full font-medium">
+              Current Balance
+            </span>
           </div>
-          <div className="space-y-4">
-            <div>
-              <p className="text-sm text-gray-500 mb-1">Member Since</p>
-              <p className="text-gray-900 font-medium">
-                {new Date(user.created_at).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}
-              </p>
-            </div>
-            <div>
-              <p className="text-sm text-gray-500 mb-1">Account Age</p>
-              <p className="text-gray-900 font-medium">
-                {Math.floor((Date.now() - new Date(user.created_at).getTime()) / (1000*60*60*24))} days
-              </p>
-            </div>
+          <div className="text-center py-4">
+            <p className="text-4xl font-bold text-gray-900 mb-2 break-all px-4">
+              {user.points_balance.toLocaleString()}
+            </p>
+            <p className="text-gray-500">points available for redemption</p>
           </div>
         </div>
-
       </div>
     </div>
   )
-}
+          }
