@@ -11,11 +11,15 @@ import { apiCall } from "@/lib/api"
 // -----------------------
 // Formatting helpers
 // -----------------------
-const formatCrypto = (value: number, decimals = 6) => value?.toFixed(decimals) ?? "0.000000"
-const formatUSD = (value: number) =>
-  value !== undefined && value !== null
-    ? value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })
-    : "0.00"
+const formatCrypto = (value: number | string | null | undefined, decimals = 6) => {
+  const num = Number(value) || 0
+  return num.toFixed(decimals)
+}
+
+const formatUSD = (value: number | string | null | undefined) => {
+  const num = Number(value) || 0
+  return num.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+}
 
 // -----------------------
 // User Profile Interface
@@ -29,12 +33,12 @@ interface UserProfile {
   is_admin: boolean
   is_agent: boolean
   is_flagged: boolean
-  usd_balance: number
-  bitcoin_balance: number
-  ethereum_balance: number
-  bitcoin_balance_usd: number
-  ethereum_balance_usd: number
-  total_balance_usd: number
+  usd_balance: number | string
+  bitcoin_balance: number | string
+  ethereum_balance: number | string
+  bitcoin_balance_usd: number | string
+  ethereum_balance_usd: number | string
+  total_balance_usd: number | string
   bitcoin_wallet?: string
   ethereum_wallet?: string
   personal_mining_rate?: number
