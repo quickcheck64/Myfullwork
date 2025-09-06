@@ -97,22 +97,18 @@ export default function ProfileSettingsCard() {
           <Button onClick={() => window.location.href = "/dashboard"} variant="outline">Back to Dashboard</Button>
         </div>
 
-        {/* Big Portfolio Card */}
+        {/* Portfolio Card */}
         <div className="bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-secondary)] rounded-2xl p-6 text-white shadow-lg">
           <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-6">
 
             {/* User Info */}
             <div className="flex items-center space-x-4 flex-1 min-w-0">
-              {/* Avatar */}
               <div className="w-16 h-16 bg-white bg-opacity-20 rounded-2xl flex items-center justify-center flex-shrink-0">
                 <User className="h-8 w-8 text-white" />
               </div>
-
-              {/* Name, Email, Status */}
               <div className="min-w-0 flex-1">
                 <div className="flex items-center space-x-2">
                   <h2 className="text-2xl font-bold truncate">{user.name}</h2>
-                  {/* Verified / Approved Badge */}
                   {user.status && (
                     <span className={`inline-flex items-center px-2 py-1 text-xs font-semibold rounded-full
                       ${user.status.toLowerCase() === "verified" ? "bg-green-600 text-white" : "bg-blue-600 text-white"}`}>
@@ -207,4 +203,4 @@ export default function ProfileSettingsCard() {
       </div>
     </div>
   )
-                                                                          }
+            }
