@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { User } from "lucide-react"
+import { User, CreditCard, Globe, Calendar } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { apiCall } from "@/lib/api"
 
@@ -83,7 +83,8 @@ export default function ProfileSettingsCard() {
   }, [])
 
   return (
-    <Card className="bg-gradient-to-r from-blue-500 to-indigo-500 text-white">
+    <Card className="bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-secondary)] text-white shadow-lg">
+      {/* Header */}
       <CardHeader className="flex items-center justify-between">
         <CardTitle className="flex items-center space-x-2">
           <User className="h-6 w-6" />
@@ -104,36 +105,48 @@ export default function ProfileSettingsCard() {
           </Button>
         </div>
       </CardHeader>
-      <CardContent className="space-y-4">
+
+      {/* Card Content */}
+      <CardContent className="space-y-6">
         {isLoading && <p className="text-white/80 text-center py-4">Loading profile data...</p>}
 
         {!isLoading && user && (
           <>
             {/* Portfolio Overview */}
-            <div className="space-y-2">
-              <p>Total Portfolio Value: ${formatUSD(user.total_balance_usd)}</p>
+            <div className="bg-white/10 p-4 rounded-lg space-y-2">
+              <p className="font-semibold text-lg">Portfolio Overview</p>
+              <p>Total Portfolio Value: <span className="font-bold">${formatUSD(user.total_balance_usd)}</span></p>
               <p>
-                Bitcoin Balance: {formatCrypto(user.bitcoin_balance)} BTC (~${formatUSD(user.bitcoin_balance_usd)})
+                Bitcoin Balance: <span className="font-bold">{formatCrypto(user.bitcoin_balance)} BTC</span> (~${formatUSD(user.bitcoin_balance_usd)})
               </p>
               <p>
-                Ethereum Balance: {formatCrypto(user.ethereum_balance)} ETH (~${formatUSD(user.ethereum_balance_usd)})
+                Ethereum Balance: <span className="font-bold">{formatCrypto(user.ethereum_balance)} ETH</span> (~${formatUSD(user.ethereum_balance_usd)})
               </p>
             </div>
 
             {/* Profile Details */}
-            <div className="space-y-2">
-              <p>Name: {user.name}</p>
-              <p>Email: {user.email ?? "N/A"}</p>
-              <p>
-                Birthday:{" "}
-                {user.birthday_day && user.birthday_month
-                  ? `${user.birthday_day}/${user.birthday_month}${user.birthday_year ? `/${user.birthday_year}` : ""}`
-                  : "N/A"}
-              </p>
-              <p>Referral Code: {user.referral_code ?? "N/A"}</p>
-              <p>Referred Users: {user.referred_users_count ?? 0}</p>
-              <p>Bitcoin Wallet: {user.bitcoin_wallet ?? "N/A"}</p>
-              <p>Ethereum Wallet: {user.ethereum_wallet ?? "N/A"}</p>
+            <div className="bg-white/10 p-4 rounded-lg space-y-2">
+              <p className="font-semibold text-lg">Profile Details</p>
+              <p><span className="font-bold">Name:</span> {user.name}</p>
+              {user.email && <p><span className="font-bold">Email:</span> {user.email}</p>}
+              {user.birthday_day && user.birthday_month && (
+                <p className="flex items-center space-x-2">
+                  <Calendar className="h-4 w-4 text-white/70" />
+                  <span>{user.birthday_day}/{user.birthday_month}{user.birthday_year ? `/${user.birthday_year}` : ""}</span>
+                </p>
+              )}
+              {user.gender && <p><span className="font-bold">Gender:</span> {user.gender}</p>}
+              {user.user_country_code && (
+                <p className="flex items-center space-x-2">
+                  <Globe className="h-4 w-4 text-white/70" />
+                  <span>{user.user_country_code}</span>
+                </p>
+              )}
+              {user.zip_code && <p><span className="font-bold">ZIP Code:</span> {user.zip_code}</p>}
+              {user.referral_code && <p><span className="font-bold">Referral Code:</span> {user.referral_code}</p>}
+              {user.referred_users_count !== undefined && <p><span className="font-bold">Referred Users:</span> {user.referred_users_count}</p>}
+              {user.bitcoin_wallet && <p><span className="font-bold">Bitcoin Wallet:</span> {user.bitcoin_wallet}</p>}
+              {user.ethereum_wallet && <p><span className="font-bold">Ethereum Wallet:</span> {user.ethereum_wallet}</p>}
             </div>
           </>
         )}
