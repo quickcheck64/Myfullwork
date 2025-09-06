@@ -87,52 +87,64 @@ export default function ProfileSettingsCard() {
   return (
     <div className="min-h-screen bg-gray-50 p-4">
       <div className="max-w-4xl mx-auto space-y-6">
+
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold text-gray-900 mb-1">Profile Settings</h1>
             <p className="text-gray-600">Manage your account and portfolio</p>
           </div>
-          <Button onClick={fetchProfile} variant="outline" className="bg-white">Refresh</Button>
+          <Button onClick={() => window.location.href = "/dashboard"} variant="outline">Back to Dashboard</Button>
         </div>
 
-        {/* Big Portfolio Card with Verified Badge */}
-        <div className="bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-secondary)] rounded-2xl p-6 text-white">
-          <div className="flex items-start justify-between gap-4">
-            <div className="flex items-center space-x-4 min-w-0 flex-1">
+        {/* Big Portfolio Card */}
+        <div className="bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-secondary)] rounded-2xl p-6 text-white shadow-lg">
+          <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-6">
+
+            {/* User Info */}
+            <div className="flex items-center space-x-4 flex-1 min-w-0">
+              {/* Avatar */}
               <div className="w-16 h-16 bg-white bg-opacity-20 rounded-2xl flex items-center justify-center flex-shrink-0">
                 <User className="h-8 w-8 text-white" />
               </div>
-              <div className="min-w-0 flex-1">
-                <h2 className="text-2xl font-bold truncate">{user.name}</h2>
-                <p className="text-white/80 truncate">{user.email}</p>
 
-                {/* Verified / Status Badge */}
-                {user.status && (
-                  <div className="mt-2 flex items-center space-x-2 flex-wrap">
-                    <span className={`inline-flex items-center px-2 py-1 text-xs font-medium rounded-full
-                      ${user.status.toLowerCase() === "verified"
-                        ? "bg-white text-green-600"
-                        : "bg-white bg-opacity-20 text-white"}`}>
+              {/* Name, Email, Status */}
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center space-x-2">
+                  <h2 className="text-2xl font-bold truncate">{user.name}</h2>
+                  {/* Verified / Approved Badge */}
+                  {user.status && (
+                    <span className={`inline-flex items-center px-2 py-1 text-xs font-semibold rounded-full
+                      ${user.status.toLowerCase() === "verified" ? "bg-green-600 text-white" : "bg-blue-600 text-white"}`}>
                       {user.status}
                     </span>
-                  </div>
-                )}
+                  )}
+                </div>
+                <p className="text-white/80 truncate">{user.email}</p>
               </div>
             </div>
 
-            {/* Balance Summary */}
-            <div className="text-right flex-shrink-0 min-w-0 w-auto max-w-[160px]">
+            {/* Portfolio Summary */}
+            <div className="flex-shrink-0 w-full md:w-auto max-w-full md:max-w-[220px] text-right space-y-1">
               <p className="text-white/80 text-xs">Total Portfolio</p>
-              <p className="text-2xl font-bold break-all">${formatUSD(user.total_balance_usd)}</p>
-              <p className="text-white/80 text-xs">BTC: {formatCrypto(user.bitcoin_balance)} (~${formatUSD(user.bitcoin_balance_usd)})</p>
-              <p className="text-white/80 text-xs">ETH: {formatCrypto(user.ethereum_balance)} (~${formatUSD(user.ethereum_balance_usd)})</p>
+              <p className="text-2xl font-bold whitespace-nowrap">${formatUSD(user.total_balance_usd)}</p>
+
+              <div className="mt-2 space-y-1">
+                <p className="text-white/80 text-xs truncate">
+                  BTC: {formatCrypto(user.bitcoin_balance)} (~${formatUSD(user.bitcoin_balance_usd)})
+                </p>
+                <p className="text-white/80 text-xs truncate">
+                  ETH: {formatCrypto(user.ethereum_balance)} (~${formatUSD(user.ethereum_balance_usd)})
+                </p>
+              </div>
             </div>
+
           </div>
         </div>
 
         {/* Grid: Profile Details + Referral */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+
           {/* Profile Details */}
           <div className="bg-white rounded-2xl p-6 border border-gray-100 space-y-2">
             <h3 className="text-lg font-bold text-gray-900 mb-2">Profile Details</h3>
@@ -165,6 +177,7 @@ export default function ProfileSettingsCard() {
             ) : <p className="text-gray-400">No referral code assigned</p>}
             {user.referred_users_count !== undefined && <p><span className="font-bold">Referred Users:</span> {user.referred_users_count}</p>}
           </div>
+
         </div>
 
         {/* Account Timeline */}
@@ -190,7 +203,8 @@ export default function ProfileSettingsCard() {
             </div>
           </div>
         </div>
+
       </div>
     </div>
   )
-}
+                                                                          }
