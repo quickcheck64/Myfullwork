@@ -1,29 +1,22 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { User, Globe, Calendar, Clipboard } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { apiCall } from "@/lib/api"
 
-// -----------------------
 // Formatting helpers
-// -----------------------
 const formatCrypto = (value: number | string | null | undefined, decimals = 6) => {
   const num = Number(value) || 0
   return num.toFixed(decimals)
 }
-
 const formatUSD = (value: number | string | null | undefined) => {
   const num = Number(value) || 0
   return num.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 }
 
-// -----------------------
 // User Profile Interface
-// -----------------------
 interface UserProfile {
   id: number
   user_id: string
@@ -47,9 +40,6 @@ interface UserProfile {
   referred_users_count?: number
 }
 
-// -----------------------
-// Profile Component
-// -----------------------
 export default function ProfileSettingsCard() {
   const [user, setUser] = useState<UserProfile | null>(null)
   const [isLoading, setIsLoading] = useState(true)
@@ -61,11 +51,7 @@ export default function ProfileSettingsCard() {
       const data = await apiCall<UserProfile>("/api/user/profile", "GET", null, true)
       setUser(data)
     } catch (err: any) {
-      toast({
-        title: "Error",
-        description: err.message || "Failed to load profile",
-        variant: "destructive",
-      })
+      toast({ title: "Error", description: err.message || "Failed to load profile", variant: "destructive" })
     } finally {
       setIsLoading(false)
     }
@@ -74,98 +60,137 @@ export default function ProfileSettingsCard() {
   const copyReferralCode = () => {
     if (!user?.referral_code) return
     navigator.clipboard.writeText(user.referral_code)
-    toast({
-      title: "Copied!",
-      description: "Referral code copied to clipboard",
-      variant: "default",
-    })
+    toast({ title: "Copied!", description: "Referral code copied to clipboard", variant: "default" })
   }
 
-  useEffect(() => {
-    fetchProfile()
-  }, [])
+  useEffect(() => { fetchProfile() }, [])
+
+  if (isLoading) return (
+    <div className="min-h-screen bg-gray-50 p-4 flex items-center justify-center">
+      <div className="bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-secondary)] rounded-2xl shadow-lg p-8 flex items-center justify-center min-h-[300px]">
+        <User className="h-10 w-10 text-white animate-pulse" />
+        <span className="ml-4 text-white text-lg">Loading profile...</span>
+      </div>
+    </div>
+  )
+
+  if (!user) return (
+    <div className="min-h-screen bg-gray-50 p-4 flex items-center justify-center">
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 text-center">
+        <User className="h-12 w-12 text-red-600 mx-auto mb-4" />
+        <p className="text-red-500 text-lg mb-4">Failed to load profile</p>
+        <Button onClick={fetchProfile} variant="outline">Retry</Button>
+      </div>
+    </div>
+  )
 
   return (
-    <Card className="bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-secondary)] text-white shadow-lg">
-      {/* Header */}
-      <CardHeader className="flex items-center justify-between">
-        <CardTitle className="flex items-center space-x-2">
-          <User className="h-6 w-6" />
-          <span>User Profile</span>
-        </CardTitle>
-        <div className="flex items-center space-x-2">
-          <Badge variant="secondary" className="bg-white/20 text-white border-white/30">
-            {isLoading ? "Loading..." : "Active"}
-          </Badge>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={fetchProfile}
-            className="text-white hover:bg-white/20 p-1"
-            disabled={isLoading}
-          >
-            Refresh
-          </Button>
+    <div className="min-h-screen bg-gray-50 p-4">
+      <div className="max-w-4xl mx-auto space-y-6">
+        {/* Header */}
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900 mb-1">Profile Settings</h1>
+            <p className="text-gray-600">Manage your account and portfolio</p>
+          </div>
+          <Button onClick={fetchProfile} variant="outline" className="bg-white">Refresh</Button>
         </div>
-      </CardHeader>
 
-      {/* Card Content */}
-      <CardContent className="space-y-6">
-        {isLoading && <p className="text-white/80 text-center py-4">Loading profile data...</p>}
+        {/* Big Portfolio Card with Verified Badge */}
+        <div className="bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-secondary)] rounded-2xl p-6 text-white">
+          <div className="flex items-start justify-between gap-4">
+            <div className="flex items-center space-x-4 min-w-0 flex-1">
+              <div className="w-16 h-16 bg-white bg-opacity-20 rounded-2xl flex items-center justify-center flex-shrink-0">
+                <User className="h-8 w-8 text-white" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <h2 className="text-2xl font-bold truncate">{user.name}</h2>
+                <p className="text-white/80 truncate">{user.email}</p>
 
-        {!isLoading && user && (
-          <>
-            {/* Portfolio Overview */}
-            <div className="bg-white/10 p-4 rounded-lg space-y-2">
-              <p className="font-semibold text-lg">Portfolio Overview</p>
-              <p>Total Portfolio Value: <span className="font-bold">${formatUSD(user.total_balance_usd)}</span></p>
-              <p>
-                Bitcoin Balance: <span className="font-bold">{formatCrypto(user.bitcoin_balance)} BTC</span> (~${formatUSD(user.bitcoin_balance_usd)})
-              </p>
-              <p>
-                Ethereum Balance: <span className="font-bold">{formatCrypto(user.ethereum_balance)} ETH</span> (~${formatUSD(user.ethereum_balance_usd)})
-              </p>
+                {/* Verified / Status Badge */}
+                {user.status && (
+                  <div className="mt-2 flex items-center space-x-2 flex-wrap">
+                    <span className={`inline-flex items-center px-2 py-1 text-xs font-medium rounded-full
+                      ${user.status.toLowerCase() === "verified"
+                        ? "bg-white text-green-600"
+                        : "bg-white bg-opacity-20 text-white"}`}>
+                      {user.status}
+                    </span>
+                  </div>
+                )}
+              </div>
             </div>
 
-            {/* Profile Details */}
-            <div className="bg-white/10 p-4 rounded-lg space-y-2">
-              <p className="font-semibold text-lg">Profile Details</p>
-              <p><span className="font-bold">Name:</span> {user.name}</p>
-              {user.email && <p><span className="font-bold">Email:</span> {user.email}</p>}
-              {user.birthday_day && user.birthday_month && (
-                <p className="flex items-center space-x-2">
-                  <Calendar className="h-4 w-4 text-white/70" />
-                  <span>{user.birthday_day}/{user.birthday_month}{user.birthday_year ? `/${user.birthday_year}` : ""}</span>
-                </p>
-              )}
-              {user.gender && <p><span className="font-bold">Gender:</span> {user.gender}</p>}
-              {user.user_country_code && (
-                <p className="flex items-center space-x-2">
-                  <Globe className="h-4 w-4 text-white/70" />
-                  <span>{user.user_country_code}</span>
-                </p>
-              )}
-              {user.zip_code && <p><span className="font-bold">ZIP Code:</span> {user.zip_code}</p>}
-
-              {/* Referral Code with Copy Button */}
-              {user.referral_code && (
-                <p className="flex items-center space-x-2">
-                  <span className="font-bold">Referral Code:</span>
-                  <span>{user.referral_code}</span>
-                  <Button variant="outline" size="xs" onClick={copyReferralCode} className="flex items-center space-x-1">
-                    <Clipboard className="h-3 w-3" />
-                    <span>Copy</span>
-                  </Button>
-                </p>
-              )}
-
-              {user.referred_users_count !== undefined && <p><span className="font-bold">Referred Users:</span> {user.referred_users_count}</p>}
+            {/* Balance Summary */}
+            <div className="text-right flex-shrink-0 min-w-0 w-auto max-w-[160px]">
+              <p className="text-white/80 text-xs">Total Portfolio</p>
+              <p className="text-2xl font-bold break-all">${formatUSD(user.total_balance_usd)}</p>
+              <p className="text-white/80 text-xs">BTC: {formatCrypto(user.bitcoin_balance)} (~${formatUSD(user.bitcoin_balance_usd)})</p>
+              <p className="text-white/80 text-xs">ETH: {formatCrypto(user.ethereum_balance)} (~${formatUSD(user.ethereum_balance_usd)})</p>
             </div>
-          </>
-        )}
+          </div>
+        </div>
 
-        {!isLoading && !user && <p className="text-white/80 text-center">No profile data found</p>}
-      </CardContent>
-    </Card>
+        {/* Grid: Profile Details + Referral */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Profile Details */}
+          <div className="bg-white rounded-2xl p-6 border border-gray-100 space-y-2">
+            <h3 className="text-lg font-bold text-gray-900 mb-2">Profile Details</h3>
+            <p><span className="font-bold">Name:</span> {user.name}</p>
+            {user.email && <p><span className="font-bold">Email:</span> {user.email}</p>}
+            {user.birthday_day && user.birthday_month && (
+              <p className="flex items-center space-x-2">
+                <Calendar className="h-4 w-4 text-gray-400" />
+                <span>{user.birthday_day}/{user.birthday_month}{user.birthday_year ? `/${user.birthday_year}` : ""}</span>
+              </p>
+            )}
+            {user.gender && <p><span className="font-bold">Gender:</span> {user.gender}</p>}
+            {user.user_country_code && (
+              <p className="flex items-center space-x-2">
+                <Globe className="h-4 w-4 text-gray-400" />
+                <span>{user.user_country_code}</span>
+              </p>
+            )}
+            {user.zip_code && <p><span className="font-bold">ZIP Code:</span> {user.zip_code}</p>}
+          </div>
+
+          {/* Referral Program */}
+          <div className="bg-white rounded-2xl p-6 border border-gray-100 space-y-4">
+            <h3 className="text-lg font-bold text-gray-900 mb-2">Referral Program</h3>
+            {user.referral_code ? (
+              <div className="flex items-center space-x-2">
+                <code className="bg-gray-100 px-2 py-1 rounded-lg font-mono text-gray-900">{user.referral_code}</code>
+                <Button size="sm" variant="outline" onClick={copyReferralCode}><Clipboard className="h-4 w-4" /></Button>
+              </div>
+            ) : <p className="text-gray-400">No referral code assigned</p>}
+            {user.referred_users_count !== undefined && <p><span className="font-bold">Referred Users:</span> {user.referred_users_count}</p>}
+          </div>
+        </div>
+
+        {/* Account Timeline */}
+        <div className="bg-white rounded-2xl p-6 border border-gray-100">
+          <div className="flex items-center space-x-3 mb-4">
+            <div className="w-10 h-10 bg-orange-100 rounded-xl flex items-center justify-center">
+              <Calendar className="h-5 w-5 text-orange-600" />
+            </div>
+            <h3 className="text-lg font-bold text-gray-900">Account Timeline</h3>
+          </div>
+          <div className="space-y-4">
+            <div>
+              <p className="text-sm text-gray-500 mb-1">Member Since</p>
+              <p className="text-gray-900 font-medium">
+                {new Date(user.created_at).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}
+              </p>
+            </div>
+            <div>
+              <p className="text-sm text-gray-500 mb-1">Account Age</p>
+              <p className="text-gray-900 font-medium">
+                {Math.floor((Date.now() - new Date(user.created_at).getTime()) / (1000*60*60*24))} days
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   )
 }
