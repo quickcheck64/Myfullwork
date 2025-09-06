@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { User, CreditCard, Globe, Calendar } from "lucide-react"
+import { User, Globe, Calendar, Clipboard } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { apiCall } from "@/lib/api"
 
@@ -30,20 +30,13 @@ interface UserProfile {
   name: string
   email?: string
   status: string
-  is_admin: boolean
-  is_agent: boolean
-  is_flagged: boolean
   usd_balance: number | string
   bitcoin_balance: number | string
   ethereum_balance: number | string
   bitcoin_balance_usd: number | string
   ethereum_balance_usd: number | string
   total_balance_usd: number | string
-  bitcoin_wallet?: string
-  ethereum_wallet?: string
-  personal_mining_rate?: number
   referral_code?: string
-  email_verified: boolean
   birthday_day?: number
   birthday_month?: number
   birthday_year?: number
@@ -65,7 +58,7 @@ export default function ProfileSettingsCard() {
   const fetchProfile = async () => {
     try {
       setIsLoading(true)
-      const data = await apiCall("/api/user/profile", "GET", null, true)
+      const data = await apiCall<UserProfile>("/api/user/profile", "GET", null, true)
       setUser(data)
     } catch (err: any) {
       toast({
@@ -76,6 +69,16 @@ export default function ProfileSettingsCard() {
     } finally {
       setIsLoading(false)
     }
+  }
+
+  const copyReferralCode = () => {
+    if (!user?.referral_code) return
+    navigator.clipboard.writeText(user.referral_code)
+    toast({
+      title: "Copied!",
+      description: "Referral code copied to clipboard",
+      variant: "default",
+    })
   }
 
   useEffect(() => {
@@ -143,10 +146,20 @@ export default function ProfileSettingsCard() {
                 </p>
               )}
               {user.zip_code && <p><span className="font-bold">ZIP Code:</span> {user.zip_code}</p>}
-              {user.referral_code && <p><span className="font-bold">Referral Code:</span> {user.referral_code}</p>}
+
+              {/* Referral Code with Copy Button */}
+              {user.referral_code && (
+                <p className="flex items-center space-x-2">
+                  <span className="font-bold">Referral Code:</span>
+                  <span>{user.referral_code}</span>
+                  <Button variant="outline" size="xs" onClick={copyReferralCode} className="flex items-center space-x-1">
+                    <Clipboard className="h-3 w-3" />
+                    <span>Copy</span>
+                  </Button>
+                </p>
+              )}
+
               {user.referred_users_count !== undefined && <p><span className="font-bold">Referred Users:</span> {user.referred_users_count}</p>}
-              {user.bitcoin_wallet && <p><span className="font-bold">Bitcoin Wallet:</span> {user.bitcoin_wallet}</p>}
-              {user.ethereum_wallet && <p><span className="font-bold">Ethereum Wallet:</span> {user.ethereum_wallet}</p>}
             </div>
           </>
         )}
