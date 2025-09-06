@@ -40,10 +40,18 @@ interface DepositsProps {
 
 export default function DepositsSection({ onReturnToDashboard }: DepositsProps) {
   const [selectedCrypto, setSelectedCrypto] = useState<"bitcoin" | "ethereum">("bitcoin")
+
+  // Separate state for user typing
+  const [cryptoInput, setCryptoInput] = useState("")
+  const [usdInput, setUsdInput] = useState("")
+
+  // Converted amounts from API
   const [cryptoAmount, setCryptoAmount] = useState("")
   const [usdAmount, setUsdAmount] = useState("")
+
   const [transactionHash, setTransactionHash] = useState("")
   const [proofFile, setProofFile] = useState<File | null>(null)
+
   const { toast } = useToast()
   const queryClient = useQueryClient()
 
@@ -63,7 +71,7 @@ export default function DepositsSection({ onReturnToDashboard }: DepositsProps) 
   const { data: deposits } = useQuery<Deposit[]>({
     queryKey: ["/api/user/deposits"],
     queryFn: () => apiCall<Deposit[]>("/api/user/deposits", "GET", null, true),
-    refetchInterval: 15000, // auto refresh every 15s
+    refetchInterval: 15000,
   })
 
   /** Route 3: Convert amount via API */
@@ -75,10 +83,12 @@ export default function DepositsSection({ onReturnToDashboard }: DepositsProps) 
         ? { crypto_type: selectedCrypto, amount: parseFloat(value) }
         : { crypto_type: selectedCrypto, usd_amount: parseFloat(value) }
 
-    const response = await apiCall<{
-      crypto_amount: number
-      usd_amount: number
-    }>("/api/deposits/convert", "POST", payload, true)
+    const response = await apiCall<{ crypto_amount: number; usd_amount: number }>(
+      "/api/deposits/convert",
+      "POST",
+      payload,
+      true
+    )
 
     return {
       crypto: response.crypto_amount.toFixed(8),
@@ -86,18 +96,38 @@ export default function DepositsSection({ onReturnToDashboard }: DepositsProps) 
     }
   }
 
-  const handleAmountChange = async (value: string, type: "crypto" | "usd") => {
-    try {
-      const converted = await convertAmount(value, type)
-      setCryptoAmount(converted.crypto)
-      setUsdAmount(converted.usd)
-    } catch (error: any) {
-      toast({
-        title: "Conversion Error",
-        description: error.message || "Failed to convert amount",
-        variant: "destructive",
+  const handleCryptoInputChange = (value: string) => {
+    setCryptoInput(value)
+    convertAmount(value, "crypto")
+      .then((converted) => {
+        setCryptoAmount(converted.crypto)
+        setUsdAmount(converted.usd)
+        setUsdInput(converted.usd) // optional: keep input in sync if desired
       })
-    }
+      .catch(() =>
+        toast({
+          title: "Conversion Error",
+          description: "Failed to convert amount",
+          variant: "destructive",
+        })
+      )
+  }
+
+  const handleUsdInputChange = (value: string) => {
+    setUsdInput(value)
+    convertAmount(value, "usd")
+      .then((converted) => {
+        setCryptoAmount(converted.crypto)
+        setUsdAmount(converted.usd)
+        setCryptoInput(converted.crypto) // optional: keep input in sync
+      })
+      .catch(() =>
+        toast({
+          title: "Conversion Error",
+          description: "Failed to convert amount",
+          variant: "destructive",
+        })
+      )
   }
 
   /** Route 4: Create deposit */
@@ -110,6 +140,8 @@ export default function DepositsSection({ onReturnToDashboard }: DepositsProps) 
         description: "Your deposit has been created. You can upload proof if needed.",
       })
       queryClient.invalidateQueries({ queryKey: ["/api/user/deposits"] })
+      setCryptoInput("")
+      setUsdInput("")
       setCryptoAmount("")
       setUsdAmount("")
       setTransactionHash("")
@@ -280,8 +312,8 @@ export default function DepositsSection({ onReturnToDashboard }: DepositsProps) 
                       type="number"
                       step="0.00000001"
                       placeholder="0.00000000"
-                      value={cryptoAmount}
-                      onChange={(e) => handleAmountChange(e.target.value, "crypto")}
+                      value={cryptoInput}
+                      onChange={(e) => handleCryptoInputChange(e.target.value)}
                     />
                   </div>
                   <div className="space-y-2">
@@ -290,8 +322,8 @@ export default function DepositsSection({ onReturnToDashboard }: DepositsProps) 
                       type="number"
                       step="0.01"
                       placeholder="0.00"
-                      value={usdAmount}
-                      onChange={(e) => handleAmountChange(e.target.value, "usd")}
+                      value={usdInput}
+                      onChange={(e) => handleUsdInputChange(e.target.value)}
                     />
                   </div>
                 </div>
@@ -348,8 +380,8 @@ export default function DepositsSection({ onReturnToDashboard }: DepositsProps) 
                           deposit.status === "confirmed"
                             ? "default"
                             : deposit.status === "pending"
-                              ? "secondary"
-                              : "destructive"
+                            ? "secondary"
+                            : "destructive"
                         }
                       >
                         {deposit.status}
@@ -366,13 +398,9 @@ export default function DepositsSection({ onReturnToDashboard }: DepositsProps) 
                     </div>
                   )}
 
-                  {/* Upload Proof */}
                   {deposit.status === "pending" && (
                     <div className="flex items-center space-x-2 mt-2">
-                      <Input
-                        type="file"
-                        onChange={(e) => setProofFile(e.target.files?.[0] || null)}
-                      />
+                      <Input type="file" onChange={(e) => setProofFile(e.target.files?.[0] || null)} />
                       <Button
                         size="sm"
                         onClick={() => handleUploadProof(deposit.id)}
@@ -401,4 +429,4 @@ export default function DepositsSection({ onReturnToDashboard }: DepositsProps) 
       </div>
     </div>
   )
-                    }
+                  }
