@@ -145,9 +145,7 @@ export default function ProfileSettingsCard() {
           <div className="bg-white rounded-2xl p-6 border border-gray-100 space-y-2">
             <h3 className="text-lg font-bold text-gray-900 mb-2">Profile Details</h3>
 
-            {/* User ID added */}
             <p><span className="font-bold">User ID:</span> {user.user_id}</p>
-
             <p><span className="font-bold">Name:</span> {user.name}</p>
             {user.email && <p><span className="font-bold">Email:</span> {user.email}</p>}
             {user.birthday_day && user.birthday_month && (
@@ -207,4 +205,4 @@ export default function ProfileSettingsCard() {
       </div>
     </div>
   )
-}
+                }
