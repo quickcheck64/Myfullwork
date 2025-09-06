@@ -2,8 +2,11 @@
 
 import { useState, useEffect } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { apiCall, formatCrypto } from "@/lib/api"
+import { apiCall } from "@/lib/api"
+
+// Helper functions for formatting
+const formatCrypto = (value: number, decimals = 6) => value?.toFixed(decimals) ?? "0.000000"
+const formatUSD = (value: number) => value ? value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "0.00"
 
 interface UserProfile {
   id: number
@@ -68,9 +71,9 @@ export default function ProfileSettingsSection() {
           <CardTitle>Portfolio Overview</CardTitle>
         </CardHeader>
         <CardContent className="space-y-2">
-          <p>Total Portfolio Value: ${user.total_balance_usd ?? 0}</p>
-          <p>Bitcoin Balance: {formatCrypto(user.bitcoin_balance)} BTC (~${user.bitcoin_balance_usd})</p>
-          <p>Ethereum Balance: {formatCrypto(user.ethereum_balance)} ETH (~${user.ethereum_balance_usd})</p>
+          <p>Total Portfolio Value: ${formatUSD(user.total_balance_usd)}</p>
+          <p>Bitcoin Balance: {formatCrypto(user.bitcoin_balance)} BTC (~${formatUSD(user.bitcoin_balance_usd)})</p>
+          <p>Ethereum Balance: {formatCrypto(user.ethereum_balance)} ETH (~${formatUSD(user.ethereum_balance_usd)})</p>
         </CardContent>
       </Card>
 
