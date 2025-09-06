@@ -1,11 +1,8 @@
 "use client"
 
-import { useEffect, useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { ArrowUpRight, Bitcoin, Coins, DollarSign, TrendingUp, RefreshCw } from "lucide-react"
-import { apiCall } from "@/lib/api"
-import { useToast } from "@/hooks/use-toast"
+import { ArrowUpRight, Bitcoin, Coins, DollarSign, TrendingUp } from "lucide-react"
 
 interface PortfolioData {
   total_balance_usd: number
@@ -17,61 +14,24 @@ interface PortfolioData {
 }
 
 interface PortfolioOverviewProps {
+  data: PortfolioData
   className?: string
 }
 
-export default function PortfolioOverview({ className }: PortfolioOverviewProps) {
-  const [data, setData] = useState<PortfolioData | null>(null)
-  const [loading, setLoading] = useState(true)
-  const { toast } = useToast()
-
-  const fetchPortfolio = async () => {
-    try {
-      setLoading(true)
-      const response = await apiCall("/api/dashboard/stats", "GET")
-      setData(response)
-    } catch (error: any) {
-      toast({
-        title: "Error",
-        description: error.message || "Failed to fetch portfolio data",
-        variant: "destructive",
-      })
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  useEffect(() => {
-    fetchPortfolio()
-    const interval = setInterval(fetchPortfolio, 30000) // refresh every 30s
-    return () => clearInterval(interval)
-  }, [])
-
-  const formatCurrency = (amount: number) =>
-    new Intl.NumberFormat("en-US", {
+export default function PortfolioOverview({ data, className }: PortfolioOverviewProps) {
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat("en-US", {
       style: "currency",
       currency: "USD",
     }).format(amount)
+  }
 
-  const formatCrypto = (amount: number, decimals = 6) => amount.toFixed(decimals)
+  const formatCrypto = (amount: number, decimals = 6) => {
+    return amount.toFixed(decimals)
+  }
 
-  const calculateAllocation = (amount: number, total: number) =>
-    total > 0 ? ((amount / total) * 100).toFixed(1) : "0.0"
-
-  if (!data) {
-    return (
-      <Card className="bg-gradient-to-r from-primary to-accent text-primary-foreground">
-        <CardHeader>
-          <CardTitle className="flex items-center space-x-2">
-            <span>Portfolio Overview</span>
-            {loading && <RefreshCw className="h-4 w-4 animate-spin" />}
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-center text-primary-foreground/80 py-4">Loading portfolio...</p>
-        </CardContent>
-      </Card>
-    )
+  const calculateAllocation = (amount: number, total: number) => {
+    return total > 0 ? ((amount / total) * 100).toFixed(1) : "0.0"
   }
 
   const totalCryptoValue = data.bitcoin_balance_usd + data.ethereum_balance_usd
@@ -89,7 +49,7 @@ export default function PortfolioOverview({ className }: PortfolioOverviewProps)
               <div className="text-3xl font-bold">{formatCurrency(data.total_balance_usd)}</div>
               <div className="flex items-center space-x-2 mt-2">
                 <ArrowUpRight className="h-4 w-4" />
-                <span className="text-sm">Auto-updating every 30s</span>
+                <span className="text-sm">+12.5% this month</span>
               </div>
             </div>
             <div className="text-right">
@@ -152,7 +112,7 @@ export default function PortfolioOverview({ className }: PortfolioOverviewProps)
         </Card>
       </div>
 
-      {/* Portfolio Allocation Chart */}
+      {/* Portfolio Allocation Chart Placeholder */}
       <Card>
         <CardHeader>
           <CardTitle>Asset Allocation</CardTitle>
