@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
-import { User, Globe, Calendar, Clipboard } from "lucide-react"
+import { User, Globe, Calendar, Clipboard, Id, Mail, Gift } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { apiCall } from "@/lib/api"
 
@@ -66,7 +66,7 @@ export default function ProfileSettingsCard() {
   useEffect(() => { fetchProfile() }, [])
 
   if (isLoading) return (
-    <div className="min-h-screen bg-gray-50 p-4 flex items-center justify-center">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4 flex items-center justify-center">
       <div className="bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-secondary)] rounded-2xl shadow-lg p-8 flex items-center justify-center min-h-[300px]">
         <User className="h-10 w-10 text-white animate-pulse" />
         <span className="ml-4 text-white text-lg">Loading profile...</span>
@@ -75,8 +75,8 @@ export default function ProfileSettingsCard() {
   )
 
   if (!user) return (
-    <div className="min-h-screen bg-gray-50 p-4 flex items-center justify-center">
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 text-center">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4 flex items-center justify-center">
+      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-8 text-center">
         <User className="h-12 w-12 text-red-600 mx-auto mb-4" />
         <p className="text-red-500 text-lg mb-4">Failed to load profile</p>
         <Button onClick={fetchProfile} variant="outline">Retry</Button>
@@ -84,15 +84,22 @@ export default function ProfileSettingsCard() {
     </div>
   )
 
+  // Helper for hover effect item
+  const ItemWrapper = ({ children }: { children: React.ReactNode }) => (
+    <div className="flex items-center space-x-2 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+      {children}
+    </div>
+  )
+
   return (
-    <div className="min-h-screen bg-gray-50 p-4">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4">
       <div className="max-w-4xl mx-auto space-y-6">
 
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900 mb-1">Profile Settings</h1>
-            <p className="text-gray-600">Manage your account and portfolio</p>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-1">Profile Settings</h1>
+            <p className="text-gray-600 dark:text-gray-300">Manage your account and portfolio</p>
           </div>
           <Button onClick={() => window.location.href = "/dashboard"} variant="outline">Back to Dashboard</Button>
         </div>
@@ -116,7 +123,7 @@ export default function ProfileSettingsCard() {
                     </span>
                   )}
                 </div>
-                <p className="text-white/80 truncate">{user.email}</p>
+                <p className="text-white/90 truncate">{user.email}</p>
               </div>
             </div>
 
@@ -142,62 +149,58 @@ export default function ProfileSettingsCard() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 
           {/* Profile Details */}
-          <div className="bg-white rounded-2xl p-6 border border-gray-100 space-y-2">
-            <h3 className="text-lg font-bold text-gray-900 mb-2">Profile Details</h3>
+          <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 border border-gray-100 dark:border-gray-700 space-y-2">
+            <div className="flex items-center space-x-2 mb-2">
+              <User className="h-5 w-5 text-gray-600 dark:text-gray-300" />
+              <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">Profile Details</h3>
+            </div>
 
-            {/* User ID added */}
-            <p><span className="font-bold">User ID:</span> {user.user_id}</p>
-
-            <p><span className="font-bold">Name:</span> {user.name}</p>
-            {user.email && <p><span className="font-bold">Email:</span> {user.email}</p>}
-            {user.birthday_day && user.birthday_month && (
-              <p className="flex items-center space-x-2">
-                <Calendar className="h-4 w-4 text-gray-400" />
-                <span>{user.birthday_day}/{user.birthday_month}{user.birthday_year ? `/${user.birthday_year}` : ""}</span>
-              </p>
-            )}
-            {user.gender && <p><span className="font-bold">Gender:</span> {user.gender}</p>}
-            {user.user_country_code && (
-              <p className="flex items-center space-x-2">
-                <Globe className="h-4 w-4 text-gray-400" />
-                <span>{user.user_country_code}</span>
-              </p>
-            )}
-            {user.zip_code && <p><span className="font-bold">ZIP Code:</span> {user.zip_code}</p>}
+            <ItemWrapper><Id className="h-4 w-4 text-gray-500 dark:text-gray-300" /><span><span className="font-bold">User ID:</span> {user.user_id}</span></ItemWrapper>
+            <ItemWrapper><User className="h-4 w-4 text-gray-500 dark:text-gray-300" /><span><span className="font-bold">Name:</span> {user.name}</span></ItemWrapper>
+            {user.email && <ItemWrapper><Mail className="h-4 w-4 text-gray-500 dark:text-gray-300" /><span><span className="font-bold">Email:</span> {user.email}</span></ItemWrapper>}
+            {user.birthday_day && user.birthday_month && <ItemWrapper><Calendar className="h-4 w-4 text-gray-500 dark:text-gray-300" /><span>{user.birthday_day}/{user.birthday_month}{user.birthday_year ? `/${user.birthday_year}` : ""}</span></ItemWrapper>}
+            {user.gender && <ItemWrapper><User className="h-4 w-4 text-gray-500 dark:text-gray-300" /><span><span className="font-bold">Gender:</span> {user.gender}</span></ItemWrapper>}
+            {user.user_country_code && <ItemWrapper><Globe className="h-4 w-4 text-gray-500 dark:text-gray-300" /><span>{user.user_country_code}</span></ItemWrapper>}
+            {user.zip_code && <ItemWrapper><Id className="h-4 w-4 text-gray-500 dark:text-gray-300" /><span><span className="font-bold">ZIP Code:</span> {user.zip_code}</span></ItemWrapper>}
           </div>
 
           {/* Referral Program */}
-          <div className="bg-white rounded-2xl p-6 border border-gray-100 space-y-4">
-            <h3 className="text-lg font-bold text-gray-900 mb-2">Referral Program</h3>
+          <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 border border-gray-100 dark:border-gray-700 space-y-4">
+            <div className="flex items-center space-x-2 mb-2">
+              <Gift className="h-5 w-5 text-gray-600 dark:text-gray-300" />
+              <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">Referral Program</h3>
+            </div>
+
             {user.referral_code ? (
-              <div className="flex items-center space-x-2">
-                <code className="bg-gray-100 px-2 py-1 rounded-lg font-mono text-gray-900">{user.referral_code}</code>
+              <div className="flex items-center space-x-2 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer transition-colors">
+                <code className="bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded-lg font-mono text-gray-900 dark:text-gray-100">{user.referral_code}</code>
                 <Button size="sm" variant="outline" onClick={copyReferralCode}><Clipboard className="h-4 w-4" /></Button>
               </div>
-            ) : <p className="text-gray-400">No referral code assigned</p>}
-            {user.referred_users_count !== undefined && <p><span className="font-bold">Referred Users:</span> {user.referred_users_count}</p>}
+            ) : <p className="text-gray-400 dark:text-gray-400">No referral code assigned</p>}
+
+            {user.referred_users_count !== undefined && <ItemWrapper><User className="h-4 w-4 text-gray-500 dark:text-gray-300" /><span><span className="font-bold">Referred Users:</span> {user.referred_users_count}</span></ItemWrapper>}
           </div>
 
         </div>
 
         {/* Account Timeline */}
-        <div className="bg-white rounded-2xl p-6 border border-gray-100">
+        <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 border border-gray-100 dark:border-gray-700">
           <div className="flex items-center space-x-3 mb-4">
-            <div className="w-10 h-10 bg-orange-100 rounded-xl flex items-center justify-center">
-              <Calendar className="h-5 w-5 text-orange-600" />
+            <div className="w-10 h-10 bg-orange-100 dark:bg-orange-700 rounded-xl flex items-center justify-center">
+              <Calendar className="h-5 w-5 text-orange-600 dark:text-orange-200" />
             </div>
-            <h3 className="text-lg font-bold text-gray-900">Account Timeline</h3>
+            <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">Account Timeline</h3>
           </div>
           <div className="space-y-4">
             <div>
-              <p className="text-sm text-gray-500 mb-1">Member Since</p>
-              <p className="text-gray-900 font-medium">
+              <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">Member Since</p>
+              <p className="text-gray-900 dark:text-gray-100 font-medium">
                 {new Date(user.created_at).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}
               </p>
             </div>
             <div>
-              <p className="text-sm text-gray-500 mb-1">Account Age</p>
-              <p className="text-gray-900 font-medium">
+              <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">Account Age</p>
+              <p className="text-gray-900 dark:text-gray-100 font-medium">
                 {Math.floor((Date.now() - new Date(user.created_at).getTime()) / (1000*60*60*24))} days
               </p>
             </div>
@@ -207,4 +210,4 @@ export default function ProfileSettingsCard() {
       </div>
     </div>
   )
-}
+            }
