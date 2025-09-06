@@ -4,10 +4,18 @@ import { useState, useEffect } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { apiCall } from "@/lib/api"
 
-// Helper functions for formatting
+// -----------------------
+// Formatting helpers
+// -----------------------
 const formatCrypto = (value: number, decimals = 6) => value?.toFixed(decimals) ?? "0.000000"
-const formatUSD = (value: number) => value ? value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "0.00"
+const formatUSD = (value: number) =>
+  value !== undefined && value !== null
+    ? value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+    : "0.00"
 
+// -----------------------
+// User Profile Interface
+// -----------------------
 interface UserProfile {
   id: number
   user_id: string
@@ -38,6 +46,9 @@ interface UserProfile {
   referred_users_count?: number
 }
 
+// -----------------------
+// Profile Component
+// -----------------------
 export default function ProfileSettingsSection() {
   const [user, setUser] = useState<UserProfile | null>(null)
   const [isLoading, setIsLoading] = useState(true)
@@ -86,7 +97,12 @@ export default function ProfileSettingsSection() {
           <div>
             <p>Name: {user.name}</p>
             <p>Email: {user.email ?? "N/A"}</p>
-            <p>Birthday: {user.birthday_day && user.birthday_month ? `${user.birthday_day}/${user.birthday_month}${user.birthday_year ? `/${user.birthday_year}` : ""}` : "N/A"}</p>
+            <p>
+              Birthday:{" "}
+              {user.birthday_day && user.birthday_month
+                ? `${user.birthday_day}/${user.birthday_month}${user.birthday_year ? `/${user.birthday_year}` : ""}`
+                : "N/A"}
+            </p>
           </div>
           <div>
             <p>Referral Code: {user.referral_code ?? "N/A"}</p>
