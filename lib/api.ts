@@ -21,29 +21,31 @@ export async function apiCall<T>(
   endpoint: string,
   method: "GET" | "POST" | "PUT" | "DELETE" = "GET",
   body?: any,
-  requiresAuth = true,
+  requiresAuth = true
 ): Promise<T> {
   const url = `${API_BASE_URL}${endpoint.startsWith("/") ? endpoint : `/${endpoint}`}`
 
-  const headers: Record<string, string> = {
-    "Content-Type": "application/json",
-  }
+  const headers: Record<string, string> = {}
 
-  // Add authorization header if required
+  // Add Authorization header if required
   if (requiresAuth) {
     const token = getAuthToken()
     if (token) {
-      headers.Authorization = `Bearer ${token}`
+      headers["Authorization"] = `Bearer ${token}`
     }
   }
 
-  const config: RequestInit = {
-    method,
-    headers,
-  }
+  const config: RequestInit = { method, headers }
 
   if (body && method !== "GET") {
-    config.body = JSON.stringify(body)
+    if (body instanceof FormData) {
+      // For file uploads, do NOT set Content-Type; browser sets it automatically
+      config.body = body
+    } else {
+      // For JSON requests
+      headers["Content-Type"] = "application/json"
+      config.body = JSON.stringify(body)
+    }
   }
 
   try {
@@ -60,12 +62,12 @@ export async function apiCall<T>(
         throw new Error("Unauthorized")
       }
 
-      const errorData = await response.json().catch(() => ({ detail: "Request failed" }))
+      // Try to parse error JSON, fallback to status text
+      const errorData = await response.json().catch(() => ({ detail: response.statusText }))
       throw new Error(errorData.detail || `HTTP ${response.status}`)
     }
 
-    const data = await response.json()
-    return data as T
+    return response.json()
   } catch (error: any) {
     console.error(`API call failed for ${endpoint}:`, error)
     toast({
@@ -136,7 +138,6 @@ export async function loginUser(
     false
   )
 
-  // Store auth token
   if (typeof window !== "undefined") {
     sessionStorage.setItem("authToken", response.access_token)
     sessionStorage.setItem("currentUser", JSON.stringify(response.user))
