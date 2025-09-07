@@ -157,19 +157,30 @@ export default function DepositsSection({ onReturnToDashboard }: DepositsProps) 
 
   /** Route 6: Upload proof */
   const uploadProofMutation = useMutation({
-    mutationFn: (data: { deposit_id: number; file: File }) => apiCall("/api/deposits/upload-proof", "POST", data, true),
-    onSuccess: () => {
-      toast({ title: "Proof Uploaded" })
-      setProofFile(null)
-      queryClient.invalidateQueries({ queryKey: ["/api/user/deposits"] })
-    },
-    onError: (err: any) =>
-      toast({
-        title: "Upload Failed",
-        description: err.message || "Failed to upload proof",
-        variant: "destructive",
-      }),
-  })
+    mutationFn: (data: { deposit_id: number; file: File }) => {
+    const formData = new FormData()
+    formData.append("evidence_file", data.file) // must match backend param name
+
+    return apiCall(
+      `/api/deposits/${data.deposit_id}/upload-evidence`, // insert actual deposit_id
+      "POST",
+      formData,
+      true // probably for headers, leave as is if your apiCall handles multipart
+    )
+  },
+  onSuccess: () => {
+    toast({ title: "Proof Uploaded" })
+    setProofFile(null)
+    queryClient.invalidateQueries({ queryKey: ["/api/user/deposits"] })
+  },
+  onError: (err: any) => {
+    toast({
+      title: "Upload Failed",
+      description: err.message || "Failed to upload proof",
+      variant: "destructive",
+    })
+  },
+})
 
   const submitDepositMutation = useMutation({
     mutationFn: (depositId: number) => apiCall(`/api/deposits/${depositId}/submit`, "POST", {}, true),
