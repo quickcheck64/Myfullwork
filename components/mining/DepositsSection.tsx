@@ -138,7 +138,7 @@ export default function DepositsSection({ onReturnToDashboard }: DepositsProps) 
     mutationFn: (data: { crypto_type: string; amount?: number; usd_amount?: number; transaction_hash?: string }) =>
       apiCall("/api/deposits/create", "POST", data, true),
     onSuccess: (response: any) => {
-      setCreatedDepositId(response.id)
+      setCreatedDepositId(response.deposit_id)
       setCurrentStep(3)
       toast({
         title: "Deposit Created",
