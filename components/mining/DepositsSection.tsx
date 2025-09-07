@@ -157,30 +157,40 @@ export default function DepositsSection({ onReturnToDashboard }: DepositsProps) 
 
   /** Route 6: Upload proof */
   const uploadProofMutation = useMutation({
-    mutationFn: (data: { deposit_id: number; file: File }) => {
-    const formData = new FormData()
-    formData.append("evidence_file", data.file) // must match backend param name
+  mutationFn: (data: { deposit_id: number; file: File }) => {
+    console.log("Preparing to upload proof for deposit_id:", data.deposit_id);
+    console.log("File info:", data.file);
+
+    const formData = new FormData();
+    formData.append("evidence_file", data.file); // must match backend param name
+
+    // Log FormData entries for debugging
+    for (let pair of formData.entries()) {
+      console.log("FormData entry:", pair[0], pair[1]);
+    }
 
     return apiCall(
       `/api/deposits/${data.deposit_id}/upload-evidence`, // actual deposit_id
       "POST",
       formData
       // DO NOT set headers here; let apiCall handle it for FormData
-    )
+    );
   },
-  onSuccess: () => {
-    toast({ title: "Proof Uploaded" })
-    setProofFile(null)
-    queryClient.invalidateQueries({ queryKey: ["/api/user/deposits"] })
+  onSuccess: (res) => {
+    console.log("Upload response:", res);
+    toast({ title: "Proof Uploaded" });
+    setProofFile(null);
+    queryClient.invalidateQueries({ queryKey: ["/api/user/deposits"] });
   },
   onError: (err: any) => {
+    console.error("Upload error:", err);
     toast({
       title: "Upload Failed",
       description: err.message || "Failed to upload proof",
       variant: "destructive",
-    })
+    });
   },
-})
+});
 
   const submitDepositMutation = useMutation({
     mutationFn: (depositId: number) => apiCall(`/api/deposits/${depositId}/submit`, "POST", {}, true),
