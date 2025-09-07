@@ -162,10 +162,10 @@ export default function DepositsSection({ onReturnToDashboard }: DepositsProps) 
     formData.append("evidence_file", data.file) // must match backend param name
 
     return apiCall(
-      `/api/deposits/${data.deposit_id}/upload-evidence`, // insert actual deposit_id
+      `/api/deposits/${data.deposit_id}/upload-evidence`, // actual deposit_id
       "POST",
-      formData,
-      true // probably for headers, leave as is if your apiCall handles multipart
+      formData
+      // DO NOT set headers here; let apiCall handle it for FormData
     )
   },
   onSuccess: () => {
