@@ -1,17 +1,35 @@
 "use client"
 
-import type React from "react"
-
 import { useState } from "react"
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Bitcoin, Coins, ArrowLeft, Send } from "lucide-react"
 import { apiCall } from "@/lib/api"
 import { useToast } from "@/hooks/use-toast"
-import { Send, ArrowRight, CheckCircle, AlertCircle, Info, ArrowLeft, Bitcoin, Coins } from "lucide-react"
+
+interface UserProfile {
+  bitcoin_balance: number
+  ethereum_balance: number
+  bitcoin_balance_usd: number
+  ethereum_balance_usd: number
+}
+
+interface Transfer {
+  id: number
+  crypto_type: string
+  amount: number
+  usd_amount: number
+  to_email?: string
+  to_account_id?: string
+  status: string
+  transaction_hash?: string
+  created_at: string
+}
 
 interface TransferFormProps {
   onTransferSuccess: () => void
@@ -19,259 +37,355 @@ interface TransferFormProps {
 }
 
 export default function CryptoTransferForm({ onTransferSuccess, onReturnToDashboard }: TransferFormProps) {
-  const [receiverEmail, setReceiverEmail] = useState("")
+  const [selectedCrypto, setSelectedCrypto] = useState<"bitcoin" | "ethereum">("bitcoin")
   const [amount, setAmount] = useState("")
-  const [cryptoType, setCryptoType] = useState<"bitcoin" | "ethereum">("bitcoin")
-  const [isLoading, setIsLoading] = useState(false)
+  const [recipient, setRecipient] = useState("")
   const { toast } = useToast()
+  const queryClient = useQueryClient()
 
-  const isValidEmail = receiverEmail.includes("@") && receiverEmail.includes(".")
-  const isValidAmount = amount && !isNaN(Number.parseFloat(amount)) && Number.parseFloat(amount) > 0
-  const isFormValid = isValidEmail && isValidAmount && cryptoType
+  // Fetch user profile for balances
+  const { data: profile } = useQuery<UserProfile>({
+    queryKey: ["/api/user/profile"],
+    queryFn: () => apiCall<UserProfile>("/api/user/profile", "GET", null, true),
+  })
 
-  const handleSubmit = async (event: React.FormEvent) => {
-    event.preventDefault()
-    setIsLoading(true)
+  // Fetch user transfers
+  const { data: transfers } = useQuery<Transfer[]>({
+    queryKey: ["/api/user/transfers"],
+    queryFn: () => apiCall<Transfer[]>("/api/user/transfers", "GET", null, true),
+  })
 
-    const transferAmount = Number.parseFloat(amount)
-
-    if (!receiverEmail.trim() || isNaN(transferAmount) || transferAmount <= 0) {
+  // Create transfer mutation
+  const createTransferMutation = useMutation({
+    mutationFn: (data: { crypto_type: string; amount: number; to_email?: string; to_account_id?: string }) =>
+      apiCall("/api/transfers/create", "POST", data, true),
+    onSuccess: () => {
       toast({
-        title: "Invalid Input",
-        description: "Please enter a valid email and amount greater than zero.",
+        title: "Transfer Successful",
+        description: "Your crypto transfer has been completed successfully.",
+      })
+      queryClient.invalidateQueries({ queryKey: ["/api/user/transfers"] })
+      queryClient.invalidateQueries({ queryKey: ["/api/user/profile"] })
+      setAmount("")
+      setRecipient("")
+      onTransferSuccess()
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Transfer Failed",
+        description: error.message || "Failed to complete transfer",
         variant: "destructive",
       })
-      setIsLoading(false)
+    },
+  })
+
+  const isEmail = (input: string) => {
+    return input.includes("@") && input.includes(".")
+  }
+
+  const handleCreateTransfer = () => {
+    const transferAmount = Number.parseFloat(amount)
+
+    if (!transferAmount || transferAmount <= 0) {
+      toast({
+        title: "Invalid Amount",
+        description: "Please enter a valid amount",
+        variant: "destructive",
+      })
       return
     }
 
-    try {
-      await apiCall(
-        "/api/transfers/crypto",
-        "POST",
-        {
-          to_email: receiverEmail,
-          amount: transferAmount,
-          crypto_type: cryptoType,
-        },
-        true,
-      )
-
+    if (!recipient.trim()) {
       toast({
-        title: "Transfer Successful",
-        description: `${cryptoType} transferred successfully!`,
-      })
-
-      setReceiverEmail("")
-      setAmount("")
-      setCryptoType("bitcoin")
-      onTransferSuccess()
-    } catch (error: any) {
-      toast({
-        title: "Transfer Failed",
-        description: error.message || "Failed to transfer crypto.",
+        title: "Invalid Recipient",
+        description: "Please enter a valid email address or account ID",
         variant: "destructive",
       })
-    } finally {
-      setIsLoading(false)
+      return
     }
+
+    if (recipient.includes("@") && !isEmail(recipient)) {
+      toast({
+        title: "Invalid Email",
+        description: "Please enter a valid email address",
+        variant: "destructive",
+      })
+      return
+    }
+
+    if (!recipient.includes("@") && !/^\d+$/.test(recipient)) {
+      toast({
+        title: "Invalid Account ID",
+        description: "Account ID must contain only digits",
+        variant: "destructive",
+      })
+      return
+    }
+
+    const availableBalance = selectedCrypto === "bitcoin" ? profile?.bitcoin_balance : profile?.ethereum_balance
+
+    if (!availableBalance || transferAmount > availableBalance) {
+      toast({
+        title: "Insufficient Balance",
+        description: "You don't have enough balance for this transfer",
+        variant: "destructive",
+      })
+      return
+    }
+
+    const transferData: any = {
+      crypto_type: selectedCrypto,
+      amount: transferAmount,
+    }
+
+    if (isEmail(recipient)) {
+      transferData.to_email = recipient
+    } else {
+      transferData.to_account_id = recipient
+    }
+
+    createTransferMutation.mutate(transferData)
+  }
+
+  const getAvailableBalance = () => {
+    if (!profile) return 0
+    return Number(selectedCrypto === "bitcoin" ? profile.bitcoin_balance : profile.ethereum_balance) || 0
+  }
+
+  const getAvailableBalanceUSD = () => {
+    if (!profile) return 0
+    return Number(selectedCrypto === "bitcoin" ? profile.bitcoin_balance_usd : profile.ethereum_balance_usd) || 0
+  }
+
+  const safeFormatCrypto = (value: number | string | null | undefined, decimals = 8) => {
+    const num = Number(value) || 0
+    return num.toFixed(decimals)
+  }
+
+  const safeFormatCurrency = (value: number | string | null | undefined) => {
+    const num = Number(value) || 0
+    return `$${num.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
   }
 
   return (
-    <div className="min-h-screen bg-background p-4">
-      <div className="max-w-lg mx-auto space-y-6">
-        {/* Header */}
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-foreground mb-1">Transfer Crypto</h1>
-            <p className="text-muted-foreground">Send Bitcoin or Ethereum to other users</p>
-          </div>
-          <Button onClick={onReturnToDashboard} variant="outline">
+    <div className="min-h-screen bg-background">
+      {/* Header */}
+      <div className="bg-card px-4 py-3 flex items-center justify-between border-b border-border">
+        <div className="flex items-center space-x-3">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onReturnToDashboard}
+            className="text-foreground hover:text-foreground"
+          >
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back to Dashboard
           </Button>
+          <h1 className="text-lg font-semibold text-foreground">Crypto Transfers</h1>
         </div>
+      </div>
 
-        {/* Main Form Card */}
-        <Card>
-          <CardHeader className="bg-gradient-to-r from-primary to-accent text-primary-foreground">
-            <div className="flex items-center space-x-3">
-              <div className="w-12 h-12 bg-white bg-opacity-20 rounded-xl flex items-center justify-center">
-                <Send className="h-6 w-6 text-white" />
-              </div>
-              <div>
-                <CardTitle className="text-xl">Crypto Transfer</CardTitle>
-                <p className="text-primary-foreground/80 text-sm">Send crypto to other miners</p>
-              </div>
-            </div>
-          </CardHeader>
+      <div className="p-4 space-y-6">
+        <Tabs defaultValue="create" className="w-full">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="create" className="text-foreground data-[state=active]:text-primary-foreground">
+              Create Transfer
+            </TabsTrigger>
+            <TabsTrigger value="history" className="text-foreground data-[state=active]:text-primary-foreground">
+              Transfer History
+            </TabsTrigger>
+          </TabsList>
 
-          <CardContent className="p-6">
-            {/* Transfer Guidelines */}
-            <div className="bg-muted border border-border rounded-xl p-4 mb-6">
-              <div className="flex items-start space-x-3">
-                <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center mt-0.5">
-                  <Info className="h-5 w-5 text-primary" />
+          <TabsContent value="create" className="space-y-6">
+            {/* Available Balance */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Available Balance</CardTitle>
+                <CardDescription>Your current cryptocurrency balances</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="flex items-center space-x-3 p-4 border border-border rounded-lg">
+                    <Bitcoin className="h-8 w-8 text-[var(--color-crypto-bitcoin)]" />
+                    <div>
+                      <p className="font-medium">Bitcoin</p>
+                      <p className="text-sm text-muted-foreground">₿ {safeFormatCrypto(profile?.bitcoin_balance)}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {safeFormatCurrency(profile?.bitcoin_balance_usd)}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center space-x-3 p-4 border border-border rounded-lg">
+                    <Coins className="h-8 w-8 text-[var(--color-crypto-ethereum)]" />
+                    <div>
+                      <p className="font-medium">Ethereum</p>
+                      <p className="text-sm text-muted-foreground">Ξ {safeFormatCrypto(profile?.ethereum_balance)}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {safeFormatCurrency(profile?.ethereum_balance_usd)}
+                      </p>
+                    </div>
+                  </div>
                 </div>
-                <div>
-                  <h4 className="font-bold text-foreground mb-2">Transfer Guidelines</h4>
+              </CardContent>
+            </Card>
+
+            {/* Crypto Selection */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Select Cryptocurrency</CardTitle>
+                <CardDescription>Choose which cryptocurrency you want to transfer</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-2 gap-4">
+                  <Button
+                    variant={selectedCrypto === "bitcoin" ? "default" : "outline"}
+                    onClick={() => setSelectedCrypto("bitcoin")}
+                    className="h-16 flex flex-col space-y-2"
+                  >
+                    <Bitcoin className="h-6 w-6 text-[var(--color-crypto-bitcoin)]" />
+                    <span>Bitcoin</span>
+                  </Button>
+                  <Button
+                    variant={selectedCrypto === "ethereum" ? "default" : "outline"}
+                    onClick={() => setSelectedCrypto("ethereum")}
+                    className="h-16 flex flex-col space-y-2"
+                  >
+                    <Coins className="h-6 w-6 text-[var(--color-crypto-ethereum)]" />
+                    <span>Ethereum</span>
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Transfer Form */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <Send className="h-5 w-5" />
+                  <span>Transfer Details</span>
+                </CardTitle>
+                <CardDescription>
+                  Available: {safeFormatCrypto(getAvailableBalance(), 8)} {selectedCrypto.toUpperCase()} (
+                  {safeFormatCurrency(getAvailableBalanceUSD())})
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <Label>Recipient (Email or Account ID)</Label>
+                  <Input
+                    type="text"
+                    placeholder="Enter email address or account ID (digits only)"
+                    value={recipient}
+                    onChange={(e) => setRecipient(e.target.value)}
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Enter either an email address (user@example.com) or account ID (123456789)
+                  </p>
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Amount ({selectedCrypto.toUpperCase()})</Label>
+                  <Input
+                    type="number"
+                    step="0.00000001"
+                    placeholder="0.00000000"
+                    value={amount}
+                    onChange={(e) => setAmount(e.target.value)}
+                  />
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Minimum: 0.001 {selectedCrypto.toUpperCase()}</span>
+                    <Button
+                      variant="link"
+                      size="sm"
+                      className="h-auto p-0 text-primary hover:text-primary/80"
+                      onClick={() => setAmount(getAvailableBalance().toString())}
+                    >
+                      Use Max
+                    </Button>
+                  </div>
+                </div>
+
+                <div className="bg-muted p-4 rounded-lg">
+                  <h4 className="font-medium mb-2">Important Notes:</h4>
                   <ul className="text-sm text-muted-foreground space-y-1">
                     <li>• Transfers are processed instantly on our platform</li>
                     <li>• Recipient must have a registered mining account</li>
-                    <li>• Minimum transfer: 0.0001 BTC or 0.001 ETH</li>
+                    <li>• Minimum transfer: 0.001 {selectedCrypto.toUpperCase()}</li>
                     <li>• All transfers are recorded for security</li>
                   </ul>
                 </div>
-              </div>
-            </div>
 
-            <form onSubmit={handleSubmit} className="space-y-6">
-              {/* Crypto Type Selection */}
-              <div className="space-y-2">
-                <Label className="text-base font-bold text-foreground">Cryptocurrency</Label>
-                <Select value={cryptoType} onValueChange={(value: "bitcoin" | "ethereum") => setCryptoType(value)}>
-                  <SelectTrigger className="h-12">
-                    <SelectValue placeholder="Select cryptocurrency" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="bitcoin">
-                      <div className="flex items-center space-x-2">
-                        <Bitcoin className="h-4 w-4 text-[var(--color-crypto-bitcoin)]" />
-                        <span>Bitcoin (BTC)</span>
-                      </div>
-                    </SelectItem>
-                    <SelectItem value="ethereum">
-                      <div className="flex items-center space-x-2">
-                        <Coins className="h-4 w-4 text-[var(--color-crypto-ethereum)]" />
-                        <span>Ethereum (ETH)</span>
-                      </div>
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+                <Button
+                  onClick={handleCreateTransfer}
+                  disabled={createTransferMutation.isPending || !amount || !recipient}
+                  className="w-full"
+                >
+                  {createTransferMutation.isPending ? "Processing..." : "Send Transfer"}
+                </Button>
+              </CardContent>
+            </Card>
+          </TabsContent>
 
-              {/* Recipient Email */}
-              <div className="space-y-2">
-                <Label htmlFor="receiverEmail" className="text-base font-bold text-foreground">
-                  Recipient Email Address
-                </Label>
-                <div className="relative">
-                  <Input
-                    id="receiverEmail"
-                    type="email"
-                    placeholder="Enter recipient's email address"
-                    required
-                    value={receiverEmail}
-                    onChange={(e) => setReceiverEmail(e.target.value)}
-                    disabled={isLoading}
-                    className={`h-12 pr-10 ${
-                      receiverEmail && isValidEmail
-                        ? "border-[var(--color-crypto-success)] bg-[var(--color-crypto-success)]/5"
-                        : receiverEmail && !isValidEmail
-                          ? "border-destructive bg-destructive/5"
-                          : ""
-                    }`}
-                  />
-                  {receiverEmail && (
-                    <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-                      {isValidEmail ? (
-                        <CheckCircle className="h-5 w-5 text-[var(--color-crypto-success)]" />
+          <TabsContent value="history" className="space-y-4">
+            {transfers?.map((transfer) => (
+              <Card key={transfer.id}>
+                <CardContent className="pt-6">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-3">
+                      {transfer.crypto_type === "bitcoin" ? (
+                        <Bitcoin className="h-5 w-5 text-[var(--color-crypto-bitcoin)]" />
                       ) : (
-                        <AlertCircle className="h-5 w-5 text-destructive" />
+                        <Coins className="h-5 w-5 text-[var(--color-crypto-ethereum)]" />
                       )}
+                      <div>
+                        <p className="font-medium">
+                          {safeFormatCrypto(transfer.amount, 8)} {transfer.crypto_type.toUpperCase()}
+                        </p>
+                        <p className="text-sm text-muted-foreground">{safeFormatCurrency(transfer.usd_amount)}</p>
+                        <p className="text-xs text-muted-foreground">
+                          To: {transfer.to_email || `Account #${transfer.to_account_id || "Unknown"}`}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <Badge
+                        variant={
+                          transfer.status === "completed"
+                            ? "default"
+                            : transfer.status === "pending"
+                              ? "secondary"
+                              : "destructive"
+                        }
+                      >
+                        {transfer.status}
+                      </Badge>
+                      <p className="text-sm text-muted-foreground mt-1">
+                        {new Date(transfer.created_at).toLocaleDateString()}
+                      </p>
+                    </div>
+                  </div>
+                  {transfer.transaction_hash && (
+                    <div className="mt-3 pt-3 border-t border-border">
+                      <p className="text-xs text-muted-foreground">TX: {transfer.transaction_hash.slice(0, 20)}...</p>
                     </div>
                   )}
-                </div>
-                {receiverEmail && !isValidEmail && (
-                  <p className="text-sm text-destructive">Please enter a valid email address</p>
-                )}
-              </div>
+                </CardContent>
+              </Card>
+            ))}
 
-              {/* Amount */}
-              <div className="space-y-2">
-                <Label htmlFor="transferAmount" className="text-base font-bold text-foreground">
-                  Amount to Transfer
-                </Label>
-                <div className="relative">
-                  <Input
-                    id="transferAmount"
-                    type="number"
-                    placeholder={`Enter ${cryptoType === "bitcoin" ? "BTC" : "ETH"} amount`}
-                    required
-                    min={cryptoType === "bitcoin" ? 0.0001 : 0.001}
-                    step={cryptoType === "bitcoin" ? 0.0001 : 0.001}
-                    value={amount}
-                    onChange={(e) => setAmount(e.target.value)}
-                    disabled={isLoading}
-                    className={`h-12 pr-16 ${
-                      amount && isValidAmount
-                        ? "border-[var(--color-crypto-success)] bg-[var(--color-crypto-success)]/5"
-                        : amount && !isValidAmount
-                          ? "border-destructive bg-destructive/5"
-                          : ""
-                    }`}
-                  />
-                  <div className="absolute right-3 top-1/2 transform -translate-y-1/2 flex items-center space-x-2">
-                    <Badge variant="secondary" className="text-xs">
-                      {cryptoType === "bitcoin" ? "BTC" : "ETH"}
-                    </Badge>
-                    {amount &&
-                      (isValidAmount ? (
-                        <CheckCircle className="h-5 w-5 text-[var(--color-crypto-success)]" />
-                      ) : (
-                        <AlertCircle className="h-5 w-5 text-destructive" />
-                      ))}
+            {(!transfers || transfers.length === 0) && (
+              <Card>
+                <CardContent className="pt-6">
+                  <div className="text-center py-8">
+                    <p className="text-muted-foreground">No transfers found</p>
                   </div>
-                </div>
-                {amount && !isValidAmount && (
-                  <p className="text-sm text-destructive">
-                    Amount must be at least {cryptoType === "bitcoin" ? "0.0001 BTC" : "0.001 ETH"}
-                  </p>
-                )}
-              </div>
-
-              {/* Transfer Preview */}
-              {isFormValid && (
-                <Card className="border-2 border-dashed border-primary/30 bg-primary/5">
-                  <CardContent className="p-4">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-3">
-                        <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center">
-                          <ArrowRight className="h-5 w-5 text-primary" />
-                        </div>
-                        <div>
-                          <p className="text-sm font-medium text-foreground">Transfer Preview</p>
-                          <p className="text-xs text-muted-foreground">Ready to send</p>
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <p className="font-bold text-lg text-primary">
-                          {amount} {cryptoType === "bitcoin" ? "BTC" : "ETH"}
-                        </p>
-                        <p className="text-xs text-muted-foreground">to {receiverEmail}</p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              )}
-
-              <Button type="submit" className="w-full h-12 text-base font-bold" disabled={!isFormValid || isLoading}>
-                {isLoading ? (
-                  <div className="flex items-center justify-center space-x-2">
-                    <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
-                    <span>Sending {cryptoType === "bitcoin" ? "Bitcoin" : "Ethereum"}...</span>
-                  </div>
-                ) : (
-                  <div className="flex items-center justify-center space-x-2">
-                    <Send className="h-4 w-4" />
-                    <span>Send {cryptoType === "bitcoin" ? "Bitcoin" : "Ethereum"}</span>
-                  </div>
-                )}
-              </Button>
-            </form>
-          </CardContent>
-        </Card>
+                </CardContent>
+              </Card>
+            )}
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   )
 }
+  
