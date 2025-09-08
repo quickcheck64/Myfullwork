@@ -61,7 +61,7 @@ export default function CryptoTransferForm({ onTransferSuccess, onReturnToDashbo
 
   // Create transfer mutation
   const createTransferMutation = useMutation({
-    mutationFn: (data: { crypto_type: string; amount: number; to_email?: string; to_account_id?: string }) =>
+    mutationFn: (data: { crypto_type: string; amount: number; to_email?: string; to_user_id?: string }) =>
       apiCall("/api/transfers/create", "POST", data, true),
     onSuccess: () => {
       toast({
