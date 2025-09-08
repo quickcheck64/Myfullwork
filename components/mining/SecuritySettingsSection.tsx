@@ -23,7 +23,7 @@ function ChangePinForm({ onBack }: { onBack: () => void }) {
   const queryClient = useQueryClient()
 
   const changePinMutation = useMutation({
-    mutationFn: (data: { current_pin: string; new_pin: string }) => apiCall("/api/user/change-pin", "POST", data, true),
+    mutationFn: (data: { current_pin: string; new_pin: string }) => apiCall("/api/change-pin", "POST", data, true),
     onSuccess: () => {
       toast({
         title: "PIN Changed Successfully",
@@ -200,7 +200,7 @@ function ChangePasswordForm({ onBack }: { onBack: () => void }) {
 
   const changePasswordMutation = useMutation({
     mutationFn: (data: { current_password: string; new_password: string }) =>
-      apiCall("/api/user/change-password", "POST", data, true),
+      apiCall("/api/change-password", "POST", data, true),
     onSuccess: () => {
       toast({
         title: "Password Changed Successfully",
