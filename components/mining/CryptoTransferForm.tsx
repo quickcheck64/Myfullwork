@@ -6,7 +6,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Bitcoin, Coins, ArrowLeft, Send } from "lucide-react"
 import { apiCall } from "@/lib/api"
@@ -19,16 +18,20 @@ interface UserProfile {
   ethereum_balance_usd: number
 }
 
+interface UserInfo {
+  id: number
+  email: string
+}
+
 interface Transfer {
   id: number
   crypto_type: string
   amount: number
   usd_amount: number
-  to_email?: string
-  to_account_id?: string
-  status: string
-  transaction_hash?: string
+  transaction_hash: string
   created_at: string
+  from_user: UserInfo
+  to_user: UserInfo
 }
 
 interface TransferFormProps {
@@ -343,23 +346,12 @@ export default function CryptoTransferForm({ onTransferSuccess, onReturnToDashbo
                         </p>
                         <p className="text-sm text-muted-foreground">{safeFormatCurrency(transfer.usd_amount)}</p>
                         <p className="text-xs text-muted-foreground">
-                          To: {transfer.to_email || `Account #${transfer.to_account_id || "Unknown"}`}
+                          To: {transfer.to_user?.email || `Account #${transfer.to_user?.id}`}
                         </p>
                       </div>
                     </div>
                     <div className="text-right">
-                      <Badge
-                        variant={
-                          transfer.status === "completed"
-                            ? "default"
-                            : transfer.status === "pending"
-                              ? "secondary"
-                              : "destructive"
-                        }
-                      >
-                        {transfer.status}
-                      </Badge>
-                      <p className="text-sm text-muted-foreground mt-1">
+                      <p className="text-sm text-muted-foreground">
                         {new Date(transfer.created_at).toLocaleDateString()}
                       </p>
                     </div>
@@ -388,4 +380,3 @@ export default function CryptoTransferForm({ onTransferSuccess, onReturnToDashbo
     </div>
   )
 }
-  
