@@ -32,6 +32,7 @@ interface Transfer {
   created_at: string
   from_user: UserInfo
   to_user: UserInfo
+  direction: "sent" | "received"
 }
 
 interface TransferFormProps {
@@ -335,18 +336,51 @@ export default function CryptoTransferForm({ onTransferSuccess, onReturnToDashbo
                 <CardContent className="pt-6">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-3">
-                      {transfer.crypto_type === "bitcoin" ? (
-                        <Bitcoin className="h-5 w-5 text-[var(--color-crypto-bitcoin)]" />
-                      ) : (
-                        <Coins className="h-5 w-5 text-[var(--color-crypto-ethereum)]" />
-                      )}
+                      <div
+                        className={`p-2 rounded-full ${
+                          transfer.direction === "sent"
+                            ? "bg-blue-100 dark:bg-blue-900/20"
+                            : "bg-green-100 dark:bg-green-900/20"
+                        }`}
+                      >
+                        {transfer.crypto_type === "bitcoin" ? (
+                          <Bitcoin
+                            className={`h-5 w-5 ${
+                              transfer.direction === "sent"
+                                ? "text-blue-600 dark:text-blue-400"
+                                : "text-green-600 dark:text-green-400"
+                            }`}
+                          />
+                        ) : (
+                          <Coins
+                            className={`h-5 w-5 ${
+                              transfer.direction === "sent"
+                                ? "text-blue-600 dark:text-blue-400"
+                                : "text-green-600 dark:text-green-400"
+                            }`}
+                          />
+                        )}
+                      </div>
                       <div>
-                        <p className="font-medium">
-                          {safeFormatCrypto(transfer.amount, 8)} {transfer.crypto_type.toUpperCase()}
-                        </p>
+                        <div className="flex items-center space-x-2">
+                          <p className="font-medium">
+                            {safeFormatCrypto(transfer.amount, 8)} {transfer.crypto_type.toUpperCase()}
+                          </p>
+                          <span
+                            className={`text-xs px-2 py-1 rounded-full ${
+                              transfer.direction === "sent"
+                                ? "bg-blue-100 text-blue-700 dark:bg-blue-900/20 dark:text-blue-300"
+                                : "bg-green-100 text-green-700 dark:bg-green-900/20 dark:text-green-300"
+                            }`}
+                          >
+                            {transfer.direction === "sent" ? "→ Sent" : "← Received"}
+                          </span>
+                        </div>
                         <p className="text-sm text-muted-foreground">{safeFormatCurrency(transfer.usd_amount)}</p>
                         <p className="text-xs text-muted-foreground">
-                          To: {transfer.to_user?.email || `Account #${transfer.to_user?.id}`}
+                          {transfer.direction === "sent"
+                            ? `To: ${transfer.to_user?.email || `Account #${transfer.to_user?.id}`}`
+                            : `From: ${transfer.from_user?.email || `Account #${transfer.from_user?.id}`}`}
                         </p>
                       </div>
                     </div>
