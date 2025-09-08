@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Badge } from "@/components/ui/badge"
-import { Shield, Lock, Key, ArrowLeft, Settings, Eye, EyeOff } from 'lucide-react'
+import { Shield, Lock, Key, ArrowLeft, Settings, Eye, EyeOff } from "lucide-react"
 import { apiCall } from "@/lib/api"
 import { useToast } from "@/hooks/use-toast"
 
@@ -15,7 +15,6 @@ interface SecuritySettingsSectionProps {
   onReturnToDashboard: () => void
 }
 
-// <CHANGE> Added ChangePinForm component with real API integration
 function ChangePinForm({ onBack }: { onBack: () => void }) {
   const [currentPin, setCurrentPin] = useState("")
   const [newPin, setNewPin] = useState("")
@@ -24,8 +23,7 @@ function ChangePinForm({ onBack }: { onBack: () => void }) {
   const queryClient = useQueryClient()
 
   const changePinMutation = useMutation({
-    mutationFn: (data: { current_pin: string; new_pin: string }) =>
-      apiCall("/api/user/change-pin", "POST", data, true),
+    mutationFn: (data: { current_pin: string; new_pin: string }) => apiCall("/api/user/change-pin", "POST", data, true),
     onSuccess: () => {
       toast({
         title: "PIN Changed Successfully",
@@ -172,7 +170,6 @@ function ChangePinForm({ onBack }: { onBack: () => void }) {
   )
 }
 
-// <CHANGE> Added ChangePasswordForm component with real API integration
 function ChangePasswordForm({ onBack }: { onBack: () => void }) {
   const [currentPassword, setCurrentPassword] = useState("")
   const [newPassword, setNewPassword] = useState("")
@@ -374,7 +371,6 @@ function ChangePasswordForm({ onBack }: { onBack: () => void }) {
 export default function SecuritySettingsSection({ onReturnToDashboard }: SecuritySettingsSectionProps) {
   const [activeForm, setActiveForm] = useState<"main" | "changePin" | "changePassword">("main")
 
-  // <CHANGE> Replaced placeholder forms with real form components
   if (activeForm === "changePin") {
     return <ChangePinForm onBack={() => setActiveForm("main")} />
   }
@@ -383,7 +379,6 @@ export default function SecuritySettingsSection({ onReturnToDashboard }: Securit
     return <ChangePasswordForm onBack={() => setActiveForm("main")} />
   }
 
-  // ... existing code ...
   return (
     <div className="min-h-screen bg-background p-4">
       <div className="max-w-4xl mx-auto space-y-6">
@@ -432,4 +427,100 @@ export default function SecuritySettingsSection({ onReturnToDashboard }: Securit
         </Card>
 
         {/* Security Options */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Change PIN */}
+          <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => setActiveForm("changePin")}>
+            <CardHeader>
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center">
+                  <Key className="h-5 w-5 text-primary" />
+                </div>
+                <div>
+                  <CardTitle className="text-lg">Change PIN</CardTitle>
+                  <p className="text-muted-foreground text-sm">Update your 4-digit security PIN</p>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-muted-foreground mb-1">Current PIN Status</p>
+                  <Badge variant="secondary" className="bg-green-100 text-green-800">
+                    Active
+                  </Badge>
+                </div>
+                <Button variant="outline" size="sm">
+                  Update PIN
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Change Password */}
+          <Card
+            className="hover:shadow-lg transition-shadow cursor-pointer"
+            onClick={() => setActiveForm("changePassword")}
+          >
+            <CardHeader>
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center">
+                  <Lock className="h-5 w-5 text-primary" />
+                </div>
+                <div>
+                  <CardTitle className="text-lg">Change Password</CardTitle>
+                  <p className="text-muted-foreground text-sm">Update your account password</p>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-muted-foreground mb-1">Password Strength</p>
+                  <Badge variant="secondary" className="bg-green-100 text-green-800">
+                    Strong
+                  </Badge>
+                </div>
+                <Button variant="outline" size="sm">
+                  Update Password
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Security Tips */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center space-x-2">
+              <Settings className="h-5 w-5" />
+              <span>Security Best Practices</span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-3">
+                <h4 className="font-semibold text-foreground">PIN Security</h4>
+                <ul className="text-sm text-muted-foreground space-y-1">
+                  <li>• Use a unique 4-digit combination</li>
+                  <li>• Avoid sequential numbers (1234)</li>
+                  <li>• Don't use easily guessable dates</li>
+                  <li>• Change your PIN regularly</li>
+                </ul>
+              </div>
+              <div className="space-y-3">
+                <h4 className="font-semibold text-foreground">Password Security</h4>
+                <ul className="text-sm text-muted-foreground space-y-1">
+                  <li>• Use at least 8 characters</li>
+                  <li>• Include uppercase and lowercase letters</li>
+                  <li>• Add numbers and special characters</li>
+                  <li>• Don't reuse passwords from other accounts</li>
+                </ul>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  )
+            }
+          
