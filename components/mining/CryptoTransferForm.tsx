@@ -145,7 +145,7 @@ export default function CryptoTransferForm({ onTransferSuccess, onReturnToDashbo
     if (isEmail(recipient)) {
       transferData.to_email = recipient
     } else {
-      transferData.to_account_id = recipient
+      transferData.to_user_id = recipient
     }
 
     createTransferMutation.mutate(transferData)
