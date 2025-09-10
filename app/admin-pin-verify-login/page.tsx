@@ -22,7 +22,7 @@ export default function PinVerifyLoginPage() {
   // Redirect if no saved auth
   useEffect(() => {
     if (!currentUser) {
-      router.push("/login")
+      router.push("/adminlogin")
     }
   }, [currentUser, router])
 
@@ -50,7 +50,7 @@ export default function PinVerifyLoginPage() {
         description: "Accessing mining dashboard...",
       })
 
-      const redirectToPath = sessionStorage.getItem("prePinVerifyPath") || "/dashboard"
+      const redirectToPath = sessionStorage.getItem("prePinVerifyPath") || "/AdminDashboard"
       sessionStorage.removeItem("prePinVerifyPath")
       router.push(redirectToPath)
     } catch (error: any) {
