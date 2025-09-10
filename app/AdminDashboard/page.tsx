@@ -76,6 +76,7 @@ interface UserProfile extends User {
   mining_sessions_count: number
   referral_count: number
   last_login: string
+  personal_mining_rate: number | null
 }
 
 interface AdminSettings {
@@ -512,9 +513,20 @@ export default function AdminDashboard({ onReturnToDashboard }: AdminDashboardPr
                           type="number"
                           min="0"
                           max="100"
-                          defaultValue={adminSettings?.global_mining_rate}
-                          onBlur={(e) => handleSettingsUpdate({ global_mining_rate: Number(e.target.value) })}
+                          step="0.1"
+                          defaultValue={adminSettings ? (adminSettings.global_mining_rate * 100).toFixed(1) : ""}
+                          onBlur={(e) => {
+                            // Convert percentage to decimal for backend
+                            const percentageValue = Number(e.target.value)
+                            const decimalValue = percentageValue / 100
+                            handleSettingsUpdate({ global_mining_rate: decimalValue })
+                          }}
+                          placeholder="Enter percentage (e.g., 70 for 70%)"
                         />
+                        <p className="text-xs text-muted-foreground">
+                          Default mining rate for all users. Individual users can have personal rates that override
+                          this.
+                        </p>
                       </div>
                     </>
                   )}
@@ -762,6 +774,89 @@ export default function AdminDashboard({ onReturnToDashboard }: AdminDashboardPr
                         <Settings className="h-4 w-4 mr-2" />
                         Reset Password
                       </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Personal Mining Rate Control */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg">Personal Mining Rate</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <Label>Current Personal Rate</Label>
+                        <div className="text-lg font-semibold">
+                          {selectedUser.personal_mining_rate
+                            ? `${(selectedUser.personal_mining_rate * 100).toFixed(1)}%`
+                            : "Using Global Rate"}
+                        </div>
+                        <p className="text-sm text-muted-foreground">
+                          Global Rate:{" "}
+                          {adminSettings ? `${(adminSettings.global_mining_rate * 100).toFixed(1)}%` : "Loading..."}
+                        </p>
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Set Personal Mining Rate (%)</Label>
+                        <div className="flex space-x-2">
+                          <Input
+                            type="number"
+                            min="0"
+                            max="100"
+                            step="0.1"
+                            placeholder="Enter rate (e.g., 75 for 75%)"
+                            defaultValue={
+                              selectedUser.personal_mining_rate
+                                ? (selectedUser.personal_mining_rate * 100).toFixed(1)
+                                : ""
+                            }
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter") {
+                                const value = (e.target as HTMLInputElement).value
+                                if (value) {
+                                  // Convert percentage to decimal for backend
+                                  const decimalRate = Number(value) / 100
+                                  handleUserAction(selectedUser.id, "set-mining-rate", { mining_rate: decimalRate })
+                                } else {
+                                  // Clear personal rate to use global rate
+                                  handleUserAction(selectedUser.id, "clear-mining-rate")
+                                }
+                              }
+                            }}
+                          />
+                          <Button
+                            variant="outline"
+                            onClick={(e) => {
+                              const input = e.currentTarget.parentElement?.querySelector("input") as HTMLInputElement
+                              const value = input?.value
+                              if (value) {
+                                // Convert percentage to decimal for backend
+                                const decimalRate = Number(value) / 100
+                                handleUserAction(selectedUser.id, "set-mining-rate", { mining_rate: decimalRate })
+                              } else {
+                                // Clear personal rate to use global rate
+                                handleUserAction(selectedUser.id, "clear-mining-rate")
+                              }
+                            }}
+                            disabled={userActionMutation.isPending}
+                          >
+                            Set Rate
+                          </Button>
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleUserAction(selectedUser.id, "clear-mining-rate")}
+                          disabled={userActionMutation.isPending}
+                        >
+                          Clear (Use Global Rate)
+                        </Button>
+                        <p className="text-xs text-muted-foreground">
+                          Leave empty or clear to use the global mining rate. Personal rate overrides global rate when
+                          set.
+                        </p>
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
