@@ -21,7 +21,7 @@ export async function apiCall<T>(
   endpoint: string,
   method: "GET" | "POST" | "PUT" | "DELETE" = "GET",
   body?: any,
-  requiresAuth = true
+  requiresAuth = true,
 ): Promise<T> {
   const url = `${API_BASE_URL}${endpoint.startsWith("/") ? endpoint : `/${endpoint}`}`
 
@@ -118,7 +118,7 @@ export async function loginUser(
   password: string,
   twoFaToken?: string,
   deviceFingerprint?: string,
-  ipAddress?: string
+  ipAddress?: string,
 ) {
   const response = await apiCall<{
     access_token: string
@@ -135,7 +135,7 @@ export async function loginUser(
       ip_address: ipAddress,
       user_agent: typeof navigator !== "undefined" ? navigator.userAgent : "unknown",
     },
-    false
+    false,
   )
 
   if (typeof window !== "undefined") {
@@ -153,12 +153,7 @@ export async function registerUser(userData: {
   pin: string
   referral_code?: string
 }) {
-  return await apiCall<{ user: any; access_token: string }>(
-    "/api/register",
-    "POST",
-    userData,
-    false
-  )
+  return await apiCall<{ user: any; access_token: string }>("/api/register", "POST", userData, false)
 }
 
 export async function logoutUser() {
