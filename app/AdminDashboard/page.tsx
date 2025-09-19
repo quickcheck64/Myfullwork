@@ -296,7 +296,7 @@ export default function AdminDashboard() {
 
   const uploadQRMutation = useMutation({
     mutationFn: async (data: { crypto_type: string; qr_code_url: string }) => {
-      return apiCall(`/api/admin/qr-codes`, "POST", data, true)
+      return apiCall(`/api/admin/upload-qr-code`, "POST", data, true)
     },
     onSuccess: () => {
       toast({
