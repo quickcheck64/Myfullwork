@@ -61,7 +61,7 @@ export default function LiveMiningStats() {
           if (!ref) return s
 
           const secondsElapsed = (Date.now() - ref.startTime) / 1000
-          const increment = (s.deposited_amount * (s.mining_rate_percent / 100)) / 86400 * secondsElapsed
+          const increment = ((s.deposited_amount * (s.mining_rate_percent / 100)) / 86400) * secondsElapsed
 
           return {
             ...s,
@@ -69,7 +69,7 @@ export default function LiveMiningStats() {
             // ✅ only update this session's crypto balance
             balance: ref.baseBalance + increment,
           }
-        })
+        }),
       )
     }, 1000)
     return () => clearInterval(interval)
@@ -80,6 +80,45 @@ export default function LiveMiningStats() {
     const interval = setInterval(fetchMiningProgress, 30000) // sync with backend every 30s
     return () => clearInterval(interval)
   }, [])
+
+  const groupedSessions = sessions.reduce(
+    (acc, session) => {
+      const cryptoType = session.crypto_type.toLowerCase()
+      if (!acc[cryptoType]) {
+        acc[cryptoType] = {
+          crypto_type: session.crypto_type,
+          sessions: [],
+          total_deposited: 0,
+          total_mined: 0,
+          total_balance: 0,
+          avg_mining_rate: 0,
+        }
+      }
+
+      acc[cryptoType].sessions.push(session)
+      acc[cryptoType].total_deposited += session.deposited_amount
+      acc[cryptoType].total_mined += session.current_mined
+      acc[cryptoType].total_balance += session.balance
+
+      return acc
+    },
+    {} as Record<
+      string,
+      {
+        crypto_type: string
+        sessions: MiningSessionProgress[]
+        total_deposited: number
+        total_mined: number
+        total_balance: number
+        avg_mining_rate: number
+      }
+    >,
+  )
+
+  // Calculate average mining rate for each crypto type
+  Object.values(groupedSessions).forEach((group) => {
+    group.avg_mining_rate = group.sessions.reduce((sum, s) => sum + s.mining_rate_percent, 0) / group.sessions.length
+  })
 
   if (isLoading && sessions.length === 0) {
     return (
@@ -123,18 +162,34 @@ export default function LiveMiningStats() {
         </div>
       </CardHeader>
       <CardContent className="space-y-4">
-        {sessions.length === 0 ? (
+        {Object.keys(groupedSessions).length === 0 ? (
           <p className="text-white/80 text-center">No active mining sessions</p>
         ) : (
-          sessions.map((session) => (
-            <div key={session.session_id} className="bg-white/10 rounded-lg p-3">
+          Object.values(groupedSessions).map((group) => (
+            <div key={group.crypto_type} className="bg-white/10 rounded-lg p-4 space-y-2">
               <div className="flex justify-between items-center">
-                <span className="font-bold">{session.crypto_type.toUpperCase()}</span>
-                <span className="text-sm text-white/60">{session.mining_rate_percent}% / day</span>
+                <span className="font-bold text-lg">{group.crypto_type.toUpperCase()}</span>
+                <div className="text-right">
+                  <span className="text-sm text-white/60">{group.avg_mining_rate.toFixed(2)}% / day</span>
+                  <p className="text-xs text-white/50">
+                    {group.sessions.length} active session{group.sessions.length !== 1 ? "s" : ""}
+                  </p>
+                </div>
               </div>
-              <p className="text-white/80 text-sm">Deposited: {formatCrypto(session.deposited_amount)}</p>
-              <p className="text-white/80 text-sm">Mined: {formatCrypto(session.current_mined)}</p>
-              <p className="text-white/80 text-sm">Balance: {formatCrypto(session.balance)}</p>
+              <div className="grid grid-cols-3 gap-4 text-sm">
+                <div>
+                  <p className="text-white/60">Total Deposited</p>
+                  <p className="font-semibold">{formatCrypto(group.total_deposited)}</p>
+                </div>
+                <div>
+                  <p className="text-white/60">Total Mined</p>
+                  <p className="font-semibold">{formatCrypto(group.total_mined)}</p>
+                </div>
+                <div>
+                  <p className="text-white/60">Total Balance</p>
+                  <p className="font-semibold">{formatCrypto(group.total_balance)}</p>
+                </div>
+              </div>
             </div>
           ))
         )}
