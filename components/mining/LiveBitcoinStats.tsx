@@ -212,38 +212,38 @@ export default function LiveMiningStats() {
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
-                    <div className="bg-card/50 rounded-md p-2 border border-border/30">
-                      <div className="flex items-center gap-1 mb-1">
-                        <Wallet className="h-3 w-3 text-muted-foreground" />
-                        <p className="text-xs font-medium text-muted-foreground uppercase">Deposited</p>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-1.5 md:gap-2">
+                    <div className="bg-card/50 rounded-md p-1.5 md:p-2 border border-border/30">
+                      <div className="flex items-center gap-1 mb-0.5">
+                        <Wallet className="h-2.5 w-2.5 md:h-3 md:w-3 text-muted-foreground" />
+                        <p className="text-[10px] md:text-xs font-medium text-muted-foreground uppercase">Deposited</p>
                       </div>
-                      <p className="font-bold text-xl md:text-lg text-foreground font-mono leading-tight">
+                      <p className="font-bold text-sm md:text-lg text-foreground font-mono leading-tight">
                         {formatCrypto(group.total_deposited, 8)}
                       </p>
                     </div>
 
-                    <div className="bg-primary/5 rounded-md p-2 border-2 border-primary/20">
-                      <div className="flex items-center gap-1 mb-1">
-                        <Zap className="h-3 w-3 text-primary animate-pulse" />
-                        <p className="text-xs font-medium text-primary uppercase">Mined</p>
+                    <div className="bg-card/50 rounded-md p-1.5 md:p-2 border border-border/30">
+                      <div className="flex items-center gap-1 mb-0.5">
+                        <TrendingUp className="h-2.5 w-2.5 md:h-3 md:w-3 text-muted-foreground" />
+                        <p className="text-[10px] md:text-xs font-medium text-muted-foreground uppercase">Balance</p>
                       </div>
-                      <p className="font-bold text-2xl text-primary font-mono tabular-nums leading-tight">
-                        {formatCrypto(group.total_mined, 8)}
-                      </p>
-                      <p className="text-xs text-primary/70 flex items-center gap-1">
-                        <span className="inline-block w-1 h-1 rounded-full bg-primary animate-pulse"></span>+
-                        {formatCrypto(perSecondRate, 10)}/sec
+                      <p className="font-bold text-sm md:text-2xl text-foreground font-mono leading-tight">
+                        {formatCrypto(group.total_balance, 8)}
                       </p>
                     </div>
 
-                    <div className="bg-card/50 rounded-md p-2 border border-border/30">
-                      <div className="flex items-center gap-1 mb-1">
-                        <TrendingUp className="h-3 w-3 text-muted-foreground" />
-                        <p className="text-xs font-medium text-muted-foreground uppercase">Balance</p>
+                    <div className="col-span-2 md:col-span-1 bg-primary/5 rounded-md p-2 border-2 border-primary/20">
+                      <div className="flex items-center gap-1 mb-0.5 md:mb-1">
+                        <Zap className="h-3 w-3 md:h-3 md:w-3 text-primary animate-pulse" />
+                        <p className="text-xs md:text-xs font-medium text-primary uppercase">Mined</p>
                       </div>
-                      <p className="font-bold text-2xl md:text-2xl text-foreground font-mono leading-tight">
-                        {formatCrypto(group.total_balance, 8)}
+                      <p className="font-bold text-xl md:text-2xl text-primary font-mono tabular-nums leading-tight">
+                        {formatCrypto(group.total_mined, 8)}
+                      </p>
+                      <p className="text-[10px] md:text-xs text-primary/70 flex items-center gap-1 mt-0.5">
+                        <span className="inline-block w-1 h-1 rounded-full bg-primary animate-pulse"></span>+
+                        {formatCrypto(perSecondRate, 10)}/sec
                       </p>
                     </div>
                   </div>
@@ -262,4 +262,5 @@ export default function LiveMiningStats() {
       </CardContent>
     </Card>
   )
-}
+                      }
+                                      
