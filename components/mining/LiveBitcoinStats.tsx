@@ -212,13 +212,13 @@ export default function LiveMiningStats() {
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-3 gap-2">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
                     <div className="bg-card/50 rounded-md p-2 border border-border/30">
                       <div className="flex items-center gap-1 mb-1">
                         <Wallet className="h-3 w-3 text-muted-foreground" />
                         <p className="text-xs font-medium text-muted-foreground uppercase">Deposited</p>
                       </div>
-                      <p className="font-bold text-lg text-foreground font-mono leading-tight">
+                      <p className="font-bold text-xl md:text-lg text-foreground font-mono leading-tight">
                         {formatCrypto(group.total_deposited, 8)}
                       </p>
                     </div>
@@ -242,7 +242,7 @@ export default function LiveMiningStats() {
                         <TrendingUp className="h-3 w-3 text-muted-foreground" />
                         <p className="text-xs font-medium text-muted-foreground uppercase">Balance</p>
                       </div>
-                      <p className="font-bold text-2xl text-foreground font-mono leading-tight">
+                      <p className="font-bold text-2xl md:text-2xl text-foreground font-mono leading-tight">
                         {formatCrypto(group.total_balance, 8)}
                       </p>
                     </div>
@@ -262,4 +262,4 @@ export default function LiveMiningStats() {
       </CardContent>
     </Card>
   )
-                        }
+}
