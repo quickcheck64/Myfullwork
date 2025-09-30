@@ -121,19 +121,19 @@ export default function LiveMiningStats() {
   if (isLoading && sessions.length === 0) {
     return (
       <Card className="border-2 border-primary/20 bg-card">
-        <CardHeader className="pb-3">
-          <CardTitle className="flex items-center gap-2 text-foreground text-base">
-            <div className="p-1.5 rounded-lg bg-primary/10">
-              <Zap className="h-4 w-4 text-primary" />
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-foreground">
+            <div className="p-2 rounded-lg bg-primary/10">
+              <Zap className="h-5 w-5 text-primary" />
             </div>
             <span>Live Mining Statistics</span>
             <div className="animate-spin ml-auto">
-              <RefreshCw className="h-3 w-3 text-muted-foreground" />
+              <RefreshCw className="h-4 w-4 text-muted-foreground" />
             </div>
           </CardTitle>
         </CardHeader>
-        <CardContent className="pb-4">
-          <p className="text-center text-muted-foreground text-sm py-4">Loading mining data...</p>
+        <CardContent>
+          <p className="text-center text-muted-foreground py-8">Loading mining data...</p>
         </CardContent>
       </Card>
     )
@@ -141,127 +141,109 @@ export default function LiveMiningStats() {
 
   return (
     <Card className="border-2 border-primary/20 bg-card overflow-hidden">
-      <CardHeader className="border-b border-border/50 bg-muted/30 pb-3 pt-4 px-4">
+      <CardHeader className="border-b border-border/50 bg-muted/30 pb-3">
         <div className="flex items-center justify-between">
-          <CardTitle className="flex items-center gap-2 text-foreground">
-            <div className="p-1.5 rounded-lg bg-primary/10 animate-pulse">
-              <Zap className="h-4 w-4 text-primary" />
+          <CardTitle className="flex items-center gap-3 text-foreground">
+            <div className="p-2 rounded-lg bg-primary/10 animate-pulse">
+              <Zap className="h-5 w-5 text-primary" />
             </div>
             <div>
-              <h3 className="font-bold text-base text-foreground">Live Mining Statistics</h3>
-              <p className="text-[10px] text-muted-foreground font-normal">Real-time performance</p>
+              <h3 className="font-bold text-lg text-foreground">Live Mining Statistics</h3>
+              <p className="text-xs text-muted-foreground font-normal mt-0.5">Real-time mining performance tracking</p>
             </div>
           </CardTitle>
-          <div className="flex items-center gap-1.5">
-            <Badge
-              variant="secondary"
-              className="bg-primary/10 text-primary border-primary/20 animate-pulse text-[10px] px-2 py-0.5"
-            >
-              <span className="inline-block w-1.5 h-1.5 rounded-full bg-primary mr-1"></span>
+          <div className="flex items-center gap-2">
+            <Badge variant="secondary" className="bg-primary/10 text-primary border-primary/20 animate-pulse">
+              <span className="inline-block w-2 h-2 rounded-full bg-primary mr-1.5"></span>
               Live
             </Badge>
             <Button
               variant="ghost"
               size="sm"
               onClick={fetchMiningProgress}
-              className="hover:bg-primary/10 p-1.5 h-auto"
+              className="hover:bg-primary/10 p-2"
               disabled={isLoading}
             >
-              <RefreshCw className={`h-3.5 w-3.5 ${isLoading ? "animate-spin" : ""}`} />
+              <RefreshCw className={`h-4 w-4 ${isLoading ? "animate-spin" : ""}`} />
             </Button>
           </div>
         </div>
       </CardHeader>
       <CardContent className="p-4">
         {Object.keys(groupedSessions).length === 0 ? (
-          <div className="text-center py-6">
-            <div className="inline-flex p-3 rounded-full bg-muted/50 mb-3">
-              <Bitcoin className="h-6 w-6 text-muted-foreground" />
+          <div className="text-center py-12">
+            <div className="inline-flex p-4 rounded-full bg-muted/50 mb-4">
+              <Bitcoin className="h-8 w-8 text-muted-foreground" />
             </div>
-            <p className="text-sm text-muted-foreground">No active mining sessions</p>
-            <p className="text-xs text-muted-foreground/60 mt-0.5">Start mining to see live statistics</p>
+            <p className="text-muted-foreground">No active mining sessions</p>
+            <p className="text-sm text-muted-foreground/60 mt-1">Start mining to see live statistics</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
             {Object.values(groupedSessions).map((group) => {
               const perSecondRate = (group.total_deposited * (group.avg_mining_rate / 100)) / 86400
 
               return (
                 <div
                   key={group.crypto_type}
-                  className="rounded-lg border-2 border-border/50 bg-gradient-to-br from-muted/30 to-muted/10 p-4 hover:border-primary/30 transition-all duration-300"
+                  className="rounded-xl border-2 border-border/50 bg-gradient-to-br from-muted/30 to-muted/10 p-3 hover:border-primary/30 transition-all duration-300"
                 >
-                  <div className="flex items-center justify-between mb-3 pb-2.5 border-b border-border/50">
+                  <div className="flex items-center justify-between mb-3 pb-2 border-b border-border/50">
                     <div className="flex items-center gap-2">
-                      <div className="p-1.5 rounded-lg bg-primary/10">
+                      <div className="p-2 rounded-lg bg-primary/10">
                         <Bitcoin className="h-5 w-5 text-primary" />
                       </div>
                       <div>
-                        <h3 className="font-bold text-base text-foreground">{group.crypto_type.toUpperCase()}</h3>
-                        <p className="text-[10px] text-muted-foreground">
-                          {group.sessions.length} session{group.sessions.length !== 1 ? "s" : ""}
+                        <h3 className="font-bold text-lg text-foreground">{group.crypto_type.toUpperCase()}</h3>
+                        <p className="text-xs text-muted-foreground">
+                          {group.sessions.length} active session{group.sessions.length !== 1 ? "s" : ""}
                         </p>
                       </div>
                     </div>
                     <div className="text-right">
-                      <div className="flex items-center gap-1 text-primary">
-                        <TrendingUp className="h-3.5 w-3.5" />
-                        <span className="font-bold text-sm">{group.avg_mining_rate.toFixed(2)}%</span>
+                      <div className="flex items-center gap-1.5 text-primary">
+                        <TrendingUp className="h-4 w-4" />
+                        <span className="font-bold text-base">{group.avg_mining_rate.toFixed(2)}%</span>
                       </div>
-                      <p className="text-[10px] text-muted-foreground">daily rate</p>
+                      <p className="text-xs text-muted-foreground">daily rate</p>
                     </div>
                   </div>
 
-                  <div className="space-y-3">
-                    {/* Total Mined - PROMINENT with live counter */}
-                    <div className="bg-gradient-to-br from-primary/10 to-primary/5 rounded-lg p-3 border-2 border-primary/30 shadow-sm">
-                      <div className="flex items-center justify-between mb-2">
-                        <div className="flex items-center gap-1.5">
-                          <Zap className="h-4 w-4 text-primary animate-pulse" />
-                          <p className="text-xs font-semibold text-primary uppercase tracking-wide">Total Mined</p>
-                        </div>
-                        <span className="inline-block w-2 h-2 rounded-full bg-primary animate-pulse"></span>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+                    <div className="bg-card/50 rounded-lg p-3 border border-border/30">
+                      <div className="flex items-center gap-2 mb-1">
+                        <Wallet className="h-4 w-4 text-muted-foreground" />
+                        <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Deposited</p>
                       </div>
-                      <p className="font-bold text-2xl text-primary font-mono tabular-nums leading-tight mb-1">
-                        {formatCrypto(group.total_mined, 6)}
+                      <p className="font-bold text-2xl text-foreground font-mono">
+                        {formatCrypto(group.total_deposited, 8)}
                       </p>
-                      <div className="flex items-center justify-between">
-                        <p className="text-xs text-primary/80 font-medium">{group.crypto_type.toUpperCase()}</p>
-                        <p className="text-xs text-primary/70 flex items-center gap-1">
-                          <span className="inline-block w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></span>+
-                          {formatCrypto(perSecondRate, 8)}/s
-                        </p>
-                      </div>
+                      <p className="text-xs text-muted-foreground mt-0.5">{group.crypto_type.toUpperCase()}</p>
                     </div>
 
-                    {/* Total Balance - PROMINENT */}
-                    <div className="bg-gradient-to-br from-muted/50 to-muted/20 rounded-lg p-3 border-2 border-border/50 shadow-sm">
-                      <div className="flex items-center gap-1.5 mb-2">
-                        <TrendingUp className="h-4 w-4 text-foreground" />
-                        <p className="text-xs font-semibold text-foreground uppercase tracking-wide">Total Balance</p>
+                    <div className="bg-primary/5 rounded-lg p-3 border-2 border-primary/20">
+                      <div className="flex items-center gap-2 mb-1">
+                        <Zap className="h-4 w-4 text-primary animate-pulse" />
+                        <p className="text-xs font-medium text-primary uppercase tracking-wide">Mined</p>
                       </div>
-                      <p className="font-bold text-2xl text-foreground font-mono tabular-nums leading-tight mb-1">
-                        {formatCrypto(group.total_balance, 6)}
+                      <p className="font-bold text-2xl text-primary font-mono tabular-nums">
+                        {formatCrypto(group.total_mined, 8)}
                       </p>
-                      <p className="text-xs text-muted-foreground font-medium">{group.crypto_type.toUpperCase()}</p>
+                      <p className="text-xs text-primary/70 mt-0.5 flex items-center gap-1">
+                        <span className="inline-block w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></span>+
+                        {formatCrypto(perSecondRate, 10)}/sec
+                      </p>
                     </div>
 
-                    {/* Total Deposited - Compact */}
-                    <div className="bg-card/50 rounded-md p-2.5 border border-border/30">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-1.5">
-                          <Wallet className="h-3.5 w-3.5 text-muted-foreground" />
-                          <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">
-                            Deposited
-                          </p>
-                        </div>
-                        <div className="text-right">
-                          <p className="font-bold text-sm text-foreground font-mono">
-                            {formatCrypto(group.total_deposited, 6)}
-                          </p>
-                          <p className="text-[9px] text-muted-foreground">{group.crypto_type.toUpperCase()}</p>
-                        </div>
+                    <div className="bg-card/50 rounded-lg p-3 border border-border/30">
+                      <div className="flex items-center gap-2 mb-1">
+                        <TrendingUp className="h-4 w-4 text-muted-foreground" />
+                        <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Balance</p>
                       </div>
+                      <p className="font-bold text-2xl text-foreground font-mono">
+                        {formatCrypto(group.total_balance, 8)}
+                      </p>
+                      <p className="text-xs text-muted-foreground mt-0.5">{group.crypto_type.toUpperCase()}</p>
                     </div>
                   </div>
                 </div>
@@ -270,14 +252,13 @@ export default function LiveMiningStats() {
           </div>
         )}
 
-        <div className="mt-3 pt-2 border-t border-border/50 text-center">
-          <p className="text-[10px] text-muted-foreground flex items-center justify-center gap-1.5">
-            <span className="inline-block w-1 h-1 rounded-full bg-primary animate-pulse"></span>
+        <div className="mt-3 pt-3 border-t border-border/50 text-center">
+          <p className="text-xs text-muted-foreground flex items-center justify-center gap-2">
+            <span className="inline-block w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></span>
             Last synced: {lastUpdate.toLocaleTimeString()}
           </p>
         </div>
       </CardContent>
     </Card>
   )
-                  }
-            
+}
