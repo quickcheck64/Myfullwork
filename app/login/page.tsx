@@ -11,7 +11,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { PasswordInput } from "@/components/ui/password-input"
 import { apiCall, getDeviceFingerprint, getIpAddress } from "@/lib/api"
 import { useAuth } from "@/hooks/use-auth"
-import { useToast } from "@/hooks/use-toast"
+import { useToast } from "@/hooks/use-toast"   // ✅ correct import
 
 export default function LoginPage() {
   const [email, setEmail] = useState("")
@@ -19,7 +19,7 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false)
   const { saveAuthData } = useAuth()
   const router = useRouter()
-  const { toast } = useToast()
+  const { toast } = useToast()   // ✅ hook is ready
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault()
@@ -29,7 +29,6 @@ export default function LoginPage() {
       const deviceFingerprint = await getDeviceFingerprint()
       const ipAddress = await getIpAddress()
 
-      // Login API call (same as Code 1 logic)
       const response = await apiCall("/api/login", "POST", {
         email,
         password,
@@ -41,18 +40,20 @@ export default function LoginPage() {
       // Save auth token + user for use in PIN verification
       saveAuthData(response.access_token, response.user)
 
+      console.log("✅ Firing success toast...") // 🔍 debug
       toast({
         title: "Login Successful",
         description: "Redirecting to PIN verification...",
+        variant: "default",
       })
 
-      // Redirect to PIN verification page
       router.push("/pin-verify-login")
     } catch (error: any) {
+      console.log("❌ Firing error toast...", error) // 🔍 debug
       toast({
         title: "Login Failed",
         description: error.message || "Please check your credentials.",
-        variant: "destructive",
+        variant: "destructive",   // ✅ styling supported
       })
     } finally {
       setIsLoading(false)
@@ -62,6 +63,7 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-green-100 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
+        {/* Header */}
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-16 h-16 bg-primary/10 backdrop-blur-sm rounded-2xl mb-4">
             <Pickaxe className="w-8 h-8 text-primary" />
@@ -70,6 +72,7 @@ export default function LoginPage() {
           <p className="text-muted-foreground">Sign in to your mining dashboard</p>
         </div>
 
+        {/* Card */}
         <Card className="bg-card/95 backdrop-blur-sm border-0 shadow-2xl">
           <CardHeader className="pb-4">
             <CardTitle className="text-2xl font-bold text-center text-card-foreground">
@@ -119,7 +122,7 @@ export default function LoginPage() {
                 </div>
               </div>
 
-              {/* Submit Button */}
+              {/* Submit */}
               <Button
                 type="submit"
                 className="w-full h-12 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold rounded-lg shadow-lg transition-all duration-200 transform hover:scale-[1.02]"
@@ -170,4 +173,4 @@ export default function LoginPage() {
       </div>
     </div>
   )
-}
+            }
