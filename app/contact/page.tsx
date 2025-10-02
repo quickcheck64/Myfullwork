@@ -108,7 +108,7 @@ export default function ContactUs() {
               </CardHeader>
               <CardContent className="text-center">
                 <a href="mailto:smarts9tradingltd@gmail.com" className="text-primary hover:underline">
-                  support@smarts9trading.com
+                  smarts9tradingltd@gmail.com
                 </a>
               </CardContent>
             </Card>
