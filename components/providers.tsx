@@ -1,12 +1,12 @@
 "use client"
 
 import type React from "react"
-import { AuthProvider } from "@/hooks/use-auth"
-import { ThemeProvider } from "next-themes"
-import { Toaster } from "react-hot-toast"
 import { Suspense } from "react"
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { useState } from "react"
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
+import { ThemeProvider } from "next-themes"
+import { AuthProvider } from "@/hooks/use-auth"
+import { Toaster } from "@/components/ui/toaster"  // ✅ use your own Toaster, not react-hot-toast
 
 export function Providers({ children }: { children: React.ReactNode }) {
   // Create QueryClient instance
@@ -18,8 +18,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
             staleTime: 60 * 1000, // 1 minute
             refetchOnWindowFocus: false,
           },
-        },
-      }),
+        }),
   )
 
   return (
@@ -28,6 +27,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
           <Suspense fallback={null}>
             {children}
+            {/* ✅ This is your global toast system */}
             <Toaster />
           </Suspense>
         </ThemeProvider>
