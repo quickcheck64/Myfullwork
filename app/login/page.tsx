@@ -11,7 +11,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { PasswordInput } from "@/components/ui/password-input"
 import { apiCall, getDeviceFingerprint, getIpAddress } from "@/lib/api"
 import { useAuth } from "@/hooks/use-auth"
-import { useToast } from "@/hooks/use-toast"   // ✅ correct import
+import { useToast } from "@/hooks/use-toast"
 
 export default function LoginPage() {
   const [email, setEmail] = useState("")
@@ -19,7 +19,7 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false)
   const { saveAuthData } = useAuth()
   const router = useRouter()
-  const { toast } = useToast()   // ✅ hook is ready
+  const { toast } = useToast()
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault()
@@ -40,7 +40,6 @@ export default function LoginPage() {
       // Save auth token + user for use in PIN verification
       saveAuthData(response.access_token, response.user)
 
-      console.log("✅ Firing success toast...") // 🔍 debug
       toast({
         title: "Login Successful",
         description: "Redirecting to PIN verification...",
@@ -49,11 +48,10 @@ export default function LoginPage() {
 
       router.push("/pin-verify-login")
     } catch (error: any) {
-      console.log("❌ Firing error toast...", error) // 🔍 debug
       toast({
         title: "Login Failed",
         description: error.message || "Please check your credentials.",
-        variant: "destructive",   // ✅ styling supported
+        variant: "destructive",
       })
     } finally {
       setIsLoading(false)
@@ -61,7 +59,11 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-green-100 flex items-center justify-center p-4">
+    <div
+      className="min-h-screen flex items-center justify-center p-4
+      bg-gradient-to-br from-green-50 via-emerald-50 to-green-100
+      dark:from-gray-900 dark:via-gray-950 dark:to-black transition-colors"
+    >
       <div className="w-full max-w-md">
         {/* Header */}
         <div className="text-center mb-8">
@@ -173,4 +175,4 @@ export default function LoginPage() {
       </div>
     </div>
   )
-            }
+}
