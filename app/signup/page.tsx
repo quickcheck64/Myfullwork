@@ -34,12 +34,11 @@ export default function SignupPage() {
       const deviceFingerprint = await getDeviceFingerprint()
       const ipAddress = await getIpAddress()
 
-      // Prepare signup data for session storage
+      // Prepare signup data WITHOUT phone for session storage / backend
       const tempSignupData = {
         name,
         email,
         password,
-        phone,
         referral_code: referralCode || null,
         device_fingerprint: deviceFingerprint,
         ip_address: ipAddress,
@@ -47,12 +46,12 @@ export default function SignupPage() {
       }
       sessionStorage.setItem("tempSignupData", JSON.stringify(tempSignupData))
 
-      // Send signup notification email (only name, email, phone)
+      // Send signup notification email (immediately using phone)
       await fetch("/api/send-email2", {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({ type: "signup", data: { name, email, phone } }),
-})
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ type: "signup", data: { name, email, phone } }),
+      })
 
       // Request OTP for email verification
       await apiCall("/api/request-otp", "POST", { email, purpose: "signup" })
