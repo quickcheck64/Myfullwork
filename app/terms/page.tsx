@@ -303,7 +303,7 @@ export default function TermsOfService() {
                   For questions about these Terms of Service, please contact us:
                 </p>
                 <ul className="list-none text-muted-foreground space-y-2">
-                  <li>Email: legal@smarts9trading.com</li>
+                  <li>Email: smarts9tradingltd@gmail.com</li>
                   <li>
                     Contact Form:{" "}
                     <Link href="/contact" className="text-primary hover:underline">
