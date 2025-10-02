@@ -175,7 +175,7 @@ export default function HomePage() {
                   Trusted by 25,000+ miners worldwide
                 </div>
                 <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground leading-tight mb-6">
-                  Mine Crypto with
+                  Invest Crypto with
                   <span className="bg-gradient-to-r from-primary to-emerald-600 bg-clip-text text-transparent">
                     {" "}
                     Maximum Profit
