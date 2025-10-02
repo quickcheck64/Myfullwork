@@ -71,14 +71,14 @@ export default function LoginPage() {
             <Pickaxe className="w-8 h-8 text-primary" />
           </div>
           <h1 className="text-3xl font-bold text-foreground mb-2">Welcome Back</h1>
-          <p className="text-muted-foreground">Sign in to your mining dashboard</p>
+          <p className="text-muted-foreground">Sign in to your S9Trading dashboard</p>
         </div>
 
         {/* Card */}
         <Card className="bg-card/95 backdrop-blur-sm border-0 shadow-2xl">
           <CardHeader className="pb-4">
             <CardTitle className="text-2xl font-bold text-center text-card-foreground">
-              Access Your Mining Account
+              Access Your Smart S9Trading Account
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
@@ -170,7 +170,7 @@ export default function LoginPage() {
         </Card>
 
         <div className="text-center mt-8">
-          <p className="text-muted-foreground text-sm">Secure crypto mining platform</p>
+          <p className="text-muted-foreground text-sm">Secure crypto Smart S9Trading platform</p>
         </div>
       </div>
     </div>
