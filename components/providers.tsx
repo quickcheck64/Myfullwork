@@ -18,13 +18,19 @@ export function Providers({ children }: { children: React.ReactNode }) {
             staleTime: 60 * 1000, // 1 minute
             refetchOnWindowFocus: false,
           },
-        }),
+        },
+      }) // ✅ fixed: removed trailing comma after })
   )
 
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
           <Suspense fallback={null}>
             {children}
             {/* ✅ This is your global toast system */}
