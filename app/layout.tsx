@@ -1,14 +1,9 @@
-"use client"
-
 import type React from "react"
 import type { Metadata } from "next"
 import { GeistSans } from "geist/font/sans"
 import { GeistMono } from "geist/font/mono"
-import { Providers } from "@/components/providers"
-import { AuthProvider } from "@/hooks/use-auth"
-import { Toaster } from "@/components/ui/toaster"   // ✅ Import Toaster
+import { ClientProviders } from "@/components/client-providers" // ✅ wrap client-only providers
 import "./globals.css"
-import { Suspense } from "react"
 
 export const metadata: Metadata = {
   title: "Crypto Mining Platform",
@@ -27,15 +22,7 @@ export default function RootLayout({
       className={`${GeistSans.variable} ${GeistMono.variable} antialiased`}
     >
       <body>
-        <Suspense fallback={null}>
-          <Providers>
-            <AuthProvider>
-              {children}
-              {/* ✅ Toaster goes here so toast notifications work globally */}
-              <Toaster />
-            </AuthProvider>
-          </Providers>
-        </Suspense>
+        <ClientProviders>{children}</ClientProviders>
       </body>
     </html>
   )
