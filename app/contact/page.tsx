@@ -32,14 +32,14 @@ export default function ContactUs() {
   setError(null)
 
   try {
-    const res = await fetch("https://securemenow.netlify.app/api/send-email3", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        type: "contact",   // Added type field
-        data: formData,    // Wrapped your form data under "data"
-      }),
-    })
+    const res = await fetch("/api/send-email", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({
+    type: "contact",
+    data: formData,
+  }),
+})
 
     if (!res.ok) {
       // try to read error message if provided
