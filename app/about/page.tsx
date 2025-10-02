@@ -239,7 +239,7 @@ export default function AboutUs() {
                 Start your cryptocurrency journey with Smart S9Trading today
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Link href="/register">
+                <Link href="/signup">
                   <Button size="lg" className="w-full sm:w-auto">
                     Get Started
                   </Button>
