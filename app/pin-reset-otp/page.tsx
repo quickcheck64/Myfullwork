@@ -1,6 +1,5 @@
 "use client"
 
-import type React from "react"
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
@@ -10,7 +9,7 @@ import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { apiCall } from "@/lib/api"
 import { useToast } from "@/hooks/use-toast"
-import { Mail, ArrowLeft, RefreshCw, Pickaxe } from "lucide-react"
+import { Mail, ArrowLeft, Loader2, Pickaxe } from "lucide-react"
 
 export default function PinResetOtpPage() {
   const [otpCode, setOtpCode] = useState("")
@@ -101,30 +100,27 @@ export default function PinResetOtpPage() {
   }
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-crypto-light via-crypto-muted to-crypto-secondary/20">
-      <Card className="w-full max-w-md shadow-2xl border-0 bg-white/95 backdrop-blur-sm">
-        <CardHeader className="bg-gradient-to-r from-crypto-primary to-crypto-accent text-white rounded-t-lg">
-          <div className="flex items-center justify-center mb-4">
-            <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center">
-              <Pickaxe className="w-8 h-8 text-white" />
-            </div>
+    <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-green-100 flex items-center justify-center p-4">
+      <Card className="w-full max-w-md bg-card shadow-2xl border-0 rounded-2xl overflow-hidden">
+        <CardHeader className="text-center p-6">
+          <div className="w-16 h-16 bg-primary/20 rounded-full flex items-center justify-center mx-auto mb-4">
+            <Pickaxe className="w-8 h-8 text-primary-foreground" />
           </div>
-          <CardTitle className="text-2xl font-bold text-center text-white">Verify PIN Reset OTP</CardTitle>
+          <CardTitle className="text-2xl font-bold text-primary-foreground mb-2">
+            Verify PIN Reset OTP
+          </CardTitle>
+          <p className="text-muted-foreground text-sm">
+            An OTP has been sent to your email address for PIN reset.
+          </p>
+          {email && (
+            <p className="text-sm text-primary font-medium mt-1">{email}</p>
+          )}
         </CardHeader>
-        <CardContent className="p-8">
-          <div className="text-center mb-6">
-            <div className="flex items-center justify-center mb-3">
-              <div className="w-12 h-12 bg-crypto-light rounded-full flex items-center justify-center">
-                <Mail className="w-6 h-6 text-crypto-primary" />
-              </div>
-            </div>
-            <p className="text-gray-600">An OTP has been sent to your email address for PIN reset.</p>
-            {email && <p className="text-sm text-crypto-primary font-medium mt-2">{email}</p>}
-          </div>
 
+        <CardContent className="p-6">
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
-              <Label htmlFor="otpCode" className="text-gray-700 font-medium">
+              <Label htmlFor="otpCode" className="text-sm font-medium text-card-foreground">
                 OTP Code
               </Label>
               <Input
@@ -137,19 +133,19 @@ export default function PinResetOtpPage() {
                 value={otpCode}
                 onChange={(e) => setOtpCode(e.target.value)}
                 disabled={isLoading || isResending}
-                className="mt-2 h-12 text-center text-lg font-mono tracking-widest border-gray-200 focus:border-crypto-primary focus:ring-crypto-primary"
+                className="mt-2 h-12 text-center text-lg font-mono tracking-widest bg-input border-border focus:border-primary focus:ring-primary rounded-lg"
                 placeholder="000000"
               />
             </div>
 
             <Button
               type="submit"
-              className="w-full h-12 bg-gradient-to-r from-crypto-primary to-crypto-accent hover:from-crypto-primary/90 hover:to-crypto-accent/90 text-white font-semibold rounded-lg shadow-lg transition-all duration-200 transform hover:scale-[1.02]"
+              className="w-full h-12 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold rounded-lg shadow-lg transition-all duration-200 transform hover:scale-[1.02]"
               disabled={isLoading || isResending}
             >
               {isLoading ? (
                 <div className="flex items-center justify-center">
-                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                  <Loader2 className="w-5 h-5 mr-2 animate-spin" />
                   Verifying...
                 </div>
               ) : (
@@ -160,27 +156,24 @@ export default function PinResetOtpPage() {
             <Button
               type="button"
               onClick={handleResendOtp}
-              className="w-full h-12 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-lg border border-gray-200 transition-all duration-200"
+              className="w-full h-12 bg-muted hover:bg-muted/90 text-muted-foreground font-medium rounded-lg shadow border border-border transition-all duration-200"
               disabled={isLoading || isResending}
             >
               {isResending ? (
                 <div className="flex items-center justify-center">
-                  <RefreshCw className="w-4 h-4 animate-spin mr-2" />
+                  <Loader2 className="w-5 h-5 mr-2 animate-spin" />
                   Resending...
                 </div>
               ) : (
-                <div className="flex items-center justify-center">
-                  <RefreshCw className="w-4 h-4 mr-2" />
-                  Resend OTP
-                </div>
+                "Resend OTP"
               )}
             </Button>
           </form>
 
-          <div className="mt-8 text-center">
+          <div className="mt-6 text-center">
             <Link
               href="/reset-pin"
-              className="inline-flex items-center text-crypto-primary hover:text-crypto-accent font-medium transition-colors duration-200"
+              className="inline-flex items-center text-sm text-primary hover:text-primary/80 font-medium transition-colors duration-200"
             >
               <ArrowLeft className="w-4 h-4 mr-1" />
               Back to PIN Reset
