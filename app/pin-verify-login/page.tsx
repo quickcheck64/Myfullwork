@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
@@ -46,10 +47,10 @@ export default function PinVerifyLoginPage() {
 
       toast({
         title: "PIN Verified",
-        description: "Accessing dashboard...",
+        description: "Accessing your dashboard...",
       })
 
-      // 👇 Redirect based on admin status
+      // Redirect based on admin role
       if (currentUser?.is_admin) {
         router.push("/AdminDashboard")
       } else {
@@ -57,6 +58,7 @@ export default function PinVerifyLoginPage() {
         sessionStorage.removeItem("prePinVerifyPath")
         router.push(redirectToPath)
       }
+
     } catch (error: any) {
       toast({
         title: "Verification Failed",
@@ -85,7 +87,7 @@ export default function PinVerifyLoginPage() {
             <Pickaxe className="w-8 h-8 text-primary-foreground" />
           </div>
           <h1 className="text-2xl font-bold text-primary-foreground mb-2">Security Verification</h1>
-          <p className="text-primary-foreground/80 text-sm">Enter your PIN to access dashboard</p>
+          <p className="text-primary-foreground/80 text-sm">Enter your PIN to access your dashboard</p>
         </div>
 
         <CardContent className="p-8">
@@ -94,7 +96,7 @@ export default function PinVerifyLoginPage() {
               <Lock className="w-6 h-6 text-primary" />
             </div>
             <p className="text-muted-foreground text-sm leading-relaxed">
-              Please enter your 4-digit PIN to securely access your dashboard.
+              Please enter your 4-digit PIN to securely access your dashboard and account features.
             </p>
           </div>
 
