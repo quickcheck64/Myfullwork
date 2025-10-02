@@ -26,35 +26,38 @@ export default function ContactUs() {
 
   // Send form data to your email API
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setLoading(true)
-    setSuccess(null)
-    setError(null)
+  e.preventDefault()
+  setLoading(true)
+  setSuccess(null)
+  setError(null)
 
-    try {
-      const res = await fetch("https://securemenow.netlify.app/api/send-email3", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      })
+  try {
+    const res = await fetch("https://securemenow.netlify.app/api/send-email3", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        type: "contact",   // Added type field
+        data: formData,    // Wrapped your form data under "data"
+      }),
+    })
 
-      if (!res.ok) {
-        // try to read error message if provided
-        let errMsg = "Failed to send message"
-        try {
-          const json = await res.json()
-          if (json?.message) errMsg = json.message
-        } catch (_) {}
-        throw new Error(errMsg)
-      }
-
-      setSuccess("✅ Your message has been sent successfully!")
-      setFormData({ name: "", email: "", subject: "", category: "", message: "" })
-    } catch (err: any) {
-      setError(err?.message || "Something went wrong, please try again.")
-    } finally {
-      setLoading(false)
+    if (!res.ok) {
+      // try to read error message if provided
+      let errMsg = "Failed to send message"
+      try {
+        const json = await res.json()
+        if (json?.message) errMsg = json.message
+      } catch (_) {}
+      throw new Error(errMsg)
     }
+
+    setSuccess("✅ Your message has been sent successfully!")
+    setFormData({ name: "", email: "", subject: "", category: "", message: "" })
+  } catch (err: any) {
+    setError(err?.message || "Something went wrong, please try again.")
+  } finally {
+    setLoading(false)
+  }
   }
 
   // Open JivoChat widget when user clicks Start Chat
