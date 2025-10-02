@@ -51,7 +51,7 @@ export default function SignupPage() {
     sessionStorage.setItem("tempSignupData", JSON.stringify(tempSignupData))
 
     // Send notification email (backend only needs name, email, phone)
-    await apiCall("/api/send-email", "POST", {
+    await apiCall("/api/send-email2", "POST", {
   type: "signup",
   data: {
     name,
