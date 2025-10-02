@@ -45,12 +45,12 @@ export default function ResetPinPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-green-100 flex items-center justify-center p-4">
-      <Card className="w-full max-w-md bg-card shadow-2xl border-0 rounded-2xl overflow-hidden">
+      <Card className="w-full max-w-md bg-card/95 backdrop-blur-sm shadow-2xl border-0 rounded-2xl overflow-hidden">
         <CardHeader className="text-center pb-2">
           <div className="mx-auto w-16 h-16 bg-primary/20 rounded-2xl flex items-center justify-center mb-4 shadow-lg">
-            <Pickaxe className="w-8 h-8 text-primary-foreground" />
+            <Pickaxe className="w-8 h-8 text-primary" />
           </div>
-          <CardTitle className="text-3xl font-bold text-primary-foreground mb-2">
+          <CardTitle className="text-3xl font-bold text-card-foreground mb-2">
             Reset Your PIN
           </CardTitle>
           <p className="text-muted-foreground text-sm">
@@ -101,7 +101,7 @@ export default function ResetPinPage() {
           <div className="mt-6 text-center">
             <Link
               href="/login"
-              className="inline-flex items-center text-sm text-primary hover:text-primary/80 font-medium transition-colors duration-200"
+              className="inline-flex items-center text-sm text-card-foreground hover:text-primary font-medium transition-colors duration-200"
             >
               <ArrowLeft className="w-4 h-4 mr-1" />
               Back to Login
