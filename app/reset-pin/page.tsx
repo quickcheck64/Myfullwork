@@ -1,6 +1,5 @@
 "use client"
 
-import type React from "react"
 import { useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
@@ -45,25 +44,27 @@ export default function ResetPinPage() {
   }
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-crypto-dark via-crypto-primary to-crypto-secondary p-4">
-      <Card className="w-full max-w-md shadow-2xl border-0 bg-white/95 backdrop-blur-sm">
+    <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-green-100 flex items-center justify-center p-4">
+      <Card className="w-full max-w-md bg-card shadow-2xl border-0 rounded-2xl overflow-hidden">
         <CardHeader className="text-center pb-2">
-          <div className="mx-auto w-16 h-16 bg-gradient-to-br from-crypto-primary to-crypto-accent rounded-2xl flex items-center justify-center mb-4 shadow-lg">
-            <Pickaxe className="w-8 h-8 text-white" />
+          <div className="mx-auto w-16 h-16 bg-primary/20 rounded-2xl flex items-center justify-center mb-4 shadow-lg">
+            <Pickaxe className="w-8 h-8 text-primary-foreground" />
           </div>
-          <CardTitle className="text-3xl font-bold bg-gradient-to-r from-crypto-primary to-crypto-accent bg-clip-text text-transparent mb-2">
+          <CardTitle className="text-3xl font-bold text-primary-foreground mb-2">
             Reset Your PIN
           </CardTitle>
-          <p className="text-gray-600 text-sm">Enter your email address to receive an OTP for PIN reset.</p>
+          <p className="text-muted-foreground text-sm">
+            Enter your email address to receive an OTP for PIN reset.
+          </p>
         </CardHeader>
         <CardContent className="pt-4">
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-2">
-              <Label htmlFor="email" className="text-sm font-medium text-gray-700">
+              <Label htmlFor="email" className="text-sm font-medium text-card-foreground">
                 Email Address
               </Label>
               <div className="relative">
-                <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-5 h-5" />
                 <Input
                   id="email"
                   name="email"
@@ -72,7 +73,7 @@ export default function ResetPinPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   disabled={isLoading}
-                  className="pl-10 h-12 border-gray-200 focus:border-crypto-primary focus:ring-crypto-primary rounded-lg"
+                  className="pl-10 h-12 bg-input border-border focus:border-primary focus:ring-primary rounded-lg"
                   placeholder="Enter your email address"
                 />
               </div>
@@ -80,19 +81,19 @@ export default function ResetPinPage() {
 
             <Button
               type="submit"
-              className="w-full h-12 bg-gradient-to-r from-crypto-primary to-crypto-accent hover:from-crypto-primary/90 hover:to-crypto-accent/90 text-white font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-[1.02]"
+              className="w-full h-12 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold rounded-lg shadow-lg transition-all duration-200 transform hover:scale-[1.02]"
               disabled={isLoading}
             >
               {isLoading ? (
-                <>
+                <div className="flex items-center justify-center">
                   <Loader2 className="w-5 h-5 mr-2 animate-spin" />
                   Requesting OTP...
-                </>
+                </div>
               ) : (
-                <>
+                <div className="flex items-center justify-center">
                   <Mail className="w-5 h-5 mr-2" />
                   Request PIN Reset OTP
-                </>
+                </div>
               )}
             </Button>
           </form>
@@ -100,7 +101,7 @@ export default function ResetPinPage() {
           <div className="mt-6 text-center">
             <Link
               href="/login"
-              className="inline-flex items-center text-sm text-crypto-primary hover:text-crypto-accent font-medium transition-colors duration-200"
+              className="inline-flex items-center text-sm text-primary hover:text-primary/80 font-medium transition-colors duration-200"
             >
               <ArrowLeft className="w-4 h-4 mr-1" />
               Back to Login
