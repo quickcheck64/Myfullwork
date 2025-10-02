@@ -78,7 +78,7 @@ export default function LoginPage() {
         <Card className="bg-card/95 backdrop-blur-sm border-0 shadow-2xl">
           <CardHeader className="pb-4">
             <CardTitle className="text-2xl font-bold text-center text-card-foreground">
-              Access Your Smart S9Trading Account
+              Access Your S9Trading Account
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
