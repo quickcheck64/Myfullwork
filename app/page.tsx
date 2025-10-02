@@ -78,7 +78,7 @@ export default function HomePage() {
               </li>
               <li>
                 <Link
-                  href="/contact-us"
+                  href="/contact"
                   className="text-muted-foreground hover:text-primary transition-colors font-medium"
                 >
                   Contact Us
@@ -86,7 +86,7 @@ export default function HomePage() {
               </li>
               <li>
                 <Link
-                  href="/about-us"
+                  href="/about"
                   className="text-muted-foreground hover:text-primary transition-colors font-medium"
                 >
                   About Us
@@ -152,7 +152,7 @@ export default function HomePage() {
                     <Link href="/login">Login</Link>
                   </Button>
                   <Button asChild className="bg-primary hover:bg-primary/90" onClick={handleMenuItemClick}>
-                    <Link href="/signup">Start Mining</Link>
+                    <Link href="/signup">Start Trading</Link>
                   </Button>
                 </div>
               </div>
@@ -182,7 +182,7 @@ export default function HomePage() {
                   </span>
                 </h1>
                 <p className="text-lg md:text-xl text-muted-foreground mb-8 max-w-2xl leading-relaxed">
-                  Join our advanced crypto mining platform and start earning Bitcoin and Ethereum with optimized
+                  Join our advanced crypto trading platform and start earning Bitcoin and Ethereum with optimized
                   algorithms, secure infrastructure, and instant payouts.
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
@@ -192,7 +192,7 @@ export default function HomePage() {
                     className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg hover:shadow-xl transform hover:scale-105 transition-all"
                   >
                     <Link href="/signup" className="flex items-center">
-                      Start Mining Today
+                      Start Trading Today
                       <ArrowRight className="w-4 h-4 ml-2" />
                     </Link>
                   </Button>
@@ -212,7 +212,7 @@ export default function HomePage() {
                   </div>
                   <div className="flex items-center">
                     <Shield className="w-4 h-4 mr-2 text-blue-500" />
-                    Secure mining
+                    Secure trading
                   </div>
                   <div className="flex items-center">
                     <Pickaxe className="w-4 h-4 mr-2 text-primary" />
@@ -239,7 +239,7 @@ export default function HomePage() {
                 <div className="absolute -bottom-4 -left-4 bg-card backdrop-blur-sm rounded-lg shadow-lg p-4 border border-border animate-bounce delay-1000">
                   <div className="flex items-center space-x-2">
                     <Award className="w-4 h-4 text-primary" />
-                    <span className="text-sm font-medium text-foreground">Mining active!</span>
+                    <span className="text-sm font-medium text-foreground">Trading active!</span>
                   </div>
                 </div>
                 <div className="absolute top-1/2 -left-6 bg-card backdrop-blur-sm rounded-lg shadow-lg p-3 border border-border animate-pulse">
@@ -258,7 +258,7 @@ export default function HomePage() {
             <div className="text-center mb-12">
               <h2 className="text-3xl md:text-4xl font-bold mb-4">Why Choose Smart S9Trading?</h2>
               <p className="text-primary-foreground/80 text-lg max-w-2xl mx-auto">
-                Experience the most reliable and profitable crypto mining platform
+                Experience the most reliable and profitable crypto trading platform
               </p>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -276,7 +276,7 @@ export default function HomePage() {
                   <Pickaxe className="w-8 h-8 text-primary-foreground" />
                 </div>
                 <h3 className="text-xl font-semibold">High Performance</h3>
-                <p className="text-primary-foreground/80">Optimized mining algorithms for maximum profitability</p>
+                <p className="text-primary-foreground/80">Optimized trading algorithms for maximum profitability</p>
               </div>
               <div className="text-center space-y-4">
                 <div className="w-16 h-16 bg-primary-foreground/20 rounded-full flex items-center justify-center mx-auto">
@@ -294,21 +294,21 @@ export default function HomePage() {
             <div className="text-center mb-16">
               <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">Multiple Ways to Mine</h2>
               <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
-                Discover various mining opportunities on our platform. From Bitcoin to Ethereum, there's always a
-                profitable mining option available.
+                Discover various Trading opportunities on our platform. From Bitcoin to Ethereum, there's always a
+                profitable Trading option available.
               </p>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center mb-16">
               <div>
-                <h3 className="text-2xl font-bold text-foreground mb-6">Bitcoin Mining</h3>
+                <h3 className="text-2xl font-bold text-foreground mb-6">Bitcoin Trading</h3>
                 <div className="space-y-4">
                   <div className="flex items-start space-x-3">
                     <CheckCircle className="w-5 h-5 text-green-500 mt-1 flex-shrink-0" />
                     <div>
-                      <h4 className="font-semibold text-foreground">Advanced ASIC Mining</h4>
+                      <h4 className="font-semibold text-foreground">Advanced ASIC Mining $ Trader</h4>
                       <p className="text-muted-foreground">
-                        Access to the latest ASIC miners with optimized hash rates. Earn consistent Bitcoin rewards with
+                        Access to the latest ASIC miners and trader with optimized hash rates. Earn consistent Bitcoin rewards with
                         our state-of-the-art mining infrastructure.
                       </p>
                     </div>
@@ -318,8 +318,8 @@ export default function HomePage() {
                     <div>
                       <h4 className="font-semibold text-foreground">Pool Mining Benefits</h4>
                       <p className="text-muted-foreground">
-                        Join our mining pools for more consistent payouts and reduced variance. Share rewards with other
-                        miners while maintaining competitive rates.
+                        Join our Trading pools for more consistent payouts and reduced variance. Share rewards with other
+                        Traders while maintaining competitive rates.
                       </p>
                     </div>
                   </div>
@@ -328,7 +328,7 @@ export default function HomePage() {
                     <div>
                       <h4 className="font-semibold text-foreground">Real-time Monitoring</h4>
                       <p className="text-muted-foreground">
-                        Track your mining performance with detailed analytics, hash rate monitoring, and profitability
+                        Track your trading performance with detailed analytics, hash rate monitoring, and profitability
                         calculations updated in real-time.
                       </p>
                     </div>
@@ -357,14 +357,14 @@ export default function HomePage() {
                 />
               </div>
               <div className="order-1 lg:order-2">
-                <h3 className="text-2xl font-bold text-foreground mb-6">Ethereum & Alt-coin Mining</h3>
+                <h3 className="text-2xl font-bold text-foreground mb-6">Ethereum & Bitcoin Trading</h3>
                 <div className="space-y-4">
                   <div className="flex items-start space-x-3">
                     <TrendingUp className="w-5 h-5 text-primary mt-1 flex-shrink-0" />
                     <div>
                       <h4 className="font-semibold text-foreground">GPU Mining Farms</h4>
                       <p className="text-muted-foreground">
-                        Access high-performance GPU mining rigs optimized for Ethereum and other profitable alt-coins
+                        Access high-performance GPU mining rigs optimized for Ethereum, Bitcoin and other profitable alt-coins
                         with automatic profit switching.
                       </p>
                     </div>
@@ -374,7 +374,7 @@ export default function HomePage() {
                     <div>
                       <h4 className="font-semibold text-foreground">Smart Contracts</h4>
                       <p className="text-muted-foreground">
-                        Participate in decentralized mining contracts with transparent terms and automated payouts
+                        Participate in decentralized mining & Trading contracts with transparent terms and automated payouts
                         directly to your wallet.
                       </p>
                     </div>
@@ -394,8 +394,8 @@ export default function HomePage() {
                     <div>
                       <h4 className="font-semibold text-foreground">Bonus Programs</h4>
                       <p className="text-muted-foreground">
-                        Take advantage of limited-time mining bonuses, referral rewards, and loyalty programs for
-                        long-term miners.
+                        Take advantage of limited-time Trading bonuses, referral rewards, and loyalty programs for
+                        long-term Traders.
                       </p>
                     </div>
                   </div>
@@ -408,21 +408,21 @@ export default function HomePage() {
         <section id="contact" className="py-20 md:py-24 bg-accent/50">
           <div className="container mx-auto px-4">
             <div className="text-center mb-16">
-              <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">Ready to Start Mining?</h2>
+              <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">Ready to Start Trading?</h2>
               <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-                Join thousands of miners earning cryptocurrency daily through our advanced mining platform
+                Join thousands of Investors earning cryptocurrency daily through our advanced Trading platform
               </p>
             </div>
             <div className="max-w-2xl mx-auto text-center">
               <div className="bg-card/95 backdrop-blur-sm rounded-2xl shadow-sm p-8 border border-border">
                 <h3 className="text-xl font-semibold text-foreground mb-4">Getting Started is Simple</h3>
                 <p className="text-muted-foreground mb-6 leading-relaxed">
-                  Create your free account, deposit your initial mining investment, and start earning cryptocurrency
+                  Create your free account, deposit your initial Trading investment, and start earning cryptocurrency
                   with our optimized mining algorithms. Monitor your progress and withdraw earnings anytime.
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4 justify-center">
                   <Button asChild size="lg" className="bg-primary hover:bg-primary/90">
-                    <Link href="/signup">Create Mining Account</Link>
+                    <Link href="/signup">Create Trading Account</Link>
                   </Button>
                   <Button asChild variant="outline" size="lg" className="border-border hover:bg-accent bg-transparent">
                     <Link href="/login">Access Dashboard</Link>
@@ -443,7 +443,7 @@ export default function HomePage() {
             <h2 className="text-3xl md:text-4xl font-bold mb-6">Ready to Start Mining?</h2>
             <p className="text-lg md:text-xl mb-8 max-w-2xl mx-auto opacity-90 leading-relaxed">
               Join thousands of miners who are already earning cryptocurrency. Sign up today and get your first mining
-              session free.
+              session.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
               <Button
@@ -452,7 +452,7 @@ export default function HomePage() {
                 className="bg-primary-foreground text-primary hover:bg-primary-foreground/90 shadow-lg hover:shadow-xl transform hover:scale-105 transition-all"
               >
                 <Link href="/signup" className="flex items-center">
-                  Start Mining Free
+                  Start Trading
                   <ArrowRight className="w-4 h-4 ml-2" />
                 </Link>
               </Button>
@@ -477,7 +477,7 @@ export default function HomePage() {
                 <span className="text-xl font-bold">Smart S9Trading</span>
               </div>
               <p className="text-gray-400">
-                The most trusted platform for cryptocurrency mining and portfolio management.
+                The most trusted platform for cryptocurrency Trading and portfolio management.
               </p>
             </div>
             <div>
@@ -485,12 +485,12 @@ export default function HomePage() {
               <ul className="space-y-2 text-gray-400">
                 <li>
                   <Link href="/signup" className="hover:text-white transition-colors">
-                    Bitcoin Mining
+                    Bitcoin Trading
                   </Link>
                 </li>
                 <li>
                   <Link href="/signup" className="hover:text-white transition-colors">
-                    Ethereum Mining
+                    Ethereum Trading
                   </Link>
                 </li>
                 <li>
@@ -524,12 +524,12 @@ export default function HomePage() {
               <h4 className="font-semibold mb-4">Legal</h4>
               <ul className="space-y-2 text-gray-400">
                 <li>
-                  <Link href="/privacy-policy" className="hover:text-white transition-colors">
+                  <Link href="/privacy" className="hover:text-white transition-colors">
                     Privacy Policy
                   </Link>
                 </li>
                 <li>
-                  <Link href="/terms-and-conditions" className="hover:text-white transition-colors">
+                  <Link href="/terms" className="hover:text-white transition-colors">
                     Terms of Service
                   </Link>
                 </li>
