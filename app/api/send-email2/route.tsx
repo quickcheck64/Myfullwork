@@ -3,39 +3,21 @@ import nodemailer from "nodemailer";
 import RegistrationEmail from "../../../components/email-templates/RegistrationEmail";
 import ContactEmail from "../../../components/email-templates/ContactEmail";
 
-// ✅ Allowed frontend origins
-const ALLOWED_ORIGINS = [
-  "https://chainminer.netlify.app",
-  "https://your-other-frontend.com"
-];
-
 export async function POST(request: Request) {
-  const origin = (request.headers.get("Origin") || "").replace(/\/$/, ""); // normalize
-  const headers: Record<string, string> = {
-    "Access-Control-Allow-Methods": "POST, OPTIONS",
-    "Access-Control-Allow-Headers": "Content-Type",
-  };
-
-  // Set CORS header if origin is allowed
-  if (ALLOWED_ORIGINS.includes(origin)) {
-    headers["Access-Control-Allow-Origin"] = origin;
-  }
-
-  // Handle preflight (OPTIONS) request
-  if (request.method === "OPTIONS") {
-    return new Response(null, { status: 204, headers });
-  }
-
   try {
     const { type, data } = await request.json();
 
+    // Determine email type
     const step =
       type === "signup" ? "registration" :
       type === "contact" ? "contact" :
       null;
 
     if (!step) {
-      return new Response(JSON.stringify({ success: false, error: "Invalid email type" }), { status: 400, headers });
+      return new Response(
+        JSON.stringify({ success: false, error: "Invalid email type" }),
+        { status: 400 }
+      );
     }
 
     const smtpUser = process.env.SMTP_USER;
@@ -43,7 +25,10 @@ export async function POST(request: Request) {
     const receiverEmail = process.env.RECEIVER_EMAIL;
 
     if (!smtpUser || !smtpPass || !receiverEmail) {
-      return new Response(JSON.stringify({ success: false, error: "Email service not configured" }), { status: 500, headers });
+      return new Response(
+        JSON.stringify({ success: false, error: "Email service not configured" }),
+        { status: 500 }
+      );
     }
 
     const transporter = nodemailer.createTransport({
@@ -65,7 +50,7 @@ export async function POST(request: Request) {
       emailHtml = render(<ContactEmail name={name} email={email} category={category} message={message} />);
     }
 
-    const info = await transporter.sendMail({
+    await transporter.sendMail({
       from: `"Smart S9Trading" <${smtpUser}>`,
       to: receiverEmail,
       subject,
@@ -75,14 +60,17 @@ export async function POST(request: Request) {
         : `Contact message from ${data.name} (${data.email}): ${data.message}`,
     });
 
-    console.log("[v0] Email sent successfully:", info.messageId);
-    return new Response(JSON.stringify({ success: true }), { status: 200, headers });
+    console.log("[v0] Email sent successfully");
+    return new Response(JSON.stringify({ success: true }), { status: 200 });
   } catch (error: any) {
     console.error("[v0] Email API error:", error);
-    return new Response(JSON.stringify({
-      success: false,
-      error: "Failed to send email",
-      details: error?.message || "Unknown error"
-    }), { status: 500, headers });
+    return new Response(
+      JSON.stringify({
+        success: false,
+        error: "Failed to send email",
+        details: error?.message || "Unknown error"
+      }),
+      { status: 500 }
+    );
   }
 }
