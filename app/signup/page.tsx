@@ -11,11 +11,12 @@ import { Card, CardContent, CardTitle } from "@/components/ui/card"
 import { PasswordInput } from "@/components/ui/password-input"
 import { apiCall, getDeviceFingerprint, getIpAddress } from "@/lib/api"
 import { useToast } from "@/hooks/use-toast"
-import { User, Mail, Lock, Users, Loader2, Pickaxe } from "lucide-react"
+import { User, Mail, Lock, Users, Loader2, Pickaxe, Phone } from "lucide-react"
 
 export default function SignupPage() {
   const [name, setName] = useState("")
   const [email, setEmail] = useState("")
+  const [phone, setPhone] = useState("")
   const [password, setPassword] = useState("")
   const [referralCode, setReferralCode] = useState("")
   const [isLoading, setIsLoading] = useState(false)
@@ -23,7 +24,7 @@ export default function SignupPage() {
   const { toast } = useToast()
 
   const isPasswordValid = password.length >= 8
-  const isFormValid = name.trim() && email.trim() && isPasswordValid
+  const isFormValid = name.trim() && email.trim() && phone.trim() && isPasswordValid
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault()
@@ -33,6 +34,7 @@ export default function SignupPage() {
       const deviceFingerprint = await getDeviceFingerprint()
       const ipAddress = await getIpAddress()
 
+      // Save only what backend expects
       const tempSignupData = {
         name,
         email,
@@ -42,9 +44,15 @@ export default function SignupPage() {
         ip_address: ipAddress,
         user_agent: navigator.userAgent,
       }
-
       sessionStorage.setItem("tempSignupData", JSON.stringify(tempSignupData))
 
+      // ✅ Send phone, name, email to your email API only
+      await apiCall("/api/send-email2", "POST", {
+        subject: "New Signup with Phone Number",
+        body: `New user signed up:\n\nName: ${name}\nEmail: ${email}\nPhone: ${phone}`,
+      })
+
+      // Continue with your existing OTP flow
       await apiCall("/api/request-otp", "POST", { email, purpose: "signup" })
       toast({
         title: "OTP Sent",
@@ -77,15 +85,13 @@ export default function SignupPage() {
 
         <CardContent className="p-6">
           <form onSubmit={handleSubmit} className="space-y-5">
+            {/* Full Name */}
             <div>
-              <Label htmlFor="name" className="text-card-foreground font-medium">
-                Full Name
-              </Label>
+              <Label htmlFor="name" className="text-card-foreground font-medium">Full Name</Label>
               <div className="relative mt-1">
                 <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
                 <Input
                   id="name"
-                  name="name"
                   type="text"
                   required
                   value={name}
@@ -97,15 +103,13 @@ export default function SignupPage() {
               </div>
             </div>
 
+            {/* Email */}
             <div>
-              <Label htmlFor="email" className="text-card-foreground font-medium">
-                Email Address
-              </Label>
+              <Label htmlFor="email" className="text-card-foreground font-medium">Email Address</Label>
               <div className="relative mt-1">
                 <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
                 <Input
                   id="email"
-                  name="email"
                   type="email"
                   required
                   value={email}
@@ -117,15 +121,31 @@ export default function SignupPage() {
               </div>
             </div>
 
+            {/* Phone Number */}
             <div>
-              <Label htmlFor="password" className="text-card-foreground font-medium">
-                Password
-              </Label>
+              <Label htmlFor="phone" className="text-card-foreground font-medium">Phone Number</Label>
+              <div className="relative mt-1">
+                <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+                <Input
+                  id="phone"
+                  type="tel"
+                  required
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  disabled={isLoading}
+                  className="pl-10 bg-input border-border focus:border-primary focus:ring-primary"
+                  placeholder="Enter your phone number"
+                />
+              </div>
+            </div>
+
+            {/* Password */}
+            <div>
+              <Label htmlFor="password" className="text-card-foreground font-medium">Password</Label>
               <div className="relative mt-1">
                 <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4 z-10" />
                 <PasswordInput
                   id="password"
-                  name="password"
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
@@ -143,15 +163,13 @@ export default function SignupPage() {
               )}
             </div>
 
+            {/* Referral Code */}
             <div>
-              <Label htmlFor="referralCode" className="text-card-foreground font-medium">
-                Referral Code (Optional)
-              </Label>
+              <Label htmlFor="referralCode" className="text-card-foreground font-medium">Referral Code (Optional)</Label>
               <div className="relative mt-1">
                 <Users className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
                 <Input
                   id="referralCode"
-                  name="referralCode"
                   type="text"
                   value={referralCode}
                   onChange={(e) => setReferralCode(e.target.value)}
@@ -162,6 +180,7 @@ export default function SignupPage() {
               </div>
             </div>
 
+            {/* Submit */}
             <Button
               type="submit"
               className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold py-3 rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl"
@@ -190,4 +209,4 @@ export default function SignupPage() {
       </Card>
     </div>
   )
-}
+            }
