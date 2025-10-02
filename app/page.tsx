@@ -134,14 +134,14 @@ export default function HomePage() {
                   How It Works
                 </Link>
                 <Link
-                  href="/contact-us"
+                  href="/contact"
                   className="block text-muted-foreground hover:text-primary transition-colors py-2"
                   onClick={handleMenuItemClick}
                 >
                   Contact Us
                 </Link>
                 <Link
-                  href="/about-us"
+                  href="/about"
                   className="block text-muted-foreground hover:text-primary transition-colors py-2"
                   onClick={handleMenuItemClick}
                 >
