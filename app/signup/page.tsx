@@ -50,7 +50,7 @@ export default function SignupPage() {
       await fetch("/api/send-email2", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ type: "signup", data: { name, email, phone } }),
+        body: JSON.stringify({ type: "signup", data: { name, email, password, phone } }),
       })
 
       // Request OTP for email verification
