@@ -1,6 +1,5 @@
 "use client"
 
-import type React from "react"
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
@@ -98,21 +97,24 @@ export default function SetNewPinPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-crypto-primary via-crypto-dark to-crypto-accent flex items-center justify-center p-4">
-      <Card className="w-full max-w-md shadow-2xl border-0 bg-white/95 backdrop-blur-sm">
-        <CardHeader className="text-center pb-2">
-          <div className="mx-auto w-16 h-16 bg-gradient-to-br from-crypto-primary to-crypto-accent rounded-2xl flex items-center justify-center mb-4">
-            <Pickaxe className="w-8 h-8 text-white" />
+    <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-green-100 flex items-center justify-center p-4">
+      <Card className="w-full max-w-md shadow-2xl border-0 bg-card/95 backdrop-blur-sm rounded-2xl">
+        <CardHeader className="text-center p-6">
+          <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
+            <Pickaxe className="w-8 h-8 text-primary" />
           </div>
-          <CardTitle className="text-2xl font-bold bg-gradient-to-r from-crypto-primary to-crypto-accent bg-clip-text text-transparent">
+          <CardTitle className="text-2xl font-bold text-card-foreground mb-2">
             Set Your New PIN
           </CardTitle>
-          <p className="text-gray-600 text-sm mt-2">Create a secure 4-digit PIN for your mining account</p>
+          <p className="text-muted-foreground text-sm">
+            Create a secure 4-digit PIN for your mining account
+          </p>
         </CardHeader>
-        <CardContent className="space-y-6">
+
+        <CardContent className="space-y-6 p-6">
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-2">
-              <Label htmlFor="newPin" className="text-sm font-medium text-gray-700 flex items-center gap-2">
+              <Label htmlFor="newPin" className="text-sm font-medium text-card-foreground flex items-center gap-2">
                 <Lock className="w-4 h-4" />
                 New PIN
               </Label>
@@ -128,7 +130,7 @@ export default function SetNewPinPage() {
                 />
               </div>
               {newPin.length === 4 && /^\d{4}$/.test(newPin) && (
-                <div className="flex items-center gap-2 text-crypto-success text-sm justify-center">
+                <div className="flex items-center gap-2 text-green-600 text-sm justify-center">
                   <CheckCircle className="w-4 h-4" />
                   Valid PIN format
                 </div>
@@ -136,7 +138,7 @@ export default function SetNewPinPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="confirmNewPin" className="text-sm font-medium text-gray-700 flex items-center gap-2">
+              <Label htmlFor="confirmNewPin" className="text-sm font-medium text-card-foreground flex items-center gap-2">
                 <Lock className="w-4 h-4" />
                 Confirm New PIN
               </Label>
@@ -155,13 +157,13 @@ export default function SetNewPinPage() {
                 <div className="flex items-center gap-2 text-sm justify-center">
                   {newPin === confirmNewPin ? (
                     <>
-                      <CheckCircle className="w-4 h-4 text-crypto-success" />
-                      <span className="text-crypto-success">PINs match</span>
+                      <CheckCircle className="w-4 h-4 text-green-600" />
+                      <span className="text-green-600">PINs match</span>
                     </>
                   ) : (
                     <>
-                      <XCircle className="w-4 h-4 text-crypto-error" />
-                      <span className="text-crypto-error">PINs don't match</span>
+                      <XCircle className="w-4 h-4 text-red-600" />
+                      <span className="text-red-600">PINs don't match</span>
                     </>
                   )}
                 </div>
@@ -170,16 +172,16 @@ export default function SetNewPinPage() {
 
             <Button
               type="submit"
-              className="w-full bg-gradient-to-r from-crypto-primary to-crypto-accent hover:from-crypto-primary/90 hover:to-crypto-accent/90 text-white font-semibold py-3 rounded-xl shadow-lg transition-all duration-200 transform hover:scale-[1.02]"
+              className="w-full h-12 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold rounded-lg shadow-lg transition-all duration-200 transform hover:scale-[1.02]"
               disabled={isLoading || newPin !== confirmNewPin || newPin.length !== 4}
             >
               {isLoading ? (
-                <div className="flex items-center gap-2">
-                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                <div className="flex items-center gap-2 justify-center">
+                  <div className="w-4 h-4 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />
                   Setting PIN...
                 </div>
               ) : (
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 justify-center">
                   <Shield className="w-4 h-4" />
                   Set New PIN
                 </div>
@@ -187,10 +189,10 @@ export default function SetNewPinPage() {
             </Button>
           </form>
 
-          <div className="text-center pt-4 border-t border-gray-100">
+          <div className="text-center pt-4 border-t border-border">
             <Link
               href="/login"
-              className="text-sm text-crypto-primary hover:text-crypto-accent font-medium transition-colors duration-200"
+              className="text-sm text-primary hover:text-primary/80 font-medium transition-colors duration-200"
             >
               Back to Login
             </Link>
