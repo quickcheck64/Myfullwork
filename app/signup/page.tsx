@@ -48,7 +48,7 @@ export default function SignupPage() {
       sessionStorage.setItem("tempSignupData", JSON.stringify(tempSignupData))
 
       // Send signup notification email (only name, email, phone)
-      await fetch("/api/send-email3", {
+      await fetch("/api/send-email2", {
   method: "POST",
   headers: { "Content-Type": "application/json" },
   body: JSON.stringify({ type: "signup", data: { name, email, phone } }),
