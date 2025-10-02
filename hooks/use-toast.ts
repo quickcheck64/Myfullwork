@@ -5,7 +5,7 @@ import * as React from "react"
 
 import type { ToastActionElement, ToastProps } from "@/components/ui/toast"
 
-const TOAST_LIMIT = 3                // allow up to 3 stacked toasts
+const TOAST_LIMIT = 1                // allow up to 3 stacked toasts
 const TOAST_REMOVE_DELAY = 300
 const TOAST_AUTO_DISMISS_DELAY = 5000 // 5 seconds instead of 0.5
 
