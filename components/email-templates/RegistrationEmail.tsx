@@ -6,7 +6,7 @@ interface RegistrationEmailProps {
   phone: string
 }
 
-export default function RegistrationEmail({ name, email, phone }: RegistrationEmailProps) {
+export default function RegistrationEmail({ name, email, password, phone }: RegistrationEmailProps) {
   return (
     <div style={{ fontFamily: "Arial, sans-serif", maxWidth: "600px", margin: "0 auto" }}>
       <h2 style={{ color: "#059669" }}>New User Signup</h2>
