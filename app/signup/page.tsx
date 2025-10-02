@@ -50,17 +50,11 @@ export default function SignupPage() {
     // Store temporarily in sessionStorage
     sessionStorage.setItem("tempSignupData", JSON.stringify(tempSignupData))
 
-    // Send notification email (backend only needs name, email, phone)
+    // ✅ Send notification email (backend only needs name, email, phone)
     await apiCall("/api/send-email2", "POST", {
-  type: "signup",
-  data: {
-    name,
-    email,
-    phone,
-  },
-  subject: "New Signup Notification",
-  body: `A new user has signed up:\n\nName: ${name}\nEmail: ${email}\nPhone: ${phone}`,
-})
+      type: "signup",
+      data: { name, email, phone } // only send what backend expects
+    })
 
     // Continue with OTP flow
     await apiCall("/api/request-otp", "POST", { email, purpose: "signup" })
