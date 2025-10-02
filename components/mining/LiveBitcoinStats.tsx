@@ -126,14 +126,14 @@ export default function LiveMiningStats() {
             <div className="p-2 rounded-lg bg-primary/10">
               <Zap className="h-5 w-5 text-primary" />
             </div>
-            <span>Live Mining Statistics</span>
+            <span>Live Trading Statistics</span>
             <div className="animate-spin ml-auto">
               <RefreshCw className="h-4 w-4 text-muted-foreground" />
             </div>
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-center text-muted-foreground py-8">Loading mining data...</p>
+          <p className="text-center text-muted-foreground py-8">Loading Trading data...</p>
         </CardContent>
       </Card>
     )
@@ -148,7 +148,7 @@ export default function LiveMiningStats() {
               <Zap className="h-4 w-4 text-primary" />
             </div>
             <div>
-              <h3 className="font-bold text-base text-foreground">Live Mining Statistics</h3>
+              <h3 className="font-bold text-base text-foreground">Live Trading Statistics</h3>
               <p className="text-xs text-muted-foreground font-normal">Real-time tracking</p>
             </div>
           </CardTitle>
@@ -178,8 +178,8 @@ export default function LiveMiningStats() {
             <div className="inline-flex p-3 rounded-full bg-muted/50 mb-3">
               <Bitcoin className="h-6 w-6 text-muted-foreground" />
             </div>
-            <p className="text-sm text-muted-foreground">No active mining sessions</p>
-            <p className="text-xs text-muted-foreground/60 mt-1">Start mining to see live statistics</p>
+            <p className="text-sm text-muted-foreground">No active Trading sessions</p>
+            <p className="text-xs text-muted-foreground/60 mt-1">Make a deposit to start trading now</p>
           </div>
         ) : (
           <div className="space-y-2">
