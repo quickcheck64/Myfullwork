@@ -24,7 +24,7 @@ export default function ContactUs() {
   const [success, setSuccess] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
 
-  // ✅ Contact form submission
+  // Send form data to your email API
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
@@ -38,21 +38,34 @@ export default function ContactUs() {
         body: JSON.stringify(formData),
       })
 
-      if (!res.ok) throw new Error("Failed to send message")
+      if (!res.ok) {
+        // try to read error message if provided
+        let errMsg = "Failed to send message"
+        try {
+          const json = await res.json()
+          if (json?.message) errMsg = json.message
+        } catch (_) {}
+        throw new Error(errMsg)
+      }
 
       setSuccess("✅ Your message has been sent successfully!")
       setFormData({ name: "", email: "", subject: "", category: "", message: "" })
     } catch (err: any) {
-      setError(err.message || "Something went wrong, please try again.")
+      setError(err?.message || "Something went wrong, please try again.")
     } finally {
       setLoading(false)
     }
   }
 
-  // ✅ Open JivoChat when clicking Live Chat button
+  // Open JivoChat widget when user clicks Start Chat
   const openJivoChat = () => {
     if (typeof window !== "undefined" && (window as any).jivo_api) {
-      (window as any).jivo_api.open()
+      try {
+        ;(window as any).jivo_api.open()
+      } catch (e) {
+        // fallback
+        alert("Unable to open live chat right now. Please try again later.")
+      }
     } else {
       alert("Live chat is not available at the moment. Please try again later.")
     }
@@ -62,7 +75,60 @@ export default function ContactUs() {
     <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-green-100 dark:from-gray-900 dark:via-gray-950 dark:to-black transition-colors">
       {/* Navigation */}
       <nav className="fixed top-0 w-full z-50 bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border-b border-border">
-        {/* ... your nav code stays unchanged ... */}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            <Link href="/" className="flex items-center space-x-2">
+              <Pickaxe className="h-8 w-8 text-primary" />
+              <span className="text-xl font-bold text-foreground">Smart S9Trading</span>
+            </Link>
+
+            <div className="hidden md:flex items-center space-x-8">
+              <Link href="/" className="text-muted-foreground hover:text-foreground transition-colors">
+                Home
+              </Link>
+              <Link href="/help" className="text-muted-foreground hover:text-foreground transition-colors">
+                Help Center
+              </Link>
+              <Link href="/contact" className="text-foreground font-medium">
+                Contact
+              </Link>
+              <Link href="/login">
+                <Button variant="outline">Sign In</Button>
+              </Link>
+              <Link href="/signup">
+                <Button className="bg-primary hover:bg-primary/90">Get Started</Button>
+              </Link>
+            </div>
+
+            <button className="md:hidden text-foreground" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
+              {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+            </button>
+          </div>
+        </div>
+
+        {mobileMenuOpen && (
+          <div className="md:hidden bg-card/95 backdrop-blur-sm border-t border-border">
+            <div className="px-4 py-4 space-y-3">
+              <Link href="/" className="block text-muted-foreground hover:text-foreground transition-colors">
+                Home
+              </Link>
+              <Link href="/help" className="block text-muted-foreground hover:text-foreground transition-colors">
+                Help Center
+              </Link>
+              <Link href="/contact" className="block text-foreground font-medium">
+                Contact
+              </Link>
+              <Link href="/login">
+                <Button variant="outline" className="w-full bg-transparent">
+                  Sign In
+                </Button>
+              </Link>
+              <Link href="/signup">
+                <Button className="w-full bg-primary hover:bg-primary/90">Get Started</Button>
+              </Link>
+            </div>
+          </div>
+        )}
       </nav>
 
       {/* Hero Section */}
@@ -77,7 +143,6 @@ export default function ContactUs() {
       <section className="pb-16 px-4">
         <div className="max-w-6xl mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {/* Email Support */}
             <Card className="bg-card/95 backdrop-blur-sm">
               <CardHeader className="text-center">
                 <Mail className="h-12 w-12 text-primary mx-auto mb-4" />
@@ -91,7 +156,6 @@ export default function ContactUs() {
               </CardContent>
             </Card>
 
-            {/* Live Chat */}
             <Card className="bg-card/95 backdrop-blur-sm">
               <CardHeader className="text-center">
                 <MessageSquare className="h-12 w-12 text-primary mx-auto mb-4" />
@@ -103,7 +167,6 @@ export default function ContactUs() {
               </CardContent>
             </Card>
 
-            {/* Availability */}
             <Card className="bg-card/95 backdrop-blur-sm">
               <CardHeader className="text-center">
                 <Clock className="h-12 w-12 text-primary mx-auto mb-4" />
@@ -128,7 +191,6 @@ export default function ContactUs() {
             </CardHeader>
             <CardContent>
               <form onSubmit={handleSubmit} className="space-y-6">
-                {/* Name */}
                 <div className="space-y-2">
                   <Label htmlFor="name">Full Name</Label>
                   <Input
@@ -140,7 +202,6 @@ export default function ContactUs() {
                   />
                 </div>
 
-                {/* Email */}
                 <div className="space-y-2">
                   <Label htmlFor="email">Email Address</Label>
                   <Input
@@ -153,7 +214,6 @@ export default function ContactUs() {
                   />
                 </div>
 
-                {/* Category */}
                 <div className="space-y-2">
                   <Label htmlFor="category">Category</Label>
                   <Select
@@ -176,7 +236,6 @@ export default function ContactUs() {
                   </Select>
                 </div>
 
-                {/* Subject */}
                 <div className="space-y-2">
                   <Label htmlFor="subject">Subject</Label>
                   <Input
@@ -188,7 +247,6 @@ export default function ContactUs() {
                   />
                 </div>
 
-                {/* Message */}
                 <div className="space-y-2">
                   <Label htmlFor="message">Message</Label>
                   <Textarea
@@ -201,7 +259,7 @@ export default function ContactUs() {
                   />
                 </div>
 
-                {/* Feedback messages */}
+                {/* Feedback */}
                 {success && <p className="text-green-600">{success}</p>}
                 {error && <p className="text-red-600">{error}</p>}
 
@@ -214,7 +272,106 @@ export default function ContactUs() {
         </div>
       </section>
 
-      {/* ✅ Rest of your FAQ + Footer stays unchanged */}
+      {/* FAQ Link */}
+      <section className="pb-20 px-4">
+        <div className="max-w-4xl mx-auto">
+          <Card className="bg-primary text-primary-foreground">
+            <CardContent className="py-12 text-center">
+              <h2 className="text-3xl font-bold mb-4">Looking for Quick Answers?</h2>
+              <p className="text-lg mb-6 opacity-90">Check out our FAQ and Help Center for instant solutions</p>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <Link href="/faq">
+                  <Button size="lg" variant="secondary">
+                    View FAQ
+                  </Button>
+                </Link>
+                <Link href="/help">
+                  <Button size="lg" variant="secondary">
+                    Help Center
+                  </Button>
+                </Link>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="bg-card/95 backdrop-blur-sm border-t border-border py-12 px-4">
+        <div className="max-w-7xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+            <div>
+              <div className="flex items-center space-x-2 mb-4">
+                <Pickaxe className="h-6 w-6 text-primary" />
+                <span className="font-bold text-foreground">Smart S9Trading</span>
+              </div>
+              <p className="text-sm text-muted-foreground">Secure crypto trading and mining platform</p>
+            </div>
+
+            <div>
+              <h3 className="font-semibold text-foreground mb-4">Platform</h3>
+              <ul className="space-y-2 text-sm text-muted-foreground">
+                <li>
+                  <Link href="/about" className="hover:text-foreground transition-colors">
+                    About Us
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/help" className="hover:text-foreground transition-colors">
+                    Help Center
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/faq" className="hover:text-foreground transition-colors">
+                    FAQ
+                  </Link>
+                </li>
+              </ul>
+            </div>
+
+            <div>
+              <h3 className="font-semibold text-foreground mb-4">Legal</h3>
+              <ul className="space-y-2 text-sm text-muted-foreground">
+                <li>
+                  <Link href="/privacy" className="hover:text-foreground transition-colors">
+                    Privacy Policy
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/terms" className="hover:text-foreground transition-colors">
+                    Terms of Service
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/cookies" className="hover:text-foreground transition-colors">
+                    Cookie Policy
+                  </Link>
+                </li>
+              </ul>
+            </div>
+
+            <div>
+              <h3 className="font-semibold text-foreground mb-4">Support</h3>
+              <ul className="space-y-2 text-sm text-muted-foreground">
+                <li>
+                  <Link href="/contact" className="hover:text-foreground transition-colors">
+                    Contact Us
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/help" className="hover:text-foreground transition-colors">
+                    Help Center
+                  </Link>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <div className="border-t border-border pt-8 text-center text-sm text-muted-foreground">
+            <p>&copy; 2025 Smart S9Trading. All rights reserved.</p>
+          </div>
+        </div>
+      </footer>
     </div>
   )
-}
+                }
