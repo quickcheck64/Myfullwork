@@ -69,6 +69,8 @@
     "vaul": "^0.9.9",
     "vue": "latest",
     "vue-router": "latest",
+    "@react-email/render": "^0.0.12",
+    "nodemailer": "^6.9.4",
     "zod": "3.25.67"
   },
   "devDependencies": {
