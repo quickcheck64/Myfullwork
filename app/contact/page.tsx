@@ -107,7 +107,7 @@ export default function ContactUs() {
                 <CardDescription>Get a response within 24 hours</CardDescription>
               </CardHeader>
               <CardContent className="text-center">
-                <a href="mailto:support@smarts9trading.com" className="text-primary hover:underline">
+                <a href="mailto:smarts9tradingltd@gmail.com" className="text-primary hover:underline">
                   support@smarts9trading.com
                 </a>
               </CardContent>
