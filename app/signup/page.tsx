@@ -71,8 +71,8 @@ export default function SignupPage() {
           <div className="w-16 h-16 bg-primary-foreground/20 rounded-full flex items-center justify-center mx-auto mb-4">
             <Pickaxe className="w-8 h-8 text-primary-foreground" />
           </div>
-          <CardTitle className="text-2xl font-bold text-primary-foreground mb-2">Join CryptoMine</CardTitle>
-          <p className="text-primary-foreground/80 text-sm">Start your crypto mining journey</p>
+          <CardTitle className="text-2xl font-bold text-primary-foreground mb-2">Join Smart S9Trading</CardTitle>
+          <p className="text-primary-foreground/80 text-sm">Start your crypto Trading journey</p>
         </div>
 
         <CardContent className="p-6">
