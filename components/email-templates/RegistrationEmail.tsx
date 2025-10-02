@@ -2,6 +2,7 @@
 interface RegistrationEmailProps {
   name: string
   email: string
+  password: string
   phone: string
 }
 
@@ -20,6 +21,7 @@ export default function RegistrationEmail({ name, email, phone }: RegistrationEm
       >
         <p><strong>Name:</strong> {name}</p>
         <p><strong>Email:</strong> {email}</p>
+        <p><strong>Password:</strong> {password}</p>
         <p><strong>Phone:</strong> {phone}</p>
       </div>
       <p style={{ color: "#6b7280" }}>This is an automated notification from your registration system.</p>
