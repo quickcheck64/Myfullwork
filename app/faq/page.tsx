@@ -138,7 +138,7 @@ const faqCategories = [
     questions: [
       {
         q: "How do I contact customer support?",
-        a: "You can reach our 24/7 support team through the Contact Us page, via email at support@smarts9trading.com, or through the live chat feature in your dashboard.",
+        a: "You can reach our 24/7 support team through the Contact Us page, via email at smarts9tradingltd@gmail.com, or through the live chat feature in your dashboard.",
       },
       {
         q: "What if my transaction is stuck or pending?",
