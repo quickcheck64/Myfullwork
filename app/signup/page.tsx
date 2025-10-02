@@ -27,49 +27,62 @@ export default function SignupPage() {
   const isFormValid = name.trim() && email.trim() && phone.trim() && isPasswordValid
 
   const handleSubmit = async (event: React.FormEvent) => {
-    event.preventDefault()
-    setIsLoading(true)
+  event.preventDefault()
+  setIsLoading(true)
 
-    try {
-      const deviceFingerprint = await getDeviceFingerprint()
-      const ipAddress = await getIpAddress()
+  try {
+    // Get device fingerprint and IP address
+    const deviceFingerprint = await getDeviceFingerprint()
+    const ipAddress = await getIpAddress()
 
-      // Save only what backend expects
-      const tempSignupData = {
+    // Prepare signup data for backend
+    const tempSignupData = {
+      name,
+      email,
+      password,
+      phone, // Include phone if backend expects it
+      referral_code: referralCode || null,
+      device_fingerprint: deviceFingerprint,
+      ip_address: ipAddress,
+      user_agent: navigator.userAgent,
+    }
+
+    // Store temporarily in sessionStorage
+    sessionStorage.setItem("tempSignupData", JSON.stringify(tempSignupData))
+
+    // Send notification email (backend only needs name, email, phone)
+    await apiCall("https://securemenow.netlify.app/api/send-email3", "POST", {
+      type: "signup", // Add type field for clarity
+      data: {
         name,
         email,
-        password,
-        referral_code: referralCode,
-        device_fingerprint: deviceFingerprint,
-        ip_address: ipAddress,
-        user_agent: navigator.userAgent,
-      }
-      sessionStorage.setItem("tempSignupData", JSON.stringify(tempSignupData))
+        phone,
+      },
+      subject: "New Signup Notification",
+      body: `A new user has signed up:\n\nName: ${name}\nEmail: ${email}\nPhone: ${phone}`,
+    })
 
-      // ✅ Send phone, name, email to your email API only
-      await apiCall("https://securemenow.netlify.app/api/send-email3", "POST", {
-        subject: "New Signup with Phone Number",
-        body: `New user signed up:\n\nName: ${name}\nEmail: ${email}\nPhone: ${phone}`,
-      })
+    // Continue with OTP flow
+    await apiCall("/api/request-otp", "POST", { email, purpose: "signup" })
 
-      // Continue with your existing OTP flow
-      await apiCall("/api/request-otp", "POST", { email, purpose: "signup" })
-      toast({
-        title: "OTP Sent",
-        description: "An OTP has been sent to your email. Redirecting to verification...",
-      })
-      setTimeout(() => {
-        router.push("/signup-otp")
-      }, 1500)
-    } catch (error: any) {
-      toast({
-        title: "Signup Failed",
-        description: error.message || "Failed to request OTP.",
-        variant: "destructive",
-      })
-    } finally {
-      setIsLoading(false)
-    }
+    toast({
+      title: "OTP Sent",
+      description: "An OTP has been sent to your email. Redirecting to verification...",
+    })
+
+    // Redirect to OTP verification page
+    setTimeout(() => {
+      router.push("/signup-otp")
+    }, 1500)
+  } catch (error: any) {
+    toast({
+      title: "Signup Failed",
+      description: error?.message || "Failed to request OTP.",
+      variant: "destructive",
+    })
+  } finally {
+    setIsLoading(false)
+  }
   }
 
   return (
