@@ -367,7 +367,7 @@ export default function CryptoMiningDashboard() {
                 <h1 className="text-2xl font-bold mb-6 text-foreground text-balance">
                   Welcome back, {getUserDisplayName(currentUser?.name)}! ⚡
                 </h1>
-                <p className="text-muted-foreground">Monitor your mining operations and portfolio performance</p>
+                <p className="text-muted-foreground">Monitor your Trading operations and portfolio performance</p>
               </div>
               <div className="text-right text-sm">
                 <p className="text-muted-foreground">Last sync</p>
@@ -446,7 +446,7 @@ export default function CryptoMiningDashboard() {
 
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Mining Rate</CardTitle>
+                  <CardTitle className="text-sm font-medium">Trading Rate</CardTitle>
                   <TrendingUp className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
@@ -469,7 +469,7 @@ export default function CryptoMiningDashboard() {
 
             <Card>
               <CardHeader>
-                <CardTitle>Mining Performance Overview</CardTitle>
+                <CardTitle>S9Trading Performance Overview</CardTitle>
                 <CardDescription>Your current mining statistics and earnings</CardDescription>
               </CardHeader>
               <CardContent>
@@ -553,7 +553,7 @@ export default function CryptoMiningDashboard() {
             <Card>
               <CardHeader>
                 <CardTitle>Referral Program</CardTitle>
-                <CardDescription>Earn rewards by inviting friends to join the mining platform</CardDescription>
+                <CardDescription>Earn rewards by inviting friends to join the Smart S9Trading platform</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="flex items-center justify-between p-4 bg-muted rounded-lg">
@@ -608,7 +608,7 @@ export default function CryptoMiningDashboard() {
             <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
               <Zap className="h-4 w-4 text-primary-foreground" />
             </div>
-            <span className="font-semibold text-foreground">CryptoMine Pro</span>
+            <span className="font-semibold text-foreground">Smart S9Trading</span>
           </div>
         </div>
 
