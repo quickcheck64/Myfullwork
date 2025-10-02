@@ -101,12 +101,12 @@ export default function PinResetOtpPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-green-100 flex items-center justify-center p-4">
-      <Card className="w-full max-w-md bg-card shadow-2xl border-0 rounded-2xl overflow-hidden">
+      <Card className="w-full max-w-md bg-card/95 backdrop-blur-sm shadow-2xl border-0 rounded-2xl overflow-hidden">
         <CardHeader className="text-center p-6">
-          <div className="w-16 h-16 bg-primary/20 rounded-full flex items-center justify-center mx-auto mb-4">
-            <Pickaxe className="w-8 h-8 text-primary-foreground" />
+          <div className="w-16 h-16 bg-primary/20 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
+            <Pickaxe className="w-8 h-8 text-primary" />
           </div>
-          <CardTitle className="text-2xl font-bold text-primary-foreground mb-2">
+          <CardTitle className="text-2xl font-bold text-card-foreground mb-2">
             Verify PIN Reset OTP
           </CardTitle>
           <p className="text-muted-foreground text-sm">
@@ -133,7 +133,7 @@ export default function PinResetOtpPage() {
                 value={otpCode}
                 onChange={(e) => setOtpCode(e.target.value)}
                 disabled={isLoading || isResending}
-                className="mt-2 h-12 text-center text-lg font-mono tracking-widest bg-input border-border focus:border-primary focus:ring-primary rounded-lg"
+                className="mt-2 h-12 text-center text-lg font-mono tracking-widest bg-input border-border focus:border-primary focus:ring-primary rounded-lg text-card-foreground placeholder:text-muted-foreground"
                 placeholder="000000"
               />
             </div>
@@ -173,7 +173,7 @@ export default function PinResetOtpPage() {
           <div className="mt-6 text-center">
             <Link
               href="/reset-pin"
-              className="inline-flex items-center text-sm text-primary hover:text-primary/80 font-medium transition-colors duration-200"
+              className="inline-flex items-center text-sm text-card-foreground hover:text-primary font-medium transition-colors duration-200"
             >
               <ArrowLeft className="w-4 h-4 mr-1" />
               Back to PIN Reset
