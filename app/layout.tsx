@@ -2,7 +2,7 @@ import type React from "react"
 import type { Metadata } from "next"
 import { GeistSans } from "geist/font/sans"
 import { GeistMono } from "geist/font/mono"
-import { Providers } from "@/components/providers" // ✅ use your consolidated Providers
+import { Providers } from "@/components/providers"
 import "./globals.css"
 
 export const metadata: Metadata = {
@@ -23,6 +23,12 @@ export default function RootLayout({
     >
       <body>
         <Providers>{children}</Providers>
+
+        {/* ✅ JivoChat Widget */}
+        <script
+          src="//code.jivosite.com/widget/nYkjqWua55"
+          async
+        ></script>
       </body>
     </html>
   )
