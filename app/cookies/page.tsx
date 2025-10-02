@@ -254,7 +254,7 @@ export default function CookiePolicy() {
                   If you have questions about our use of cookies, please contact us:
                 </p>
                 <ul className="list-none text-muted-foreground space-y-2">
-                  <li>Email: privacy@smarts9trading.com</li>
+                  <li>Email: smarts9tradingltd@gmail.com</li>
                   <li>
                     Contact Form:{" "}
                     <Link href="/contact" className="text-primary hover:underline">
