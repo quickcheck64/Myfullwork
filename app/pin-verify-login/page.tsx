@@ -1,7 +1,6 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
@@ -47,12 +46,17 @@ export default function PinVerifyLoginPage() {
 
       toast({
         title: "PIN Verified",
-        description: "Accessing mining dashboard...",
+        description: "Accessing dashboard...",
       })
 
-      const redirectToPath = sessionStorage.getItem("prePinVerifyPath") || "/dashboard"
-      sessionStorage.removeItem("prePinVerifyPath")
-      router.push(redirectToPath)
+      // 👇 Redirect based on admin status
+      if (currentUser?.is_admin) {
+        router.push("/AdminDashboard")
+      } else {
+        const redirectToPath = sessionStorage.getItem("prePinVerifyPath") || "/dashboard"
+        sessionStorage.removeItem("prePinVerifyPath")
+        router.push(redirectToPath)
+      }
     } catch (error: any) {
       toast({
         title: "Verification Failed",
@@ -81,7 +85,7 @@ export default function PinVerifyLoginPage() {
             <Pickaxe className="w-8 h-8 text-primary-foreground" />
           </div>
           <h1 className="text-2xl font-bold text-primary-foreground mb-2">Security Verification</h1>
-          <p className="text-primary-foreground/80 text-sm">Enter your PIN to access mining dashboard</p>
+          <p className="text-primary-foreground/80 text-sm">Enter your PIN to access dashboard</p>
         </div>
 
         <CardContent className="p-8">
@@ -90,7 +94,7 @@ export default function PinVerifyLoginPage() {
               <Lock className="w-6 h-6 text-primary" />
             </div>
             <p className="text-muted-foreground text-sm leading-relaxed">
-              Please enter your 4-digit PIN to securely access your mining dashboard and account features.
+              Please enter your 4-digit PIN to securely access your dashboard.
             </p>
           </div>
 
@@ -152,7 +156,7 @@ export default function PinVerifyLoginPage() {
 
           <div className="mt-6 p-4 bg-muted rounded-lg border border-border">
             <p className="text-xs text-muted-foreground text-center">
-              Your PIN helps keep your mining account secure. Never share it with anyone.
+              Your PIN helps keep your account secure. Never share it with anyone.
             </p>
           </div>
         </CardContent>
