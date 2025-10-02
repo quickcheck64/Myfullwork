@@ -509,7 +509,7 @@ export default function HomePage() {
                   </Link>
                 </li>
                 <li>
-                  <a href="mailto:support@smarts9trading.com" className="hover:text-white transition-colors">
+                  <a href="mailto:smarts9tradingltd@gmail.com" className="hover:text-white transition-colors">
                     Contact Us
                   </a>
                 </li>
