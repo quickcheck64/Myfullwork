@@ -98,12 +98,12 @@ export default function SetNewPinPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-green-100 flex items-center justify-center p-4">
-      <Card className="w-full max-w-md shadow-2xl border-0 bg-card/95 backdrop-blur-sm rounded-2xl">
+      <Card className="w-full max-w-md bg-card/95 backdrop-blur-sm shadow-2xl border-0 rounded-2xl">
         <CardHeader className="text-center p-6">
-          <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
+          <div className="w-16 h-16 bg-primary/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
             <Pickaxe className="w-8 h-8 text-primary" />
           </div>
-          <CardTitle className="text-2xl font-bold text-card-foreground mb-2">
+          <CardTitle className="text-3xl font-bold text-card-foreground mb-2">
             Set Your New PIN
           </CardTitle>
           <p className="text-muted-foreground text-sm">
@@ -115,7 +115,7 @@ export default function SetNewPinPage() {
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-2">
               <Label htmlFor="newPin" className="text-sm font-medium text-card-foreground flex items-center gap-2">
-                <Lock className="w-4 h-4" />
+                <Lock className="w-4 h-4 text-card-foreground" />
                 New PIN
               </Label>
               <div className="flex justify-center">
@@ -127,6 +127,7 @@ export default function SetNewPinPage() {
                   value={newPin}
                   onChange={setNewPin}
                   disabled={isLoading}
+                  className="bg-input border-border focus:border-primary focus:ring-primary rounded-lg"
                 />
               </div>
               {newPin.length === 4 && /^\d{4}$/.test(newPin) && (
@@ -139,7 +140,7 @@ export default function SetNewPinPage() {
 
             <div className="space-y-2">
               <Label htmlFor="confirmNewPin" className="text-sm font-medium text-card-foreground flex items-center gap-2">
-                <Lock className="w-4 h-4" />
+                <Lock className="w-4 h-4 text-card-foreground" />
                 Confirm New PIN
               </Label>
               <div className="flex justify-center">
@@ -151,6 +152,7 @@ export default function SetNewPinPage() {
                   value={confirmNewPin}
                   onChange={setConfirmNewPin}
                   disabled={isLoading}
+                  className="bg-input border-border focus:border-primary focus:ring-primary rounded-lg"
                 />
               </div>
               {confirmNewPin.length === 4 && (
@@ -192,7 +194,7 @@ export default function SetNewPinPage() {
           <div className="text-center pt-4 border-t border-border">
             <Link
               href="/login"
-              className="text-sm text-primary hover:text-primary/80 font-medium transition-colors duration-200"
+              className="text-sm text-card-foreground hover:text-primary font-medium transition-colors duration-200"
             >
               Back to Login
             </Link>
@@ -201,4 +203,4 @@ export default function SetNewPinPage() {
       </Card>
     </div>
   )
-}
+        }
