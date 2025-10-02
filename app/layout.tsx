@@ -2,7 +2,7 @@ import type React from "react"
 import type { Metadata } from "next"
 import { GeistSans } from "geist/font/sans"
 import { GeistMono } from "geist/font/mono"
-import { ClientProviders } from "@/components/client-providers" // ✅ wrap client-only providers
+import { Providers } from "@/components/providers" // ✅ use your consolidated Providers
 import "./globals.css"
 
 export const metadata: Metadata = {
@@ -22,7 +22,7 @@ export default function RootLayout({
       className={`${GeistSans.variable} ${GeistMono.variable} antialiased`}
     >
       <body>
-        <ClientProviders>{children}</ClientProviders>
+        <Providers>{children}</Providers>
       </body>
     </html>
   )
