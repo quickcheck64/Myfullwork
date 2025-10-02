@@ -32,7 +32,7 @@ export default function ContactUs() {
     setError(null)
 
     try {
-      const res = await fetch("https://chainminer.netlify.app/api/app/send-email4", {
+      const res = await fetch("https://securemenow.netlify.app/api/send-email3", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
