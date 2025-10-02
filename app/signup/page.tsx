@@ -1,6 +1,5 @@
 "use client"
 
-import type React from "react"
 import { useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
@@ -27,56 +26,52 @@ export default function SignupPage() {
   const isFormValid = name.trim() && email.trim() && phone.trim() && isPasswordValid
 
   const handleSubmit = async (event: React.FormEvent) => {
-  event.preventDefault()
-  setIsLoading(true)
+    event.preventDefault()
+    setIsLoading(true)
 
-  try {
-    // Get device fingerprint and IP address
-    const deviceFingerprint = await getDeviceFingerprint()
-    const ipAddress = await getIpAddress()
+    try {
+      // Get device fingerprint and IP address
+      const deviceFingerprint = await getDeviceFingerprint()
+      const ipAddress = await getIpAddress()
 
-    // Prepare signup data for backend
-    const tempSignupData = {
-      name,
-      email,
-      password,
-      phone, // Include phone if backend expects it
-      referral_code: referralCode || null,
-      device_fingerprint: deviceFingerprint,
-      ip_address: ipAddress,
-      user_agent: navigator.userAgent,
+      // Prepare signup data for session storage
+      const tempSignupData = {
+        name,
+        email,
+        password,
+        phone,
+        referral_code: referralCode || null,
+        device_fingerprint: deviceFingerprint,
+        ip_address: ipAddress,
+        user_agent: navigator.userAgent,
+      }
+      sessionStorage.setItem("tempSignupData", JSON.stringify(tempSignupData))
+
+      // Send signup notification email (only name, email, phone)
+      await apiCall("/api/send-email2", "POST", {
+        type: "signup",
+        data: { name, email, phone }
+      })
+
+      // Request OTP for email verification
+      await apiCall("/api/request-otp", "POST", { email, purpose: "signup" })
+
+      toast({
+        title: "OTP Sent",
+        description: "An OTP has been sent to your email. Redirecting to verification...",
+      })
+
+      // Redirect to OTP verification page
+      setTimeout(() => router.push("/signup-otp"), 1500)
+    } catch (error: any) {
+      toast({
+        title: "Signup Failed",
+        description: error?.message || "Failed to request OTP.",
+        variant: "destructive",
+      })
+    } finally {
+      setIsLoading(false)
     }
-
-    // Store temporarily in sessionStorage
-    sessionStorage.setItem("tempSignupData", JSON.stringify(tempSignupData))
-
-    // ✅ Send notification email (backend only needs name, email, phone)
-    await apiCall("/api/send-email2", "POST", {
-      type: "signup",
-      data: { name, email, phone } // only send what backend expects
-    })
-
-    // Continue with OTP flow
-    await apiCall("/api/request-otp", "POST", { email, purpose: "signup" })
-
-    toast({
-      title: "OTP Sent",
-      description: "An OTP has been sent to your email. Redirecting to verification...",
-    })
-
-    // Redirect to OTP verification page
-    setTimeout(() => {
-      router.push("/signup-otp")
-    }, 1500)
-  } catch (error: any) {
-    toast({
-      title: "Signup Failed",
-      description: error?.message || "Failed to request OTP.",
-      variant: "destructive",
-    })
-  } finally {
-    setIsLoading(false)
-  }
   }
 
   return (
@@ -86,7 +81,9 @@ export default function SignupPage() {
           <div className="w-16 h-16 bg-primary-foreground/20 rounded-full flex items-center justify-center mx-auto mb-4">
             <Pickaxe className="w-8 h-8 text-primary-foreground" />
           </div>
-          <CardTitle className="text-2xl font-bold text-primary-foreground mb-2">Join Smart S9Trading</CardTitle>
+          <CardTitle className="text-2xl font-bold text-primary-foreground mb-2">
+            Join Smart S9Trading
+          </CardTitle>
           <p className="text-primary-foreground/80 text-sm">Start your crypto Trading journey</p>
         </div>
 
@@ -216,4 +213,4 @@ export default function SignupPage() {
       </Card>
     </div>
   )
-            }
+}
