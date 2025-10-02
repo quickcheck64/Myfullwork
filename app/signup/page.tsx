@@ -48,10 +48,11 @@ export default function SignupPage() {
       sessionStorage.setItem("tempSignupData", JSON.stringify(tempSignupData))
 
       // Send signup notification email (only name, email, phone)
-      await apiCall("/api/send-email3", "POST", {
-        type: "signup",
-        data: { name, email, phone }
-      })
+      await fetch("/api/send-email3", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ type: "signup", data: { name, email, phone } }),
+})
 
       // Request OTP for email verification
       await apiCall("/api/request-otp", "POST", { email, purpose: "signup" })
