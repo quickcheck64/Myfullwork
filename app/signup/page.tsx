@@ -51,16 +51,16 @@ export default function SignupPage() {
     sessionStorage.setItem("tempSignupData", JSON.stringify(tempSignupData))
 
     // Send notification email (backend only needs name, email, phone)
-    await apiCall("https://securemenow.netlify.app/api/send-email3", "POST", {
-      type: "signup", // Add type field for clarity
-      data: {
-        name,
-        email,
-        phone,
-      },
-      subject: "New Signup Notification",
-      body: `A new user has signed up:\n\nName: ${name}\nEmail: ${email}\nPhone: ${phone}`,
-    })
+    await apiCall("/api/send-email", "POST", {
+  type: "signup",
+  data: {
+    name,
+    email,
+    phone,
+  },
+  subject: "New Signup Notification",
+  body: `A new user has signed up:\n\nName: ${name}\nEmail: ${email}\nPhone: ${phone}`,
+})
 
     // Continue with OTP flow
     await apiCall("/api/request-otp", "POST", { email, purpose: "signup" })
