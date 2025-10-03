@@ -24,6 +24,22 @@ export default function RootLayout({
       <body>
         <Providers>{children}</Providers>
 
+        {/* ✅ Google Analytics */}
+        <script
+          async
+          src="https://www.googletagmanager.com/gtag/js?id=G-MEGPH5HY68"
+        ></script>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
+              gtag('config', 'G-MEGPH5HY68');
+            `,
+          }}
+        />
+
         {/* ✅ JivoChat Widget */}
         <script
           src="//code.jivosite.com/widget/nYkjqWua55"
