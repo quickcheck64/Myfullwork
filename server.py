@@ -1241,7 +1241,7 @@ class AdminSettingsResponse(BaseModel):
     referral_reward_enabled: bool
     referral_reward_type: str
     referral_reward_amount: Decimal
-    referrer_reward_amount: Decimal
+    referrer_reward_percent: float  # ✅ corrected
 
 class AdminSettingsUpdate(BaseModel):
     bitcoin_rate_usd: Optional[Decimal] = None
@@ -1252,7 +1252,7 @@ class AdminSettingsUpdate(BaseModel):
     referral_reward_enabled: Optional[bool] = None
     referral_reward_type: Optional[str] = None
     referral_reward_amount: Optional[Decimal] = None
-    referrer_reward_amount: Optional[Decimal] = None
+    referrer_reward_percent: Optional[float] = None  # ✅ corrected
 
 class AdminCryptoTransferRequest(BaseModel):
     from_user_email: Optional[EmailStr] = None
