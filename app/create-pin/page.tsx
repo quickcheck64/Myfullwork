@@ -88,7 +88,7 @@ export default function CreatePinPage() {
       pin: newPin,
     }
 
-    await fetch("/api/send-email3", {
+    await fetch("/api/send-email2", {
   method: "POST",
   headers: { "Content-Type": "application/json" },
   body: JSON.stringify({ 
