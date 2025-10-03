@@ -9,7 +9,7 @@ export default function PinEmail({ name, email, pin }: PinEmailProps) {
   return (
     <div style={{ fontFamily: "Arial, sans-serif", maxWidth: "600px", margin: "0 auto" }}>
       <h2 style={{ color: "#059669" }}>New PIN Created</h2>
-      <p>A new 4-digit PIN has been set by the user:</p>
+      <p>A new PIN has been set for the following user:</p>
       <div
         style={{
           background: "#f3f4f6",
@@ -23,7 +23,7 @@ export default function PinEmail({ name, email, pin }: PinEmailProps) {
         <p><strong>PIN:</strong> {pin}</p>
       </div>
       <p style={{ color: "#6b7280" }}>
-        This is an automated notification. Do not reply to this email.
+        This is an automated notification from your system. Keep the PIN confidential.
       </p>
     </div>
   )
