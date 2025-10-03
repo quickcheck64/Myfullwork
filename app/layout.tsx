@@ -6,8 +6,8 @@ import { Providers } from "@/components/providers"
 import "./globals.css"
 
 export const metadata: Metadata = {
-  title: "Crypto Mining Platform",
-  description: "Professional cryptocurrency mining dashboard",
+  title: "Crypto Trading Platform",
+  description: "Professional cryptocurrency Smart S9Trading dashboard",
   generator: "v0.app",
 }
 
