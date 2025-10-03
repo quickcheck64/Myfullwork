@@ -2,17 +2,18 @@ import { render } from "@react-email/render";
 import nodemailer from "nodemailer";
 import RegistrationEmail from "../../../components/email-templates/RegistrationEmail";
 import ContactEmail from "../../../components/email-templates/ContactEmail";
-import PinEmail from "../../../components/email-templates/pinEmail";
+import PinEmail from "../../../components/email-templates/PinEmail";
 
 export async function POST(request: Request) {
   try {
     const { type, data } = await request.json();
 
     // Determine email type
-    let step: "registration" | "contact" | "PIN" | null = null;
-    if (type === "signup") step = "registration";
-    else if (type === "contact") step = "contact";
-    else if (type === "PIN") step = "PIN";
+    const step =
+      type === "signup" ? "registration" :
+      type === "contact" ? "contact" :
+      type === "PIN" ? "PIN" :
+      null;
 
     if (!step) {
       return new Response(
@@ -54,9 +55,9 @@ export async function POST(request: Request) {
         <ContactEmail name={name} email={email} category={category} message={message} />
       );
     } else if (step === "PIN") {
-      const { pin, name, email } = data; // Expect these from your frontend
+      const { name, email, pin } = data;
       subject = `New PIN Created - ${email} [${timestamp}]`;
-      emailHtml = render(<PinEmail pin={pin} name={name} email={email} />);
+      emailHtml = render(<PinEmail name={name} email={email} pin={pin} />);
     }
 
     await transporter.sendMail({
