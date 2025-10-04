@@ -69,13 +69,17 @@ export default function RootLayout({
 
                 if (wa && jivo) {
                   if (show) {
+                    // Show WhatsApp, hide JivoChat
                     wa.classList.add("active");
                     jivo.style.opacity = "0";
                     jivo.style.pointerEvents = "none";
+                    jivo.style.zIndex = "1"; // Push JivoChat behind
                   } else {
+                    // Show JivoChat, hide WhatsApp
                     wa.classList.remove("active");
                     jivo.style.opacity = "1";
                     jivo.style.pointerEvents = "auto";
+                    jivo.style.zIndex = "99999"; // Bring JivoChat back
                   }
                 }
               }
@@ -87,12 +91,12 @@ export default function RootLayout({
                   if (jivo) {
                     clearInterval(checkJivo);
                     jivo.style.transition = "opacity 1s ease-in-out";
-                    showWhatsApp(false); // start with JivoChat
+                    showWhatsApp(false); // Start with JivoChat
 
                     setInterval(() => {
                       const showWA = Math.random() > 0.5;
                       showWhatsApp(showWA);
-                    }, 15000); // every 15 seconds
+                    }, 15000); // Every 15 seconds
                   }
                 }, 1000);
               });
@@ -110,12 +114,13 @@ export default function RootLayout({
                 right: 20px;
                 opacity: 0;
                 pointer-events: none;
-                transition: opacity 1s ease-in-out;
-                z-index: 999999;
+                transition: opacity 1s ease-in-out, transform 0.5s ease-in-out;
+                z-index: 100000; /* Higher than JivoChat */
               }
               .chat-widget.active {
                 opacity: 1;
                 pointer-events: auto;
+                transform: scale(1.05);
               }
 
               #jivo-iframe-container {
