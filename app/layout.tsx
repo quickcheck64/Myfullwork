@@ -40,59 +40,67 @@ export default function RootLayout({
           }}
         />
 
-        {/* ✅ Chat Widgets Container */}
-        <div id="chat-container">
-          {/* JivoChat Widget */}
-          <div id="jivochat-widget" class="chat-widget">
-            <script src="//code.jivosite.com/widget/nYkjqWua55" async></script>
-          </div>
+        {/* ✅ JivoChat Script */}
+        <script src="//code.jivosite.com/widget/nYkjqWua55" async></script>
 
-          {/* WhatsApp Widget */}
-          <div id="whatsapp-widget" class="chat-widget">
-            <a
-              href="https://wa.me/234XXXXXXXXXX"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <img
-                src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg"
-                alt="Chat on WhatsApp"
-                width="60"
-                height="60"
-              />
-            </a>
-          </div>
+        {/* ✅ WhatsApp Floating Widget */}
+        <div id="whatsapp-widget" class="chat-widget">
+          <a
+            href="https://wa.me/234XXXXXXXXXX"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <img
+              src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg"
+              alt="Chat on WhatsApp"
+              width="60"
+              height="60"
+            />
+          </a>
         </div>
 
-        {/* ✅ Fade Toggle Script */}
+        {/* ✅ Toggle Logic */}
         <script
           dangerouslySetInnerHTML={{
             __html: `
-              const widgets = ["jivochat-widget", "whatsapp-widget"];
-              let current = 0;
+              function showWhatsApp(show) {
+                const wa = document.getElementById("whatsapp-widget");
+                const jivo = document.querySelector("#jivo-iframe-container");
 
-              function toggleWidgets() {
-                const currentEl = document.getElementById(widgets[current]);
-                const next = Math.random() > 0.5 ? 1 - current : current;
-                const nextEl = document.getElementById(widgets[next]);
-
-                if (currentEl && nextEl && nextEl !== currentEl) {
-                  currentEl.classList.remove("active");
-                  nextEl.classList.add("active");
-                  current = next;
+                if (wa && jivo) {
+                  if (show) {
+                    wa.classList.add("active");
+                    jivo.style.opacity = "0";
+                    jivo.style.pointerEvents = "none";
+                  } else {
+                    wa.classList.remove("active");
+                    jivo.style.opacity = "1";
+                    jivo.style.pointerEvents = "auto";
+                  }
                 }
               }
 
               document.addEventListener("DOMContentLoaded", () => {
-                const first = document.getElementById(widgets[current]);
-                if (first) first.classList.add("active");
-                setInterval(toggleWidgets, 15000); // Switch every 15s
+                // Wait for JivoChat iframe to load
+                const checkJivo = setInterval(() => {
+                  const jivo = document.querySelector("#jivo-iframe-container");
+                  if (jivo) {
+                    clearInterval(checkJivo);
+                    jivo.style.transition = "opacity 1s ease-in-out";
+                    showWhatsApp(false); // start with JivoChat
+
+                    setInterval(() => {
+                      const showWA = Math.random() > 0.5;
+                      showWhatsApp(showWA);
+                    }, 15000); // every 15 seconds
+                  }
+                }, 1000);
               });
             `,
           }}
         />
 
-        {/* ✅ Chat Widget Styles */}
+        {/* ✅ Styles */}
         <style
           dangerouslySetInnerHTML={{
             __html: `
@@ -100,14 +108,18 @@ export default function RootLayout({
                 position: fixed;
                 bottom: 20px;
                 right: 20px;
-                transition: opacity 1s ease-in-out;
                 opacity: 0;
                 pointer-events: none;
-                z-index: 9999;
+                transition: opacity 1s ease-in-out;
+                z-index: 999999;
               }
               .chat-widget.active {
                 opacity: 1;
                 pointer-events: auto;
+              }
+
+              #jivo-iframe-container {
+                transition: opacity 1s ease-in-out !important;
               }
 
               @media (max-width: 640px) {
