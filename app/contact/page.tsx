@@ -198,7 +198,7 @@ export default function ContactUs() {
                   <Label htmlFor="name">Full Name</Label>
                   <Input
                     id="name"
-                    placeholder="John Doe"
+                    placeholder="Name in full"
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                     required
@@ -210,7 +210,7 @@ export default function ContactUs() {
                   <Input
                     id="email"
                     type="email"
-                    placeholder="john@example.com"
+                    placeholder="input email address"
                     value={formData.email}
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                     required
