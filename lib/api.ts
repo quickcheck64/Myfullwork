@@ -1,7 +1,8 @@
 import { toast } from "@/hooks/use-toast"
 import FingerprintJS from "@fingerprintjs/fingerprintjs"
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "https://chainminer.onrender.com"
+const API_BASE_URL =
+  process.env.NEXT_PUBLIC_API_URL || "https://chainminer.onrender.com"
 
 export interface ApiResponse<T> {
   data?: T
@@ -9,7 +10,9 @@ export interface ApiResponse<T> {
   success: boolean
 }
 
-// Get auth token from sessionStorage
+// -------------------------
+// Auth Token Getter
+// -------------------------
 const getAuthToken = (): string | null => {
   if (typeof window !== "undefined") {
     return sessionStorage.getItem("authToken")
@@ -17,6 +20,9 @@ const getAuthToken = (): string | null => {
   return null
 }
 
+// -------------------------
+// API CALL WRAPPER
+// -------------------------
 export async function apiCall<T>(
   endpoint: string,
   method: "GET" | "POST" | "PUT" | "DELETE" = "GET",
@@ -24,25 +30,21 @@ export async function apiCall<T>(
   requiresAuth = true,
 ): Promise<T> {
   const url = `${API_BASE_URL}${endpoint.startsWith("/") ? endpoint : `/${endpoint}`}`
-
   const headers: Record<string, string> = {}
 
   // Add Authorization header if required
   if (requiresAuth) {
     const token = getAuthToken()
-    if (token) {
-      headers["Authorization"] = `Bearer ${token}`
-    }
+    if (token) headers["Authorization"] = `Bearer ${token}`
   }
 
   const config: RequestInit = { method, headers }
 
+  // Handle request body
   if (body && method !== "GET") {
     if (body instanceof FormData) {
-      // For file uploads, do NOT set Content-Type; browser sets it automatically
-      config.body = body
+      config.body = body // Let browser set Content-Type for FormData
     } else {
-      // For JSON requests
       headers["Content-Type"] = "application/json"
       config.body = JSON.stringify(body)
     }
@@ -51,30 +53,45 @@ export async function apiCall<T>(
   try {
     const response = await fetch(url, config)
 
+    // Handle non-successful responses
     if (!response.ok) {
+      // Handle Unauthorized
       if (response.status === 401) {
-        // Clear auth data on unauthorized
         if (typeof window !== "undefined") {
           sessionStorage.removeItem("authToken")
           sessionStorage.removeItem("currentUser")
+          toast({
+            title: "Session Expired",
+            description: "Please log in again.",
+            variant: "destructive",
+          })
           window.location.href = "/login"
         }
         throw new Error("Unauthorized")
       }
 
-      // Try to parse error JSON, fallback to status text
-      const errorData = await response.json().catch(() => ({ detail: response.statusText }))
+      // Handle other HTTP errors
+      let errorData: any = {}
+      try {
+        errorData = await response.json()
+      } catch {
+        errorData.detail = response.statusText
+      }
+
       throw new Error(errorData.detail || `HTTP ${response.status}`)
     }
 
+    // Parse and return successful response
     return response.json()
   } catch (error: any) {
     console.error(`API call failed for ${endpoint}:`, error)
+
     toast({
       title: "Network Error",
       description: error.message || "Could not connect to the server.",
       variant: "destructive",
     })
+
     throw error
   }
 }
@@ -82,7 +99,6 @@ export async function apiCall<T>(
 // -------------------------
 // Device Fingerprint & IP
 // -------------------------
-
 export async function getIpAddress(): Promise<string> {
   try {
     const response = await fetch("https://api.ipify.org?format=json")
@@ -110,9 +126,8 @@ export async function getDeviceFingerprint(): Promise<string> {
 }
 
 // -------------------------
-// Auth functions
+// Auth Functions
 // -------------------------
-
 export async function loginUser(
   email: string,
   password: string,
@@ -153,7 +168,12 @@ export async function registerUser(userData: {
   pin: string
   referral_code?: string
 }) {
-  return await apiCall<{ user: any; access_token: string }>("/api/register", "POST", userData, false)
+  return await apiCall<{ user: any; access_token: string }>(
+    "/api/register",
+    "POST",
+    userData,
+    false,
+  )
 }
 
 export async function logoutUser() {
@@ -164,20 +184,16 @@ export async function logoutUser() {
 }
 
 // -------------------------
-// Format helpers
+// Format Helpers
 // -------------------------
-
-export const formatCurrency = (amount: number): string => {
-  return new Intl.NumberFormat("en-US", {
+export const formatCurrency = (amount: number): string =>
+  new Intl.NumberFormat("en-US", {
     style: "currency",
     currency: "USD",
   }).format(amount)
-}
 
-export const formatCrypto = (amount: number, decimals = 6): string => {
-  return amount.toFixed(decimals)
-}
+export const formatCrypto = (amount: number, decimals = 6): string =>
+  amount.toFixed(decimals)
 
-export const formatPercentage = (value: number): string => {
-  return `${value >= 0 ? "+" : ""}${value.toFixed(2)}%`
-}
+export const formatPercentage = (value: number): string =>
+  `${value >= 0 ? "+" : ""}${value.toFixed(2)}%`
