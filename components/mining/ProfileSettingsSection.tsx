@@ -110,7 +110,7 @@ export default function ProfileSettingsCard() {
                   <h2 className="text-2xl font-bold truncate">{user.name}</h2>
                   {user.status && (
                     <span className={`inline-flex items-center px-2 py-1 text-xs font-semibold rounded-full
-                      ${user.status.toLowerCase() === "verified" ? "bg-green-600 text-white" : "bg-blue-600 text-white"}`}>
+                      ${user.status.toLowerCase() === "approved" ? "bg-green-600 text-white" : "bg-blue-600 text-white"}`}>
                       {user.status}
                     </span>
                   )}
