@@ -40,36 +40,22 @@ export default function RootLayout({
           }}
         />
 
-        {/* ✅ JivoChat Widget (hidden & disabled by default) */}
-        <script
-          src="//code.jivosite.com/widget/nYkjqWua55"
-          async
-        ></script>
-        <style>{`
-          /* Hide and disable all JivoChat UI elements */
-          #jivo-iframe-container,
-          #jivo-container,
-          #jivo-chat-container,
-          .jivo-btn,
-          #jivo_chat_widget {
-            display: none !important;
-            width: 0 !important;
-            height: 0 !important;
-            opacity: 0 !important;
-            visibility: hidden !important;
-            pointer-events: none !important;
-          }
-        `}</style>
-
         {/* ✅ WhatsApp Floating Button */}
         <a
-          href="https://wa.me/2348100000000"  /* <-- Replace with your real WhatsApp number */
+          href="https://wa.me/2348100000000" // replace with your real number
           target="_blank"
           rel="noopener noreferrer"
-          className="fixed bottom-5 right-5 bg-green-500 hover:bg-green-600 text-white p-4 rounded-full shadow-lg transition-all duration-300 z-[9999] flex items-center justify-center"
-          style={{ fontSize: "24px" }}
+          className="fixed bottom-5 right-5 bg-green-500 hover:bg-green-600 text-white p-3 rounded-full shadow-lg transition-all duration-300 z-[9999] flex items-center justify-center"
+          aria-label="Chat on WhatsApp"
         >
-          💬
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 32 32"
+            fill="currentColor"
+            className="w-8 h-8"
+          >
+            <path d="M16.003 3C9.374 3 4 8.374 4 15.003c0 2.65.842 5.099 2.276 7.137L4 29l7.077-2.26A11.947 11.947 0 0 0 16.003 27C22.632 27 28 21.626 28 14.997 28 8.374 22.632 3 16.003 3zm5.88 17.238c-.247.693-1.423 1.32-1.962 1.36-.503.038-1.146.054-1.844-.117-.424-.103-.97-.316-1.676-.62-2.946-1.273-4.858-4.144-5.01-4.337-.147-.193-1.198-1.592-1.198-3.038 0-1.446.757-2.157 1.027-2.455.27-.297.592-.372.79-.372.198 0 .395.002.568.01.186.009.442-.071.693.53.25.6.847 2.08.922 2.23.073.147.121.316.025.51-.097.193-.146.315-.293.482-.146.168-.31.374-.44.504-.146.147-.298.31-.128.607.17.297.758 1.253 1.63 2.03 1.12.996 2.065 1.308 2.362 1.457.297.147.466.122.637-.073.17-.195.73-.85.924-1.143.193-.292.392-.244.662-.146.27.098 1.732.818 2.03.967.297.147.495.22.568.343.073.122.073.711-.174 1.403z" />
+          </svg>
         </a>
       </body>
     </html>
