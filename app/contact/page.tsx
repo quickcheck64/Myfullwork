@@ -60,6 +60,19 @@ export default function ContactUs() {
   }
   }
 
+  useEffect(() => {
+  // ✅ Load JivoChat only when Contact page is active
+  const script = document.createElement("script")
+  script.src = "//code.jivosite.com/widget/nYkjqWua55" // replace with your widget ID
+  script.async = true
+  document.body.appendChild(script)
+
+  return () => {
+    // ✅ Clean up if user leaves this page
+    document.body.removeChild(script)
+  }
+}, [])
+
   // Open JivoChat widget when user clicks Start Chat
   const openJivoChat = () => {
     if (typeof window !== "undefined" && (window as any).jivo_api) {
