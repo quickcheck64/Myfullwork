@@ -40,12 +40,12 @@ export default function RootLayout({
           }}
         />
 
-        {/* ✅ Official Telegram Floating Button */}
+        {/* ✅ Official Telegram Floating Button (Animated) */}
         <a
-          href="https://t.me/SmartS9Trading" // 🔹 replace with your actual Telegram username or group link
+          href="https://t.me/SmartS9Trading" // 🔹 replace with your Telegram link
           target="_blank"
           rel="noopener noreferrer"
-          className="fixed bottom-5 right-5 bg-[#0088cc] hover:bg-[#007ab8] text-white p-3 rounded-full shadow-lg transition-all duration-300 z-[9999] flex items-center justify-center"
+          className="fixed bottom-5 right-5 bg-[#0088cc] hover:bg-[#007ab8] text-white p-3 rounded-full shadow-lg transition-all duration-300 z-[9999] flex items-center justify-center animate-telegramPulse"
           aria-label="Chat on Telegram"
         >
           {/* ✅ Official Telegram Paper Plane Logo */}
@@ -61,6 +61,27 @@ export default function RootLayout({
             />
           </svg>
         </a>
+
+        {/* ✅ Animation Styles */}
+        <style jsx global>{`
+          @keyframes telegramPulse {
+            0% {
+              transform: scale(1);
+              box-shadow: 0 0 0 0 rgba(0, 136, 204, 0.6);
+            }
+            70% {
+              transform: scale(1.08);
+              box-shadow: 0 0 15px 10px rgba(0, 136, 204, 0);
+            }
+            100% {
+              transform: scale(1);
+              box-shadow: 0 0 0 0 rgba(0, 136, 204, 0);
+            }
+          }
+          .animate-telegramPulse {
+            animation: telegramPulse 2.5s infinite ease-in-out;
+          }
+        `}</style>
       </body>
     </html>
   )
