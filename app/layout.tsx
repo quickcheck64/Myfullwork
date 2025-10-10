@@ -24,7 +24,7 @@ export default function RootLayout({
       <body>
         <Providers>{children}</Providers>
 
-        {/* ✅ Google Analytics */}
+        {/* ✅ Google Analytics (unchanged) */}
         <script
           async
           src="https://www.googletagmanager.com/gtag/js?id=G-MEGPH5HY68"
@@ -40,24 +40,28 @@ export default function RootLayout({
           }}
         />
 
-        {/* ✅ Telegram Floating Button */}
+        {/* ✅ Official Telegram Floating Button */}
         <a
           href="https://t.me/SmartS9Trading" // 🔹 replace with your actual Telegram username or group link
           target="_blank"
           rel="noopener noreferrer"
-          className="fixed bottom-5 right-5 bg-blue-500 hover:bg-blue-600 text-white p-3 rounded-full shadow-lg transition-all duration-300 z-[9999] flex items-center justify-center"
+          className="fixed bottom-5 right-5 bg-[#0088cc] hover:bg-[#007ab8] text-white p-3 rounded-full shadow-lg transition-all duration-300 z-[9999] flex items-center justify-center"
           aria-label="Chat on Telegram"
         >
+          {/* ✅ Official Telegram Paper Plane Logo */}
           <svg
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 240 240"
-            fill="currentColor"
-            className="w-8 h-8"
+            className="w-8 h-8 fill-current"
           >
-            <path d="M120 0C53.8 0 0 53.8 0 120s53.8 120 120 120 120-53.8 120-120S186.2 0 120 0zm54.5 81.3l-19.7 93c-1.5 6.8-5.6 8.5-11.3 5.3l-31.3-23.1-15.1 14.6c-1.7 1.7-3.1 3.1-6.3 3.1l2.3-32.9 59.9-54.2c2.6-2.3-0.6-3.6-4-1.3l-74.1 46.6-31.9-10c-6.9-2.2-7-6.9 1.4-10.1l124.4-48c5.8-2.1 10.9 1.4 9 10.1z" />
+            <circle cx="120" cy="120" r="120" fill="#0088cc" />
+            <path
+              fill="#ffffff"
+              d="M179 73.3l-24 113.3c-1.8 8.1-6.7 10.1-13.6 6.3l-37.7-27.9-18.1 17.4c-2 2-3.7 3.7-7.3 3.7l2.6-39.1 70.3-63.7c3-2.7-0.7-4.2-4.6-1.5l-86.9 54.6-37.4-11.8c-8.1-2.6-8.2-8.1 1.6-11.9l145.3-56c6.8-2.4 12.8 1.6 10.6 11.1z"
+            />
           </svg>
         </a>
       </body>
     </html>
   )
-            }
+}
