@@ -8,7 +8,7 @@ import "./globals.css"
 export const metadata: Metadata = {
   title: "Crypto Trading Platform",
   description: "Professional cryptocurrency Smart S9 Trading dashboard",
-  generator: "v0.app",
+  generator: "developer",
 }
 
 export default function RootLayout({
