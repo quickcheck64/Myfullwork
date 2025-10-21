@@ -29,12 +29,14 @@ export async function POST(request: Request) {
 
     // Setup SMTP transporter
     const transporter = nodemailer.createTransport({
-      service: "gmail", // or use any SMTP service
-      auth: {
-        user: smtpUser,
-        pass: smtpPass,
-      },
-    })
+  host: "smtp.zoho.com",  // change from Gmail
+  port: 465,               // SSL port
+  secure: true,            // true for port 465
+  auth: {
+    user: smtpUser,        // your Zoho email
+    pass: smtpPass,        // Zoho App Password
+  },
+})
 
     const response = await transporter.sendMail({
       from: `"Smart S9Trading" <${smtpUser}>`,
