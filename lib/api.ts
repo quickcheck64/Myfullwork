@@ -1,7 +1,7 @@
 import { toast } from "@/hooks/use-toast"
 import FingerprintJS from "@fingerprintjs/fingerprintjs"
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "https://chainminer.onrender.com"
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "https://api.smarts9trading.online"
 
 export interface ApiResponse<T> {
   data?: T
