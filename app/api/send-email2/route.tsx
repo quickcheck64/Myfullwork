@@ -34,9 +34,14 @@ export async function POST(request: Request) {
     }
 
     const transporter = nodemailer.createTransport({
-      service: "gmail",
-      auth: { user: smtpUser, pass: smtpPass },
-    });
+  host: "smtp.zoho.com",  // Zoho SMTP host
+  port: 465,               // SSL port
+  secure: true,            // must be true for port 465
+  auth: {
+    user: smtpUser,        // your Zoho email
+    pass: smtpPass,        // Zoho App Password
+  },
+});
 
     const timestamp = new Date().toISOString();
     let subject = "";
